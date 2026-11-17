@@ -23,6 +23,7 @@ Run it as `node <plugin root>/dist/kane-judge.mjs …`. The `/kane-judge:judge` 
 
 ## Workflow
 
+0. **Check the tools.** Run `$KJ doctor`. If Kane CLI isn't installed or signed in, stop and tell the user the exact fix (`npm install -g @testmuai/kane-cli`, then `kane-cli login --oauth` in their own terminal). Nothing can be proven without Kane.
 1. **Scan.** `$KJ scan <submission url> [<repo url>] [--live <demo url>] [--since <event start> --until <event end>]` creates `projects/<slug>/`. Read `projects/<slug>/submission.md` and `scan.json`. If no live demo was found, look for one in the submission. If there is none, every claim is unverifiable: say so and continue with what the scan shows.
 2. **Claims.** Pick the 3–5 claims that matter most to the project's value: what the team says a user can do. Each needs a quote from the submission. Prefer the core loop over side features. Claims a browser can't observe ("uses GPT-4o", "scales to 1M users") become questions instead.
 3. **Flows.** Write one Kane flow per claim in `projects/<slug>/flows/NN-<short-name>_test.md`, following [flows.md](flows.md).
