@@ -1,0 +1,6 @@
+[
+  { "id": "field-notebook", "name": "Field Notebook", "priceCents": 1800, "blurb": "Dot grid, 96 pages, lies flat." },
+  { "id": "brass-pen", "name": "Brass Pen", "priceCents": 4200, "blurb": "Machined brass, writes for years." },
+  { "id": "ink-sampler", "name": "Ink Sampler", "priceCents": 1250, "blurb": "Six 5 ml bottles of house inks." },
+  { "id": "desk-mat", "name": "Desk Mat", "priceCents": 2900, "blurb": "Felt and cork, 70 x 30 cm." }
+]

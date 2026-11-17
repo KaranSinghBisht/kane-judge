@@ -1,0 +1,13 @@
+node_modules/
+coverage/
+*.log
+.DS_Store
+
+# Kane Gate per-session state and Kane run artifacts
+.kane-gate/
+.testmuai/evidence/
+**/.testmuai/evidence/
+
+# Local agent tooling state
+.omc/
+**/.omc/

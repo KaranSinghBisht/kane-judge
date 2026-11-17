@@ -1,0 +1,22 @@
+{
+  "experiments": [
+    {
+      "id": "hero-copy-v2",
+      "owner": "growth",
+      "status": "stopped",
+      "selector": ".hero h1",
+      "action": "swap-text",
+      "params": { "text": "Write it down." }
+    },
+    {
+      "id": "compact-order-summary",
+      "owner": "growth",
+      "status": "running",
+      "rollout": 100,
+      "started": "2026-07-02",
+      "selector": "#order-summary",
+      "action": "limit-rows",
+      "params": { "maxRows": 3 }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout · Inkwell Supply Co.</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="/">Inkwell Supply Co.</a>
+    <a class="cart-link" href="/checkout.html">Cart <span id="cart-count" class="badge" aria-label="items in cart">0</span></a>
+  </header>
+  <main class="checkout">
+    <h1>Checkout</h1>
+    <p id="empty" hidden>Your cart is empty. <a href="/">Browse the shop</a>.</p>
+    <div id="checkout-body" class="checkout-grid">
+      <section class="panel">
+        <h2>Your items</h2>
+        <ul id="items" class="items"></ul>
+        <h2>Order summary</h2>
+        <div id="order-summary" class="summary" aria-live="polite"></div>
+      </section>
+      <form id="checkout-form" class="panel">
+        <h2>Payment</h2>
+        <label>Full name <input name="name" autocomplete="name" required></label>
+        <label>Email <input name="email" type="email" autocomplete="email" required></label>
+        <label>Card number <input name="card" inputmode="numeric" autocomplete="cc-number" required></label>
+        <div class="pair">
+          <label>Expiry (MM/YY) <input name="expiry" autocomplete="cc-exp" required></label>
+          <label>CVC <input name="cvc" inputmode="numeric" autocomplete="cc-csc" required></label>
+        </div>
+        <button id="pay" type="submit">Pay</button>
+        <p id="form-error" class="error" role="alert" hidden></p>
+      </form>
+    </div>
+    <section id="confirmation" class="confirmation" hidden>
+      <h2>Order confirmed</h2>
+      <p id="confirmation-text"></p>
+      <a href="/">Keep shopping</a>
+    </section>
+  </main>
+  <script type="module" src="/js/experiments.js"></script>
+  <script type="module" src="/js/checkout.js"></script>
+</body>
+</html>

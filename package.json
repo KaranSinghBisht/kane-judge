@@ -1,0 +1,53 @@
+{
+  "name": "kane-gate",
+  "version": "0.1.0",
+  "description": "Your coding agent can't say 'done' until a real browser agrees. A Claude Code plugin that gates every stop on Kane CLI browser flows.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "kane-gate": "dist/kane-gate.mjs"
+  },
+  "files": [
+    "dist/",
+    "hooks/",
+    "commands/",
+    "skills/",
+    "bin/",
+    ".claude-plugin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "demo:setup": "node scripts/demo-setup.mjs"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-plugin",
+    "kane-cli",
+    "testmu",
+    "e2e",
+    "browser-testing",
+    "hooks",
+    "ai-agents"
+  ],
+  "dependencies": {
+    "fflate": "0.8.3",
+    "picomatch": "4.0.7",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "@types/picomatch": "4.0.2",
+    "esbuild": "0.27.0",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}

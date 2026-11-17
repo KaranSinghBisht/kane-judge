@@ -1,0 +1,11 @@
+{
+  "name": "inkwell-shop",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tiny demo storefront used to show Kane Gate. No dependencies.",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}
