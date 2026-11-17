@@ -6,7 +6,7 @@ This script reproduces the demo video. It takes about 15 minutes of real time; t
 
 ```bash
 kane-cli whoami                     # signed in? (kane-cli login --oauth)
-kane-cli balance                    # one project used 145–640 credits in our tests, depending on investigation rounds
+kane-cli balance                    # one project used 145–1,350 credits in our tests, depending on rounds
 mkdir -p ~/kane-judge-demo && cd ~/kane-judge-demo
 export KANE_JUDGE_HEADED=1          # show Kane's Chrome windows (omit for headless)
 claude                              # with the plugin installed, or: claude --plugin-dir <your kane-judge clone>
