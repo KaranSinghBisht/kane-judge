@@ -98,6 +98,20 @@ function factsSection(scan?: ScanResult): string {
   ].join("")}</div>`;
 }
 
+function runsSection(results?: KaneResults): string {
+  if (!results || results.runs.length === 0) return "";
+  const rows = results.runs
+    .map(
+      (r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.at.slice(0, 16).replace("T", " "))}</td><td>${escapeHtml(r.flows.join(", "))}</td>
+<td>${escapeHtml(r.outcome)}</td><td>${escapeHtml(r.durationS)}s</td><td>${escapeHtml(r.evidencePath?.split("/").pop()?.slice(0, 13) ?? r.reason ?? "")}</td></tr>`,
+    )
+    .join("");
+  const flows = Object.values(results.flows);
+  const authored = flows.filter((f) => f.authored).length;
+  return `<h2>Kane runs</h2><p class="muted">${results.runs.length} run(s) of ${flows.length} flow(s) in real Chrome via <code>kane-cli testrun</code>; ${authored} flow(s) authored by Kane's AI, the rest replayed from cache. Every run sealed an evidence pack.</p>
+<table><thead><tr><th>#</th><th>When (UTC)</th><th>Flows</th><th>Outcome</th><th>Time</th><th>Evidence pack</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
 /** The scorecard: one self-contained HTML page per project. */
 export function renderScorecard(input: ScorecardInput): string {
   const v = input.verdict;
@@ -110,6 +124,7 @@ export function renderScorecard(input: ScorecardInput): string {
     `<h2>Claims, tested in a real browser</h2>${v.claims.map((c) => claimCard(c, input)).join("")}`,
     flagsSection(v, input.scan),
     questions,
+    runsSection(input.results),
     factsSection(input.scan),
     `<footer>Judged by Kane Judge${v.judgedAt ? ` on ${escapeHtml(v.judgedAt.slice(0, 10))}` : ""} · evidence from Kane CLI (TestMu AI) · first-round triage for human judges, not a final decision.</footer>`,
   ];
