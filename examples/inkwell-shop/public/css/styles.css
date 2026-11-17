@@ -12,6 +12,7 @@
   background: var(--paper);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; }
 a { color: var(--accent); }
 .site-header {
