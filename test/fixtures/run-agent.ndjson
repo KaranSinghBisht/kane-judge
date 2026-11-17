@@ -1,0 +1,5 @@
+Kane CLI banner
+{"v":1,"ts":"2026-11-17T13:00:00.000Z","step":1,"status":"running","remark":"Opening the page"}
+{"v":1,"ts":"2026-11-17T13:00:02.000Z","step":1,"status":"passed"}
+{"v":1,"ts":"2026-11-17T13:00:03.000Z","step":2,"status":"failed","remark":"Add to cart button not found"}
+{"v":1,"ts":"2026-11-17T13:00:14.000Z","type":"run_end","status":"failed","summary":"Could not add the notebook to the cart","one_liner":"Cart step failed","reason":"Button missing","duration":14.2,"credits":1.5,"final_state":{"url":"http://localhost:4173"},"session_dir":"/tmp/kane-session","test_url":"https://example.test/t/1"}

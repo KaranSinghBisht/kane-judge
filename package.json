@@ -1,18 +1,16 @@
 {
-  "name": "kane-gate",
+  "name": "kane-judge",
   "version": "0.1.0",
-  "description": "Your coding agent can't say 'done' until a real browser agrees. A Claude Code plugin that gates every stop on Kane CLI browser flows.",
+  "description": "Judge hackathon projects by using their live demos: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin.",
   "type": "module",
   "license": "Apache-2.0",
   "bin": {
-    "kane-gate": "dist/kane-gate.mjs"
+    "kane-judge": "dist/kane-judge.mjs"
   },
   "files": [
     "dist/",
-    "hooks/",
-    "commands/",
     "skills/",
-    "bin/",
+    "commands/",
     ".claude-plugin/",
     "README.md",
     "LICENSE"
@@ -25,17 +23,17 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run test && npm run build",
-    "demo:setup": "node scripts/demo-setup.mjs"
+    "check": "npm run typecheck && npm run test && npm run build"
   },
   "keywords": [
     "claude-code",
     "claude-code-plugin",
     "kane-cli",
     "testmu",
+    "hackathon",
+    "judging",
     "e2e",
     "browser-testing",
-    "hooks",
     "ai-agents"
   ],
   "dependencies": {
@@ -49,5 +47,10 @@
     "esbuild": "0.27.0",
     "typescript": "5.9.3",
     "vitest": "5.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaranSinghBisht/kane-judge.git"
+  },
+  "homepage": "https://github.com/KaranSinghBisht/kane-judge"
 }

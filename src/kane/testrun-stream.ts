@@ -74,11 +74,16 @@ function toOverall(value: string | undefined): TestrunSummary["status"] | undefi
   return undefined;
 }
 
+/** Copies only the fields that are set, so a later event never erases what an earlier one reported. */
+function definedFields(member: MemberResult): Partial<MemberResult> {
+  return Object.fromEntries(Object.entries(member).filter(([, v]) => v !== undefined)) as Partial<MemberResult>;
+}
+
 /** Same test may appear in a replay pass and an author pass; the last end event wins. Match by file name. */
 function upsertMember(members: MemberResult[], next: MemberResult): void {
   const base = (p: string) => p.split(/[\\/]/).pop() ?? p;
   const idx = members.findIndex((m) => base(m.path) === base(next.path));
-  if (idx >= 0) members[idx] = { ...members[idx], ...next } as MemberResult;
+  if (idx >= 0) members[idx] = { ...members[idx], ...definedFields(next) } as MemberResult;
   else members.push(next);
 }
 

@@ -3,7 +3,7 @@
 import { build } from "esbuild";
 import { chmod } from "node:fs/promises";
 
-const outfile = "dist/kane-gate.mjs";
+const outfile = "dist/kane-judge.mjs";
 
 await build({
   entryPoints: ["src/cli/main.ts"],

@@ -161,6 +161,25 @@ export async function readFailureEvidence(packPath: string, target: PackTarget):
   return ev;
 }
 
+/** Extracts the last step's screenshot: proof of where a passing flow ended up. */
+export async function readProofScreenshot(packPath: string, target: PackTarget & { screenshotTo: string }): Promise<string | undefined> {
+  let zip: ZipReader;
+  try {
+    zip = await ZipReader.open(packPath);
+  } catch (err) {
+    log.warn(`could not open evidence pack ${packPath}: ${safeMessage(err)}`);
+    return undefined;
+  }
+  const testDir = pickTestDir(zip, target);
+  if (!testDir) return undefined;
+  const shots = zip.names
+    .filter((n) => n.startsWith(`${testDir}/steps/`) && n.endsWith("/screenshot.png"))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  const last = shots[shots.length - 1];
+  if (!last) return undefined;
+  return (await writeEntry(zip, last, target.screenshotTo)) ? target.screenshotTo : undefined;
+}
+
 async function writeEntry(zip: ZipReader, entry: string, destination: string): Promise<boolean> {
   const bytes = zip.readBytes([entry]).get(entry);
   if (!bytes) return false;

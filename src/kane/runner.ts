@@ -1,6 +1,5 @@
 import { readFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
-import type { KaneGateConfig } from "../config/schema.js";
 import type { Flow } from "../flows/discover.js";
 import { redact, safeMessage } from "../shared/errors.js";
 import { log } from "../shared/logger.js";
@@ -8,6 +7,21 @@ import { runCommand, type RunResult } from "../shared/proc.js";
 import { parseNdjson, parseNdjsonLine, type KaneEvent } from "./ndjson.js";
 import { summarizeTestMdStream, type TestMdStep, type TestMdSummary } from "./testmd-stream.js";
 import { failedMembers, summarizeTestrunStream, type MemberResult, type TestrunSummary } from "./testrun-stream.js";
+
+/** How Kane CLI is invoked for one batch of flows. */
+export interface KaneRunConfig {
+  /** kane-cli executable (resolved on PATH, spawned without a shell). */
+  kaneBin: string;
+  /** Parallel Chrome workers for `kane-cli testrun run`. */
+  parallel: number;
+  headless: boolean;
+  /** Wall-clock limit for the whole Kane run, in seconds. */
+  timeoutSec: number;
+  /** Passed through as `--bug-detection` when set. */
+  bugDetection?: "off" | "stop" | "continue";
+}
+
+export const DEFAULT_RUN_CONFIG: KaneRunConfig = { kaneBin: "kane-cli", parallel: 2, headless: true, timeoutSec: 900 };
 
 export interface FlowFailure {
   flow?: Flow;
@@ -21,13 +35,17 @@ interface Timed {
   durationMs: number;
 }
 
+/** Each member's own testmd event log, keyed by member path. */
+export type MemberLogs = Map<string, TestMdSummary>;
+
 export type KaneOutcome =
-  | ({ kind: "passed"; summary: TestrunSummary; evidencePath?: string } & Timed)
+  | ({ kind: "passed"; summary: TestrunSummary; evidencePath?: string; memberLogs: MemberLogs } & Timed)
   | ({
       kind: "failed";
       summary: TestrunSummary;
       failures: FlowFailure[];
       evidencePath?: string;
+      memberLogs: MemberLogs;
       /** Kane's own error output, when it reported a failure without per-test detail. */
       detail?: string;
     } & Timed)
@@ -36,7 +54,7 @@ export type KaneOutcome =
 
 export interface RunKaneOptions {
   projectDir: string;
-  config: KaneGateConfig;
+  config: KaneRunConfig;
   flows: Flow[];
   /** Short label for the run title in Test Manager ([A-Za-z0-9_-] only). */
   label: string;
@@ -44,7 +62,7 @@ export interface RunKaneOptions {
 }
 
 /** argv for `kane-cli testrun run`: one execution, one evidence pack, NDJSON on stdout. */
-export function buildTestrunArgs(flows: Flow[], config: KaneGateConfig, label: string): string[] {
+export function buildTestrunArgs(flows: Flow[], config: KaneRunConfig, label: string): string[] {
   const args = ["testrun", "run", ...flows.map((f) => f.file), "--agent", "--parallel", String(config.parallel)];
   if (config.headless) args.push("--headless");
   if (config.bugDetection) args.push("--bug-detection", config.bugDetection);
@@ -55,7 +73,7 @@ export function buildTestrunArgs(flows: Flow[], config: KaneGateConfig, label: s
 
 const ANSI = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
 
-/** Last meaningful stderr lines, without colour codes or anything that looks like a secret. */
+/** Last meaningful stderr lines, without colour codes, update notices or anything that looks like a secret. */
 export function stderrTail(stderr: string, maxLines = 12): string {
   const lines = stderr
     .replace(ANSI, "")
@@ -87,16 +105,24 @@ async function readMemberLog(logPath: string | undefined): Promise<TestMdSummary
   }
 }
 
-async function collectFailures(summary: TestrunSummary, flows: Flow[], projectDir: string): Promise<FlowFailure[]> {
-  const failures: FlowFailure[] = [];
-  for (const member of failedMembers(summary)) {
+/** Reads every member's own event log (steps, Kane's remarks, share URL). Missing logs are skipped. */
+export async function readMemberLogs(summary: TestrunSummary): Promise<MemberLogs> {
+  const logs: MemberLogs = new Map();
+  for (const member of summary.members) {
     const memberLog = await readMemberLog(member.logPath);
+    if (memberLog) logs.set(member.path, memberLog);
+  }
+  return logs;
+}
+
+function collectFailures(summary: TestrunSummary, logs: MemberLogs, flows: Flow[], projectDir: string): FlowFailure[] {
+  return failedMembers(summary).map((member) => {
+    const memberLog = logs.get(member.path);
     const wanted = member.failure?.stepIndex;
     const step =
       (wanted !== undefined ? memberLog?.steps.find((s) => s.index === wanted) : undefined) ?? memberLog?.failedStep;
-    failures.push({ flow: flows.find((f) => sameFile(member.path, f.file, projectDir)), member, step, memberLog });
-  }
-  return failures;
+    return { flow: flows.find((f) => sameFile(member.path, f.file, projectDir)), member, step, memberLog };
+  });
 }
 
 function describeErrors(summary: TestrunSummary): string | undefined {
@@ -108,14 +134,14 @@ function describeErrors(summary: TestrunSummary): string | undefined {
   return all.length ? redact(all.join("\n")) : undefined;
 }
 
-function spawnFailure(result: RunResult, config: KaneGateConfig): string {
+function spawnFailure(result: RunResult, config: KaneRunConfig): string {
   if (result.spawnError?.code === "ENOENT") {
     return `"${config.kaneBin}" was not found on PATH. Install Kane CLI with: npm install -g @testmuai/kane-cli`;
   }
   return `could not start ${config.kaneBin}: ${safeMessage(result.spawnError)}`;
 }
 
-/** Turns a finished kane-cli process into a gate outcome. Exit codes: 0 pass, 1 fail, 2 setup error, 3 timeout. */
+/** Turns a finished kane-cli process into an outcome. Exit codes: 0 pass, 1 fail, 2 setup error, 3 timeout. */
 export async function classifyRun(
   result: RunResult,
   summary: TestrunSummary,
@@ -125,14 +151,15 @@ export async function classifyRun(
   const durationMs = result.durationMs;
   if (result.spawnError) return { kind: "error", exitCode: null, reason: spawnFailure(result, opts.config), durationMs };
   if (result.timedOut) {
-    const reason = `Kane did not finish within ${opts.config.timeoutSec}s (timeoutSec) and was stopped`;
+    const reason = `Kane did not finish within ${opts.config.timeoutSec}s and was stopped`;
     return { kind: "timeout", reason, evidencePath, durationMs };
   }
-  const failures = await collectFailures(summary, opts.flows, opts.projectDir);
-  if (result.exitCode === 0 && failures.length === 0) return { kind: "passed", summary, evidencePath, durationMs };
+  const memberLogs = await readMemberLogs(summary);
+  const failures = collectFailures(summary, memberLogs, opts.flows, opts.projectDir);
+  if (result.exitCode === 0 && failures.length === 0) return { kind: "passed", summary, evidencePath, memberLogs, durationMs };
   if (result.exitCode === 0 || result.exitCode === 1) {
     const detail = failures.length === 0 ? describeErrors(summary) ?? (stderrTail(result.stderr) || undefined) : undefined;
-    return { kind: "failed", summary, failures, evidencePath, durationMs, detail };
+    return { kind: "failed", summary, failures, evidencePath, memberLogs, durationMs, detail };
   }
   if (result.exitCode === 3) {
     return { kind: "timeout", reason: "Kane reported the run as cancelled or timed out (exit 3)", evidencePath, durationMs };

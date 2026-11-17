@@ -1,10 +1,10 @@
 {
-  "name": "kane-gate",
+  "name": "kane-judge",
   "version": "0.1.0",
-  "description": "Claude can't say \"done\" until a real browser agrees. Every stop is gated on Kane CLI flows; failures go back to Claude with the failing step, console errors and a screenshot.",
+  "description": "Judge hackathon projects by using their live demos: claims become Kane CLI browser tests, failures are investigated, and every verdict points at evidence.",
   "author": { "name": "Karan Singh Bisht", "url": "https://github.com/KaranSinghBisht" },
-  "homepage": "https://github.com/KaranSinghBisht/kane-gate",
-  "repository": "https://github.com/KaranSinghBisht/kane-gate",
+  "homepage": "https://github.com/KaranSinghBisht/kane-judge",
+  "repository": "https://github.com/KaranSinghBisht/kane-judge",
   "license": "Apache-2.0",
-  "keywords": ["kane-cli", "testmu", "e2e", "browser-testing", "hooks", "verification"]
+  "keywords": ["hackathon", "judging", "kane-cli", "testmu", "e2e", "browser-testing", "evaluation"]
 }

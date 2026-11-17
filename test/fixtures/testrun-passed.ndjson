@@ -1,0 +1,9 @@
+{"v":1,"ts":"2026-11-17T11:00:00.000Z","type":"stream_start","cli_version":"0.10.5"}
+{"v":1,"ts":"2026-11-17T11:00:00.100Z","type":"testrun_plan","members":[{"path":"kane/flows/checkout_test.md"},{"path":"kane/flows/promo_test.md"}],"valid":true,"parallel":2}
+{"v":1,"ts":"2026-11-17T11:00:00.200Z","type":"testrun_start","execution_id":"exec-2","members":["kane/flows/checkout_test.md","kane/flows/promo_test.md"],"parallel":2}
+{"v":1,"ts":"2026-11-17T11:00:01.000Z","type":"testrun_member_start","path":"kane/flows/checkout_test.md","test_id":"t-1","log_path":"/abs/logs/checkout.ndjson"}
+{"v":1,"ts":"2026-11-17T11:00:01.100Z","type":"testrun_authored_member_start","path":"kane/flows/promo_test.md","test_id":"t-2","log_path":"/abs/logs/promo.ndjson"}
+{"v":1,"ts":"2026-11-17T11:00:20.000Z","type":"testrun_member_end","path":"kane/flows/checkout_test.md","test_id":"t-1","status":"passed","duration_s":19}
+{"v":1,"ts":"2026-11-17T11:00:40.000Z","type":"testrun_authored_member_end","path":"kane/flows/promo_test.md","test_id":"t-2","status":"passed","duration_s":39}
+{"v":1,"ts":"2026-11-17T11:00:41.000Z","type":"testrun_summary","execution":{"id":"exec-2","status":"passed"},"authored":["kane/flows/promo_test.md"],"totals":{"passed":2,"failed":0,"broken":0,"skipped":0},"duration_s":41,"upload":"ok","cancelled":false}
+{"v":1,"ts":"2026-11-17T11:00:41.100Z","type":"testrun_done","execution_id":"exec-2","overall_status":"passed"}

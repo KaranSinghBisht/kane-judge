@@ -1,36 +1,60 @@
-import { realpathSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { safeMessage } from "../shared/errors.js";
 import { log, out } from "../shared/logger.js";
-import { hookCommand } from "./commands/hook.js";
-import { initCommand } from "./commands/init.js";
-import { runVerifyCommand } from "./commands/run.js";
-import { statusCommand } from "./commands/status.js";
+import { doctorCommand } from "./commands/doctor.js";
+import { boardCommand, reportCommand } from "./commands/report.js";
+import { runFlowsCommand } from "./commands/run.js";
+import { scanCommand } from "./commands/scan.js";
 
 const VERSION = "0.1.0";
 
-const HELP = `kane-gate ${VERSION}: your coding agent can't say "done" until a real browser agrees.
+const HELP = `kane-judge ${VERSION}: judge hackathon projects by using their live demos, with Kane CLI.
 
 Usage:
-  kane-gate init [--url <url>] [--dev-command "<cmd>"] [--flows-dir <dir>] [--plugin] [--local] [--force]
-      Create kane-gate.json and an example flow, wire the Claude Code hooks
-      (skip with --plugin when using the plugin), update .gitignore, check Kane CLI.
-  kane-gate run [--all] [--flow <name>]... [--json]
-      Verify now: run the Kane flows affected by changes since the last green run.
-  kane-gate status
-      Show the config, flows and what they cover, pending changes, and gate state.
-  kane-gate hook <stop|guard|session-start|session-end>
-      Claude Code hook entry point (reads the hook JSON on stdin).
+  kane-judge scan <submission-url|repo-url>... [--live <url>] [--name <name>] [--slug <slug>]
+                  [--since <date>] [--until <date>] [--workspace <dir>]
+      Read the submission page and repo (never runs project code) into projects/<slug>/.
+  kane-judge run <project-dir> [--only <flow>]... [--headed] [--parallel <n>] [--timeout <sec>]
+      Run the project's Kane flows in real Chrome; save evidence to kane-results.json.
+  kane-judge report <project-dir>
+      Validate verdict.json and write scorecard.html and report.md.
+  kane-judge board [<workspace>]
+      Rank every judged project: SCOREBOARD.md and scoreboard.html.
+  kane-judge doctor
+      Check Kane CLI (installed, signed in), Chrome and the GitHub CLI.
 
-Exit codes for run: 0 verified (or nothing to verify), 1 a flow failed, 2 setup problem.`;
+Exit codes: 0 ok, 2 setup problem or invalid input.`;
 
-function scriptPath(): string {
-  const entry = process.argv[1] ?? "";
-  try {
-    return realpathSync(entry);
-  } catch {
-    return entry;
-  }
+function intOption(value: string | undefined, name: string, range: [number, number]): number | undefined {
+  if (value === undefined) return undefined;
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < range[0] || n > range[1]) throw new Error(`${name} must be an integer from ${range[0]} to ${range[1]}`);
+  return n;
+}
+
+async function scan(rest: string[]): Promise<number> {
+  const { values, positionals } = parseArgs({
+    args: rest,
+    allowPositionals: true,
+    options: { live: { type: "string" }, name: { type: "string" }, slug: { type: "string" }, since: { type: "string" }, until: { type: "string" }, workspace: { type: "string" } },
+  });
+  return scanCommand({ inputs: positionals, ...values, workspace: values.workspace ?? process.cwd() });
+}
+
+async function run(rest: string[]): Promise<number> {
+  const { values, positionals } = parseArgs({
+    args: rest,
+    allowPositionals: true,
+    options: { only: { type: "string", multiple: true }, headed: { type: "boolean", default: false }, parallel: { type: "string" }, timeout: { type: "string" } },
+  });
+  const dir = positionals[0];
+  if (!dir) throw new Error("usage: kane-judge run <project-dir>");
+  const config = {
+    headless: !values.headed,
+    ...(values.parallel ? { parallel: intOption(values.parallel, "--parallel", [1, 8]) } : {}),
+    ...(values.timeout ? { timeoutSec: intOption(values.timeout, "--timeout", [30, 3600]) } : {}),
+  };
+  return runFlowsCommand({ dir, only: (values.only ?? []).flatMap((o) => o.split(",")).map((o) => o.trim()).filter(Boolean), config });
 }
 
 async function main(argv: string[]): Promise<number> {
@@ -43,40 +67,11 @@ async function main(argv: string[]): Promise<number> {
     out(VERSION);
     return 0;
   }
-  if (command === "hook") return hookCommand(rest[0]);
-  if (command === "status") return statusCommand(process.cwd());
-  if (command === "run") {
-    const { values } = parseArgs({
-      args: rest,
-      options: { all: { type: "boolean", default: false }, flow: { type: "string", multiple: true }, json: { type: "boolean", default: false } },
-      strict: true,
-    });
-    return runVerifyCommand({ cwd: process.cwd(), all: values.all ?? false, flows: values.flow ?? [], json: values.json ?? false });
-  }
-  if (command === "init") {
-    const { values } = parseArgs({
-      args: rest,
-      options: {
-        url: { type: "string" },
-        "dev-command": { type: "string" },
-        "flows-dir": { type: "string" },
-        plugin: { type: "boolean", default: false },
-        local: { type: "boolean", default: false },
-        force: { type: "boolean", default: false },
-      },
-      strict: true,
-    });
-    return initCommand({
-      cwd: process.cwd(),
-      url: values.url,
-      devCommand: values["dev-command"],
-      flowsDir: values["flows-dir"],
-      plugin: values.plugin ?? false,
-      local: values.local ?? false,
-      force: values.force ?? false,
-      scriptPath: scriptPath(),
-    });
-  }
+  if (command === "scan") return scan(rest);
+  if (command === "run") return run(rest);
+  if (command === "report") return rest[0] ? reportCommand(rest[0]) : (out("usage: kane-judge report <project-dir>"), 2);
+  if (command === "board") return boardCommand(rest[0] ?? process.cwd());
+  if (command === "doctor") return doctorCommand();
   out(`Unknown command "${command}".\n\n${HELP}`);
   return 2;
 }

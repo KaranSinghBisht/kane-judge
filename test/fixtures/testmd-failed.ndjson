@@ -1,0 +1,10 @@
+{"v":1,"ts":"2026-11-17T10:00:02.000Z","type":"test_md_step_start","step_index":0,"heading":"Put a notebook in the cart"}
+{"v":1,"ts":"2026-11-17T10:00:03.000Z","step":1,"status":"running","remark":"Clicking Add to cart"}
+{"v":1,"ts":"2026-11-17T10:00:10.000Z","type":"run_end","status":"passed","summary":"The notebook is in the cart","reason":"Objective completed","duration":8.1}
+{"v":1,"ts":"2026-11-17T10:00:11.000Z","type":"test_md_step_end","step_index":0,"status":"passed","duration_s":9,"failed_sub_step_index":null}
+{"v":1,"ts":"2026-11-17T10:00:12.000Z","type":"test_md_step_start","step_index":1,"heading":"Apply the SAVE10 code"}
+{"v":1,"ts":"2026-11-17T10:00:20.000Z","type":"step_end","index":0,"status":"failed","summary":"The order summary shows no Total row"}
+{"v":1,"ts":"2026-11-17T10:00:31.000Z","type":"run_end","status":"failed","summary":"The order summary shows no Total row","reason":"Expected a Total row after applying the code","duration":20.5}
+{"v":1,"ts":"2026-11-17T10:00:32.000Z","type":"test_md_step_end","step_index":1,"status":"failed","duration_s":20,"failed_sub_step_index":null}
+{"v":1,"ts":"2026-11-17T10:00:45.000Z","type":"test_md_summary","overall_status":"failed","duration_s":45,"steps":{"author_decisions":3,"replay_decisions":0}}
+{"v":1,"ts":"2026-11-17T10:00:45.100Z","type":"test_md_done","overall_status":"failed","duration_s":45,"session_id":"sess-1","share_url":"https://example.test/run/1"}
