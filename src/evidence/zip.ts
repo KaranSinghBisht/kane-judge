@@ -1,6 +1,6 @@
 import { readFile, stat } from "node:fs/promises";
 import { strFromU8, unzipSync } from "fflate";
-import { KaneGateError } from "../shared/errors.js";
+import { KaneJudgeError } from "../shared/errors.js";
 
 /** Packs bigger than this are not opened (the report then just links the pack). */
 const MAX_PACK_BYTES = 400 * 1024 * 1024;
@@ -18,7 +18,7 @@ export class ZipReader {
   static async open(path: string): Promise<ZipReader> {
     const info = await stat(path);
     if (info.size > MAX_PACK_BYTES) {
-      throw new KaneGateError(`evidence pack is too large to inspect (${Math.round(info.size / 1e6)} MB)`, "PACK_TOO_LARGE");
+      throw new KaneJudgeError(`evidence pack is too large to inspect (${Math.round(info.size / 1e6)} MB)`, "PACK_TOO_LARGE");
     }
     const data = new Uint8Array(await readFile(path));
     return ZipReader.fromBytes(data);

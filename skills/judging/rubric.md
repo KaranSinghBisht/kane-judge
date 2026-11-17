@@ -24,7 +24,7 @@ To judge with an event's own criteria, put them in `rubric.md` in the working fo
 
 ```markdown
 # KaneCLI Online Hackathon rubric
-Gate bars (miss one and the rest can't be scored): it works end to end; Kane CLI caught or proved something; the agent and Kane CLI talked to each other.
+Bars (miss one and the rest can't be scored): it works end to end; Kane CLI caught or proved something; the agent and Kane CLI talked to each other.
 - Ships (0–10): a real flow that runs end to end. Not slides.
 - Verified (0–10): Kane CLI caught or confirmed something meaningful.
 - Closed loop (0–10): Kane's result feeds back to the agent. Tighter is better.

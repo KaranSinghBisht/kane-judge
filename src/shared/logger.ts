@@ -4,7 +4,7 @@ import { dirname } from "node:path";
 /**
  * Tiny logger. Diagnostics go to stderr (never stdout: in hook mode stdout
  * carries the JSON decision Claude Code reads) and, when configured, to a log
- * file inside `.kane-gate/`. Debug lines only appear with KANE_GATE_DEBUG=1.
+ * file inside the project folder. Debug lines only appear with KANE_JUDGE_DEBUG=1.
  */
 type Level = "debug" | "info" | "warn" | "error";
 
@@ -17,7 +17,7 @@ export function configureLogger(opts: { file?: string; stderr?: boolean }): void
 }
 
 function debugEnabled(): boolean {
-  const v = process.env.KANE_GATE_DEBUG;
+  const v = process.env.KANE_JUDGE_DEBUG;
   return v === "1" || v === "true";
 }
 
@@ -29,13 +29,13 @@ function write(level: Level, message: string): void {
       mkdirSync(dirname(logFile), { recursive: true });
       appendFileSync(logFile, line);
     } catch {
-      // The log file is best-effort: a read-only checkout must not break the gate.
+      // The log file is best-effort: a read-only checkout must not break a run.
       // Fall through to stderr so the line is not lost.
-      process.stderr.write(`kane-gate: could not write log file ${logFile}\n`);
+      process.stderr.write(`kane-judge: could not write log file ${logFile}\n`);
     }
   }
   if (echoToStderr && (level !== "debug" || debugEnabled())) {
-    process.stderr.write(`kane-gate ${level}: ${message}\n`);
+    process.stderr.write(`kane-judge ${level}: ${message}\n`);
   }
 }
 

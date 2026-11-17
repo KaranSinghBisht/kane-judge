@@ -2,13 +2,13 @@
  * Errors with messages that are safe to show to the user or to Claude:
  * no stack traces, no secrets, no raw environment dumps.
  */
-export class KaneGateError extends Error {
+export class KaneJudgeError extends Error {
   readonly code: string;
   readonly hint: string | undefined;
 
-  constructor(message: string, code = "KANE_GATE_ERROR", hint?: string) {
+  constructor(message: string, code = "KANE_JUDGE_ERROR", hint?: string) {
     super(message);
-    this.name = "KaneGateError";
+    this.name = "KaneJudgeError";
     this.code = code;
     this.hint = hint;
   }
@@ -39,7 +39,7 @@ function isErrnoException(err: unknown): err is NodeJS.ErrnoException {
 
 /** One-line, user-safe description of any thrown value. */
 export function safeMessage(err: unknown): string {
-  if (err instanceof KaneGateError) return redact(err.message);
+  if (err instanceof KaneJudgeError) return redact(err.message);
   if (isErrnoException(err)) {
     const where = err.path ? ` (${err.path})` : "";
     return redact(`${err.code}${err.syscall ? ` during ${err.syscall}` : ""}${where}`);

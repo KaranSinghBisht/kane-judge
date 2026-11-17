@@ -6,7 +6,7 @@ const FLOWS = [makeFlow("checkout"), makeFlow("admin/users")];
 
 describe("buildTestrunArgs", () => {
   it("runs every flow file in one agent-mode execution with the configured parallelism", () => {
-    expect(buildTestrunArgs(FLOWS, makeConfig(), "gate")).toEqual([
+    expect(buildTestrunArgs(FLOWS, makeConfig(), "judge")).toEqual([
       "testrun",
       "run",
       "kane/flows/checkout_test.md",
@@ -16,26 +16,26 @@ describe("buildTestrunArgs", () => {
       "2",
       "--headless",
       "--name",
-      "gate",
+      "judge",
     ]);
   });
 
   it("omits --headless when headless is off", () => {
-    expect(buildTestrunArgs(FLOWS, makeConfig({ headless: false }), "gate")).not.toContain("--headless");
+    expect(buildTestrunArgs(FLOWS, makeConfig({ headless: false }), "judge")).not.toContain("--headless");
   });
 
   it("passes the parallel worker count as its own argument", () => {
-    const args = buildTestrunArgs(FLOWS, makeConfig({ parallel: 5 }), "gate");
+    const args = buildTestrunArgs(FLOWS, makeConfig({ parallel: 5 }), "judge");
     expect(args[args.indexOf("--parallel") + 1]).toBe("5");
   });
 
   it.each(["off", "stop", "continue"] as const)("passes --bug-detection %s through", (mode) => {
-    const args = buildTestrunArgs(FLOWS, makeConfig({ bugDetection: mode }), "gate");
+    const args = buildTestrunArgs(FLOWS, makeConfig({ bugDetection: mode }), "judge");
     expect(args[args.indexOf("--bug-detection") + 1]).toBe(mode);
   });
 
   it("omits --bug-detection when it is not configured", () => {
-    expect(buildTestrunArgs(FLOWS, makeConfig(), "gate")).not.toContain("--bug-detection");
+    expect(buildTestrunArgs(FLOWS, makeConfig(), "judge")).not.toContain("--bug-detection");
   });
 
   it("replaces every character outside [A-Za-z0-9_-] in the label with a dash", () => {
@@ -58,7 +58,7 @@ describe("buildTestrunArgs", () => {
   });
 
   it("produces no flow arguments for an empty flow list", () => {
-    expect(buildTestrunArgs([], makeConfig(), "gate").slice(0, 3)).toEqual(["testrun", "run", "--agent"]);
+    expect(buildTestrunArgs([], makeConfig(), "judge").slice(0, 3)).toEqual(["testrun", "run", "--agent"]);
   });
 });
 

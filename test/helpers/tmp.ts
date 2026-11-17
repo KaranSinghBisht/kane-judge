@@ -8,7 +8,7 @@ import { afterEach } from "vitest";
  * returned factory. Call it once per test file (or describe block), then
  * `await makeDir()` inside the tests.
  */
-export function useTempDirs(prefix = "kane-gate-test-"): () => Promise<string> {
+export function useTempDirs(prefix = "kane-judge-test-"): () => Promise<string> {
   const created: string[] = [];
   afterEach(async () => {
     const dirs = created.splice(0);

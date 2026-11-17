@@ -2,7 +2,7 @@
   "name": "inkwell-shop",
   "private": true,
   "version": "1.0.0",
-  "description": "Tiny demo storefront used to show Kane Gate. No dependencies.",
+  "description": "A sample hackathon submission for Kane Judge: a tiny storefront with no dependencies.",
   "type": "module",
   "scripts": {
     "dev": "node server.js",
