@@ -104,7 +104,7 @@ The plugin drives a small bundled CLI; you can also use it directly (`npm instal
 ## Limitations
 
 - Desktop web demos. Kane's mobile targets fit the same model but aren't wired up yet.
-- A flow's first run is authored by Kane's AI, which takes a minute or two per flow and uses credits; later runs replay. In our tests a 4-claim judging run used about 145 Kane credits, so the free 10,000 credits cover roughly 70 projects.
+- A flow's first run is authored by Kane's AI, which takes a minute or two per flow and uses credits; later runs replay. In our tests a project cost about 145 Kane credits when every flow worked first time, and about 640 with three investigation rounds, so the free 10,000 credits cover roughly 15–70 projects.
 - Scores are a first-round triage for human judges, not a final decision.
 
 ## License
