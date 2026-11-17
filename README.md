@@ -60,10 +60,12 @@ Then, inside Claude Code:
 Start Claude Code in an empty folder for the event, then:
 
 ```text
-/kane-judge:judge https://devpost.com/software/some-project --since 2026-11-12 --until 2026-11-19
-/kane-judge:judge https://github.com/team/repo --live https://their-demo.vercel.app
+/kane-judge:judge https://github.com/team/repo --live https://their-demo.vercel.app --since 2026-11-12 --until 2026-11-19
+/kane-judge:judge https://devpost.com/software/some-project https://github.com/team/repo
 /kane-judge:board
 ```
+
+Submission pages are optional. Some, like Devpost's, sit behind bot protection; when that happens the scan says so, and the judge works from the repo and the live demo.
 
 Each project gets `projects/<slug>/` with `submission.md`, `scan.json`, the Kane flows, `kane-results.json`, screenshots, `verdict.json`, `scorecard.html` and `report.md`. `/kane-judge:board` ranks everything in `SCOREBOARD.md` and `scoreboard.html`.
 
@@ -86,16 +88,16 @@ The plugin drives a small bundled CLI; you can also use it directly (`npm instal
 | Command | What it does |
 | --- | --- |
 | `kane-judge scan <url-or-folder>... [--live <url>] [--since <date> --until <date>]` | Reads the submission into `projects/<slug>/`: page text, README, repo facts, live demo status, injection hints. |
-| `kane-judge run <project> [--only <flow>] [--headed]` | Runs the project's Kane flows (`kane-cli testrun`, two Chrome workers) and extracts the evidence: failing step, Kane's words, console errors, failed requests, screenshots, Test Manager links. |
+| `kane-judge run <project> [--only <flow>] [--headed]` | Runs the project's Kane flows (`kane-cli testrun`, two Chrome workers) and extracts the evidence: failing step, Kane's words and triage, console errors, failed requests, screenshots, Test Manager links. Set `KANE_JUDGE_HEADED=1` to watch Chrome. |
 | `kane-judge report <project>` | Validates `verdict.json` and writes `scorecard.html` and `report.md`. |
 | `kane-judge board [<folder>]` | Ranks every judged project. |
 | `kane-judge doctor` | Checks Kane CLI sign-in, Chrome and the GitHub CLI. |
 
 ## How it uses Kane CLI
 
-- **Plain-English `_test.md` flows**, one per claim, authored by Kane's AI on the first run and replayed from cache after.
-- **`kane-cli testrun run --agent`**: one execution and one sealed evidence pack per round, parsed from Kane's NDJSON (`testrun_member_end`, each member's `test_md_*` log).
-- **The evidence pack** (a zip) gives the failing step's `failure.yaml`, the console and network entries attributed to that step, and the annotated screenshot.
+- **Plain-English `_test.md` flows**, one per claim. Kane's AI authors them on the first run; re-runs replay from cache and self-heal when the page changed.
+- **`kane-cli testrun run --agent`**: one execution per round and one sealed, merged evidence pack, parsed from Kane's NDJSON (`testrun_*_member_end` events, each member's `test_md_*` log).
+- **The evidence pack** (a zip) gives the failing step's `failure.yaml`, the console and network entries attributed to that step, the step screenshots, and **Kane's own triage**: category, confidence and severity. Kane's triage judges the test against the app; the judge uses it as a lead while it judges the app against the claim.
 - **Test Manager share links**, so a human judge can replay the run.
 
 ## Limitations

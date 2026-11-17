@@ -16,6 +16,7 @@ Human judges watch videos and read READMEs. Code-reading AI judges can be fooled
 3. **Do no harm in someone's demo.** No real payments, no emails or messages to real people, no public posts, no deleting data you didn't create. Use obvious test data ("Kane Judge test", `test+kanejudge@example.com`). If a claim can only be checked with a real payment, real account or wallet, it is unverifiable.
 4. **Kane is the evidence.** A claim is *proven* only when a Kane flow for it passed. It is *broken* only when Kane's evidence shows the product failing, not your test.
 5. **Same process, same rubric, for every project.** Be generous about polish and strict about truth.
+6. **Keep to about 10–15 minutes a project.** Kane's evidence carries the verdict. Read code only where a claim or a failure needs explaining, not the whole repo.
 
 ## The CLI
 

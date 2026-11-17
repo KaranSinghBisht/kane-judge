@@ -94,6 +94,15 @@ export async function fetchPage(url: string, timeoutMs = 20_000): Promise<Fetche
   return { url, finalUrl, status: res.status, title: pageTitle(html), text: htmlToText(html), html, links: extractLinks(html, finalUrl) };
 }
 
+const CHALLENGE_TITLE = /^(just a moment|attention required|access denied|checking your browser|please wait|security check)/i;
+const CHALLENGE_MARKERS = ["challenges.cloudflare.com", "cf-chl-", "__cf_chl", "Enable JavaScript and cookies to continue", "cf-browser-verification"];
+
+/** True when a bot-protection interstitial (e.g. Cloudflare's "Just a moment...") came back instead of the page. */
+export function isBotChallenge(page: Pick<FetchedPage, "title" | "html" | "status">): boolean {
+  if (page.title && CHALLENGE_TITLE.test(page.title)) return true;
+  return (page.status === 403 || page.status === 503 || page.status === 429) && CHALLENGE_MARKERS.some((m) => page.html.includes(m));
+}
+
 /** HTTP status of a URL (0 when it can't be reached). Used to check that a live demo is up. */
 export async function probeStatus(url: string, timeoutMs = 15_000): Promise<number> {
   try {

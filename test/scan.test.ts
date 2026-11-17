@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { commitFacts } from "../src/scan/github.js";
 import { findInjectionHints } from "../src/scan/injection.js";
 import { classifyLinks, parseRepo } from "../src/scan/links.js";
-import { decodeEntities, extractLinks, htmlToText, pageTitle } from "../src/scan/page.js";
+import { decodeEntities, extractLinks, htmlToText, isBotChallenge, pageTitle } from "../src/scan/page.js";
 
 describe("findInjectionHints", () => {
   it("flags a hidden HTML comment that tells AI judges how to score", () => {
@@ -81,5 +81,17 @@ describe("commitFacts", () => {
 
   it("leaves window counts out when there is no window", () => {
     expect(commitFacts(items, false).inWindow).toBeUndefined();
+  });
+});
+
+describe("isBotChallenge", () => {
+  it("recognises Cloudflare's interstitial instead of the real page", () => {
+    expect(isBotChallenge({ title: "Just a moment...", html: "<html></html>", status: 403 })).toBe(true);
+    expect(isBotChallenge({ title: undefined, html: '<script src="https://challenges.cloudflare.com/x"></script>', status: 503 })).toBe(true);
+  });
+
+  it("leaves real pages alone", () => {
+    expect(isBotChallenge({ title: "MyPillPal | Devpost", html: "<p>Four screens</p>", status: 200 })).toBe(false);
+    expect(isBotChallenge({ title: "Docs", html: "challenges.cloudflare.com is mentioned in the text", status: 200 })).toBe(false);
   });
 });

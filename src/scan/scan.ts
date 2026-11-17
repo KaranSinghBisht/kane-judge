@@ -7,7 +7,7 @@ import { scanRepo, type EventWindow, type RepoScan } from "./github.js";
 import { findInjectionHints } from "./injection.js";
 import { classifyLinks, parseRepo, type RepoRef } from "./links.js";
 import { isLocalDir, scanLocal } from "./local.js";
-import { fetchPage, probeStatus, type FetchedPage } from "./page.js";
+import { fetchPage, isBotChallenge, probeStatus, type FetchedPage } from "./page.js";
 import type { PageFacts, ScanResult } from "./types.js";
 
 export interface ScanOptions {
@@ -44,7 +44,9 @@ async function readPages(urls: string[]): Promise<{ pages: FetchedPage[]; failed
   const failed: PageFacts[] = [];
   for (const url of urls) {
     try {
-      pages.push(await fetchPage(url));
+      const page = await fetchPage(url);
+      if (isBotChallenge(page)) failed.push({ url, status: page.status, title: "blocked by bot protection: read it in a browser, or rely on the repo and live demo", chars: 0 });
+      else pages.push(page);
     } catch (err) {
       failed.push({ url, status: 0, title: `unreachable: ${safeMessage(err)}`, chars: 0 });
     }
@@ -81,6 +83,7 @@ function submissionMarkdown(result: ScanResult, pages: FetchedPage[], repos: Rep
     ...result.repos.map((r) => `- Repo: ${r.url}${r.error ? ` (${r.error})` : ` (created ${r.createdAt ?? "?"}, ${r.commits.sampled} commits read)`}`),
     ...result.videos.map((v) => `- Video: ${v}`),
     ...result.demoCandidates.filter((d) => d !== result.live).slice(0, 5).map((d) => `- Other demo-like link: ${d}`),
+    ...result.pages.filter((p) => p.chars === 0).map((p) => `- Could not read ${p.url}: ${p.title ?? "no content"}`),
     "",
     "## Red flags from the scan",
     ...(result.injectionHints.length ? result.injectionHints.map((h) => `- Possible prompt injection aimed at AI judges: ${h}`) : ["- none"]),
