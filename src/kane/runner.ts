@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { basename, resolve } from "node:path";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { basename, dirname, resolve } from "node:path";
 import type { Flow } from "../flows/discover.js";
 import { redact, safeMessage } from "../shared/errors.js";
 import { log } from "../shared/logger.js";
@@ -59,6 +59,18 @@ export interface RunKaneOptions {
   /** Short label for the run title in Test Manager ([A-Za-z0-9_-] only). */
   label: string;
   onEvent?: (event: KaneEvent) => void;
+  /** When set, Kane's raw stdout (NDJSON) and stderr are saved under this path prefix (+ .ndjson / .stderr.txt). */
+  rawLogPrefix?: string;
+}
+
+async function saveRaw(prefix: string, result: RunResult): Promise<void> {
+  try {
+    await mkdir(dirname(prefix), { recursive: true });
+    await writeFile(`${prefix}.ndjson`, result.stdout, "utf8");
+    await writeFile(`${prefix}.stderr.txt`, redact(result.stderr), "utf8");
+  } catch (err) {
+    log.warn(`could not save Kane's raw output: ${safeMessage(err)}`);
+  }
 }
 
 /** argv for `kane-cli testrun run`: one execution, one evidence pack, NDJSON on stdout. */
@@ -185,6 +197,7 @@ export async function runKane(opts: RunKaneOptions): Promise<KaneOutcome> {
       if (event) opts.onEvent?.(event);
     },
   });
+  if (opts.rawLogPrefix) await saveRaw(opts.rawLogPrefix, result);
   const summary = summarizeTestrunStream(parseNdjson(result.stdout).events);
   const hinted = evidenceHint(result.stderr);
   const evidencePath = hinted ? resolve(opts.projectDir, hinted) : undefined;

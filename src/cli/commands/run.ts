@@ -60,7 +60,9 @@ export async function runFlowsCommand(args: RunArgs): Promise<number> {
   if (noUrl.length) out(`Warning: no \`url:\` frontmatter in ${noUrl.join(", ")}; Kane needs a start URL.`);
   process.stderr.write(`Kane Judge: running ${flows.length} flow(s) in real Chrome: ${flows.map((f) => f.name).join(", ")}\n`);
   const config = { ...DEFAULT_RUN_CONFIG, ...args.config };
-  const outcome = await runKane({ projectDir: paths.dir, config, flows, label: `kane-judge-${flows[0]?.name ?? "run"}`, onEvent: progress });
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+$/, "");
+  const rawLogPrefix = join(paths.dir, ".kane-judge", `run-${stamp}`);
+  const outcome = await runKane({ projectDir: paths.dir, config, flows, label: `kane-judge-${flows[0]?.name ?? "run"}`, onEvent: progress, rawLogPrefix });
   const startedMs = Date.now() - outcome.durationMs;
   const prev = await loadResults(paths);
   if (outcome.kind === "error" || outcome.kind === "timeout") {

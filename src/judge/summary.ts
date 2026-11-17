@@ -29,7 +29,11 @@ function failureLines(flow: FlowResult): string[] {
   lines.push(consoleProblems.length ? `    Console: ${consoleProblems.map((c) => `[${c.level}] ${clip(c.text, 160)}`).join(" | ")}` : "    Console: no errors or warnings");
   const network = f?.network ?? [];
   if (network.length) lines.push(`    Failed requests: ${network.map((n) => `${n.method} ${clip(n.url, 100)} -> ${n.status || "no response"}`).join(" | ")}`);
-  if (f?.triage?.rootCause) lines.push(`    Kane's triage (a lead, not a verdict): ${clip(f.triage.rootCause, 300)}`);
+  if (f?.triage?.rootCause || f?.triage?.category) {
+    const t = f.triage;
+    const label = [t.category, t.confidence !== undefined ? `confidence ${t.confidence}` : undefined, t.severity].filter(Boolean).join(", ");
+    lines.push(`    Kane's triage (a lead, not a verdict)${label ? ` [${label}]` : ""}: ${clip(t.rootCause ?? t.title ?? "", 300)}`);
+  }
   if (flow.screenshot) lines.push(`    Screenshot: ${flow.screenshot} (open it with the Read tool)`);
   if (flow.shareUrl) lines.push(`    Test Manager: ${flow.shareUrl}`);
   return lines;

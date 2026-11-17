@@ -7,6 +7,27 @@ import { log } from "../shared/logger.js";
 import { forStep, isProblem, parseConsoleLog, parseNetworkFailures, type ConsoleEntry, type NetworkFailure } from "./logs.js";
 import { ZipReader } from "./zip.js";
 
+/** Kane's own investigation of a failure (failure.yaml `triage`): a lead, not a verdict. */
+export interface Triage {
+  rootCause?: string;
+  suggestedFix?: string;
+  /** e.g. "automation_bug/state_transition_bug" or a product-bug category. */
+  category?: string;
+  confidence?: number;
+  severity?: string;
+  title?: string;
+}
+
+/** Screenshot entries Kane may write for a step, best first. */
+const FAILURE_SHOTS = ["annotated.png", "screenshot.png", "screenshot.jpg", "screenshot.jpeg"];
+const PROOF_SHOT = /\/screenshot\.(png|jpe?g)$/;
+
+/** `dest` with the extension of the zip entry it receives (Kane writes both PNG and JPEG). */
+export function withEntryExtension(dest: string, entry: string): string {
+  const ext = /\.(png|jpe?g)$/i.exec(entry)?.[0] ?? ".png";
+  return dest.replace(/\.(png|jpe?g)$/i, "") + ext.toLowerCase();
+}
+
 export interface StepEvidence {
   packPath: string;
   testDir?: string;
@@ -14,7 +35,7 @@ export interface StepEvidence {
   error?: string;
   pageUrl?: string;
   pageTitle?: string;
-  triage?: { rootCause?: string; suggestedFix?: string };
+  triage?: Triage;
   console: ConsoleEntry[];
   network: NetworkFailure[];
   /** Zip entry of the failing step's screenshot (annotated when available). */
@@ -106,6 +127,11 @@ function stepKeys(stepDir: string | undefined): string[] {
   return m ? [String(Number(m[1])), m[1] ?? "", m[2] ?? "", base] : [base];
 }
 
+function confidenceOf(doc: unknown): number | undefined {
+  const value = asRecord(asRecord(asRecord(doc)?.triage)?.rca)?.confidence;
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
 function readFailureYaml(zip: ZipReader, stepDir: string, ev: StepEvidence): void {
   const text = zip.readText(`${stepDir}/failure.yaml`);
   if (!text) return;
@@ -121,7 +147,10 @@ function readFailureYaml(zip: ZipReader, stepDir: string, ev: StepEvidence): voi
   ev.pageTitle = pick(doc, [["page_state", "title"], ["page", "title"]]);
   const rootCause = pick(doc, [["triage", "rca", "root_cause"], ["triage", "root_cause"], ["rca", "root_cause"]]);
   const suggestedFix = pick(doc, [["triage", "suggested_fix", "summary"], ["triage", "suggested_fix"]]);
-  if (rootCause || suggestedFix) ev.triage = { rootCause, suggestedFix };
+  const category = pick(doc, [["triage", "rca", "category"], ["triage", "category"]]);
+  if (rootCause || suggestedFix || category) {
+    ev.triage = { rootCause, suggestedFix, category, severity: pick(doc, [["triage", "severity"]]), title: pick(doc, [["title"]]), confidence: confidenceOf(doc) };
+  }
 }
 
 function readLogs(zip: ZipReader, testDir: string, keys: string[], ev: StepEvidence): void {
@@ -152,11 +181,12 @@ export async function readFailureEvidence(packPath: string, target: PackTarget):
   ev.stepDir = failingStepDir(zip, testDir);
   if (ev.stepDir) {
     readFailureYaml(zip, ev.stepDir, ev);
-    ev.screenshotEntry = ["annotated.png", "screenshot.png"].map((f) => `${ev.stepDir}/${f}`).find((n) => zip.has(n));
+    ev.screenshotEntry = FAILURE_SHOTS.map((f) => `${ev.stepDir}/${f}`).find((n) => zip.has(n));
   }
   readLogs(zip, testDir, stepKeys(ev.stepDir), ev);
   if (ev.screenshotEntry && target.screenshotTo) {
-    ev.screenshotPath = (await writeEntry(zip, ev.screenshotEntry, target.screenshotTo)) ? target.screenshotTo : undefined;
+    const dest = withEntryExtension(target.screenshotTo, ev.screenshotEntry);
+    ev.screenshotPath = (await writeEntry(zip, ev.screenshotEntry, dest)) ? dest : undefined;
   }
   return ev;
 }
@@ -173,11 +203,12 @@ export async function readProofScreenshot(packPath: string, target: PackTarget &
   const testDir = pickTestDir(zip, target);
   if (!testDir) return undefined;
   const shots = zip.names
-    .filter((n) => n.startsWith(`${testDir}/steps/`) && n.endsWith("/screenshot.png"))
+    .filter((n) => n.startsWith(`${testDir}/steps/`) && PROOF_SHOT.test(n))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   const last = shots[shots.length - 1];
   if (!last) return undefined;
-  return (await writeEntry(zip, last, target.screenshotTo)) ? target.screenshotTo : undefined;
+  const dest = withEntryExtension(target.screenshotTo, last);
+  return (await writeEntry(zip, last, dest)) ? dest : undefined;
 }
 
 async function writeEntry(zip: ZipReader, entry: string, destination: string): Promise<boolean> {

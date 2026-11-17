@@ -38,6 +38,14 @@ Typical causes:
 
 Mark the claim **unverifiable** and say exactly what blocked it. That's a fact about the submission, not a failure of the product, so it never counts as broken.
 
+## Reading Kane's triage
+
+Kane's own triage (`[category, confidence, severity]` in the run output) judges **the test against the app**. You judge **the app against the claim**. Use it as a lead:
+
+- **`automation_bug/test_data_issue`, or other state problems.** For example, "the cart held 2 pens, so $4.20 off was impossible", often after Kane's self-healing re-ran earlier steps in the same browser. This is TEST_WRONG. Make the flow robust to leftover state: start from a known state, or check values relative to what is on screen ("a 10% discount of the shown subtotal"). Then re-run.
+- **`automation_bug/state_transition_bug`, or "the expected page isn't there".** When the submission *claims* that page or feature exists, the claim is false: mark it **broken** (an overclaim), not TEST_WRONG. Rewrite only if the feature might live somewhere else, e.g. under a different menu name.
+- **Product-bug categories, or console errors and 4xx/5xx at the failing step.** Usually APP_BROKEN.
+
 ## Ambiguous
 
 Re-run once, since flakiness is real. If it's still unclear, mark the claim **unverifiable** and explain what Kane saw.

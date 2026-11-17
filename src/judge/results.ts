@@ -22,7 +22,8 @@ export interface FlowFailureFacts {
   pageUrl?: string;
   console: ConsoleEntry[];
   network: NetworkFailure[];
-  triage?: { rootCause?: string; suggestedFix?: string };
+  /** Kane's own triage of the failure: a lead for the judge, not a verdict. */
+  triage?: { rootCause?: string; suggestedFix?: string; category?: string; confidence?: number; severity?: string; title?: string };
 }
 
 export interface FlowResult {

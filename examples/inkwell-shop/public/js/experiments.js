@@ -10,12 +10,9 @@ const ACTIONS = {
   },
   "limit-rows": (el, { maxRows }) => {
     const rows = [...el.children];
-    let hidden = 0;
-    rows.forEach((row, index) => {
-      row.hidden = index >= maxRows;
-      if (row.hidden) hidden += 1;
-    });
-    return hidden ? `limit-rows hid ${hidden} of ${rows.length} rows` : "";
+    const extra = rows.slice(maxRows);
+    extra.forEach((row) => row.remove());
+    return extra.length ? `limit-rows removed ${extra.length} of ${rows.length} rows` : "";
   },
 };
 

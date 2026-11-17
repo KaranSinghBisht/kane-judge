@@ -51,6 +51,7 @@ export function parseConsoleLog(text: string): ConsoleEntry[] {
   for (const record of parseNdjson(text).events) {
     const body = consoleText(record);
     if (!body) continue;
+    if (/\/favicon\.ico(\?|$)/i.test(firstString(record, ["url"]) ?? "")) continue;
     const level = (firstString(record, ["level", "type", "severity"]) ?? "log").toLowerCase();
     entries.push({ level: level === "warn" ? "warning" : level, text: redact(body.slice(0, 500)), step: stepOf(record) });
   }
@@ -99,7 +100,7 @@ export function parseNetworkFailures(text: string): NetworkFailure[] {
     const transportError = entry._error ?? entry.response?._error;
     if (status < 400 && status > 0 && !transportError) continue;
     const url = entry.request?.url;
-    if (!url) continue;
+    if (!url || /\/favicon\.ico(\?|$)/i.test(url)) continue;
     failures.push({
       method: entry.request?.method ?? "GET",
       url: redact(url.length > 200 ? `${url.slice(0, 200)}…` : url),
