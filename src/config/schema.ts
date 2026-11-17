@@ -66,4 +66,14 @@ export const BUILTIN_IGNORES: readonly string[] = [
   ".hyperexecute/**",
   "hyperexecute-cli.log",
   ".updatedhyperexecute.yaml",
+  // Coding-agent and editor state that tools write into the project.
+  "**/.omc/**",
+  ".cursor/**",
+  ".codex/**",
+  ".gemini/**",
+  ".kiro/**",
+  ".windsurf/**",
+  ".vscode/**",
+  ".idea/**",
+  "**/*.log",
 ];

@@ -1,0 +1,4 @@
+node_modules/
+# Kane Gate state and Kane evidence packs
+.kane-gate/
+.testmuai/evidence/

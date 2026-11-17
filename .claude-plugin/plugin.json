@@ -1,0 +1,10 @@
+{
+  "name": "kane-gate",
+  "version": "0.1.0",
+  "description": "Claude can't say \"done\" until a real browser agrees. Every stop is gated on Kane CLI flows; failures go back to Claude with the failing step, console errors and a screenshot.",
+  "author": { "name": "Karan Singh Bisht", "url": "https://github.com/KaranSinghBisht" },
+  "homepage": "https://github.com/KaranSinghBisht/kane-gate",
+  "repository": "https://github.com/KaranSinghBisht/kane-gate",
+  "license": "Apache-2.0",
+  "keywords": ["kane-cli", "testmu", "e2e", "browser-testing", "hooks", "verification"]
+}

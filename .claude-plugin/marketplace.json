@@ -1,0 +1,14 @@
+{
+  "name": "kane-gate",
+  "owner": { "name": "Karan Singh Bisht", "url": "https://github.com/KaranSinghBisht" },
+  "metadata": { "description": "Kane Gate: verify every Claude Code stop in a real browser with Kane CLI." },
+  "plugins": [
+    {
+      "name": "kane-gate",
+      "source": "./",
+      "description": "Gate every Claude Code stop on Kane CLI browser flows and feed Kane's report back to Claude.",
+      "version": "0.1.0",
+      "license": "Apache-2.0"
+    }
+  ]
+}

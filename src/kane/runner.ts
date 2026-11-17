@@ -61,7 +61,7 @@ export function stderrTail(stderr: string, maxLines = 12): string {
     .replace(ANSI, "")
     .split(/\r?\n/)
     .map((l) => l.trimEnd())
-    .filter((l) => l.trim() !== "" && !/^[\s│╭╰─╮╯]+$/.test(l));
+    .filter((l) => l.trim() !== "" && !/^[\s│╭╰─╮╯]+$/.test(l) && !/update available/i.test(l));
   return redact(lines.slice(-maxLines).join("\n"));
 }
 
