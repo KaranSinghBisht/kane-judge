@@ -5,6 +5,7 @@ import { doctorCommand } from "./commands/doctor.js";
 import { boardCommand, reportCommand } from "./commands/report.js";
 import { runFlowsCommand } from "./commands/run.js";
 import { scanCommand } from "./commands/scan.js";
+import { sourceCommand } from "./commands/source.js";
 
 const VERSION = "0.1.0";
 
@@ -20,6 +21,8 @@ Usage:
       Validate verdict.json and write scorecard.html and report.md.
   kane-judge board [<workspace>]
       Rank every judged project: SCOREBOARD.md and scoreboard.html.
+  kane-judge source <repo-url> [path]
+      List a GitHub repo's files, or print one (read-only: nothing is cloned or run).
   kane-judge doctor
       Check Kane CLI (installed, signed in), Chrome and the GitHub CLI.
 
@@ -74,6 +77,7 @@ async function main(argv: string[]): Promise<number> {
   if (command === "report") return rest[0] ? reportCommand(rest[0]) : (out("usage: kane-judge report <project-dir>"), 2);
   if (command === "board") return boardCommand(rest[0] ?? process.cwd());
   if (command === "doctor") return doctorCommand();
+  if (command === "source") return sourceCommand(rest[0], rest[1]);
   out(`Unknown command "${command}".\n\n${HELP}`);
   return 2;
 }

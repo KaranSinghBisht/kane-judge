@@ -91,6 +91,7 @@ The plugin drives a small bundled CLI; you can also use it directly (`npm instal
 | `kane-judge run <project> [--only <flow>] [--headed]` | Runs the project's Kane flows (`kane-cli testrun`, two Chrome workers) and extracts the evidence: failing step, Kane's words and triage, console errors, failed requests, screenshots, Test Manager links. Set `KANE_JUDGE_HEADED=1` to watch Chrome. |
 | `kane-judge report <project>` | Validates `verdict.json` and writes `scorecard.html` and `report.md`. |
 | `kane-judge board [<folder>]` | Ranks every judged project. |
+| `kane-judge source <repo-url> [path]` | Lists a GitHub repo's files or prints one, read-only, so verdicts can cite the code behind a failure without cloning or running anything. |
 | `kane-judge doctor` | Checks Kane CLI sign-in, Chrome and the GitHub CLI. |
 
 ## How it uses Kane CLI
