@@ -4,6 +4,10 @@
 
 Kane Judge is a Claude Code plugin for hackathon judges and for the builders who want to know what judges will find. Give it a submission. Claude reads what the team claims, and each claim becomes a plain-English [Kane CLI](https://github.com/LambdaTest/kane-cli) test that runs against the **live demo in real Chrome**. Every failure gets investigated. Was the product broken, did my test go wrong, or is it simply blocked? The result is a scorecard where every verdict points at evidence: Kane's own words, console errors, failed requests and screenshots.
 
+![A Kane Judge scorecard for the sample submission: 2 of 4 claims proven by Kane, 2 broken, each with Kane's screenshot and investigation timeline](docs/scorecard.png)
+
+*A real scorecard, from Claude Code judging [`examples/inkwell-shop`](examples/inkwell-shop) with Kane CLI. Open the [full HTML](docs/sample-scorecard.html) or the [Markdown report](docs/sample-report.md).*
+
 ```text
  submission page / repo / local folder
           │  kane-judge scan        (reads only: README, commits vs. the event window, live demo, prompt-injection check)

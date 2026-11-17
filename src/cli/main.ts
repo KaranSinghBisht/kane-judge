@@ -23,6 +23,7 @@ Usage:
   kane-judge doctor
       Check Kane CLI (installed, signed in), Chrome and the GitHub CLI.
 
+Set KANE_JUDGE_HEADED=1 to watch Kane drive a visible Chrome window.
 Exit codes: 0 ok, 2 setup problem or invalid input.`;
 
 function intOption(value: string | undefined, name: string, range: [number, number]): number | undefined {
@@ -49,8 +50,9 @@ async function run(rest: string[]): Promise<number> {
   });
   const dir = positionals[0];
   if (!dir) throw new Error("usage: kane-judge run <project-dir>");
+  const headedEnv = process.env.KANE_JUDGE_HEADED === "1" || process.env.KANE_JUDGE_HEADED === "true";
   const config = {
-    headless: !values.headed,
+    headless: !(values.headed || headedEnv),
     ...(values.parallel ? { parallel: intOption(values.parallel, "--parallel", [1, 8]) } : {}),
     ...(values.timeout ? { timeoutSec: intOption(values.timeout, "--timeout", [30, 3600]) } : {}),
   };
