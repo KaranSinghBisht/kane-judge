@@ -1,5 +1,5 @@
 ---
-name: judge
+name: judging
 description: Judge a hackathon project by actually using its live demo with Kane CLI. Turns the submission's claims into plain-English Kane browser tests, runs them in real Chrome, investigates every failure, and writes an evidence-backed scorecard with questions for human judges. Use when asked to judge, review, score or pre-flight check a hackathon submission, Devpost/ETHGlobal project, demo URL or repo.
 ---
 

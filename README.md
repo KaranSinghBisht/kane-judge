@@ -69,7 +69,7 @@ Each project gets `projects/<slug>/` with `submission.md`, `scan.json`, the Kane
 
 **Building, not judging?** Run `/kane-judge:preflight ./my-project --live http://localhost:3000` before you submit. You get the same scorecard, plus what to fix and where your README promises more than your demo delivers.
 
-**Your event's own criteria:** put them in a `rubric.md` in the event folder. Otherwise the [default rubric](skills/judge/rubric.md) scores Works, Substance, Truthfulness, Craft and Originality.
+**Your event's own criteria:** put them in a `rubric.md` in the event folder. Otherwise the [default rubric](skills/judging/rubric.md) scores Works, Substance, Truthfulness, Craft and Originality.
 
 ## How the judging stays fair
 

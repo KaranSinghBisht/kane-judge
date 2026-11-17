@@ -4,7 +4,7 @@ argument-hint: "<submission-or-repo-url>... [--live <demo-url>] [--since 2026-11
 allowed-tools: Skill, Bash(node:*), Read, Write, Edit, Glob, Grep
 ---
 
-Judge this hackathon project with the Kane Judge skill (`judge`): $ARGUMENTS
+Judge this hackathon project with the Kane Judge skill (`judging`): $ARGUMENTS
 
 The Kane Judge CLI for this session is:
 

@@ -4,7 +4,7 @@ argument-hint: "<your-submission-or-repo-url> --live <your-demo-url>"
 allowed-tools: Skill, Bash(node:*), Read, Write, Edit, Glob, Grep
 ---
 
-Pre-flight check my own hackathon submission with the Kane Judge skill (`judge`), in pre-flight mode: $ARGUMENTS
+Pre-flight check my own hackathon submission with the Kane Judge skill (`judging`), in pre-flight mode: $ARGUMENTS
 
 The Kane Judge CLI for this session is:
 
