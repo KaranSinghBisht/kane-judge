@@ -32,7 +32,7 @@ Kane Judge is the missing step. It **uses the deployed demo the way a user would
 
 ## What it catches
 
-The sample submission in [`examples/inkwell-shop`](examples/inkwell-shop) shows each kind of finding:
+The sample submission in [`examples/inkwell-shop`](examples/inkwell-shop) (live at https://inkwell-shop.vercel.app) shows each kind of finding:
 
 - **A bug only a real browser shows.** A client-side A/B experiment trims the order summary to three rows. Once a promo code adds a Discount row, the **Total** silently disappears. The code reads fine and the API returns the right numbers; only a browser shows it. Kane's console log from that step points straight at the experiment.
 - **An overclaim.** The README promises order history under Account → Orders. Kane looks where a user would look, and it isn't there.

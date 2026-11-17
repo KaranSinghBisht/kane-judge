@@ -7,8 +7,10 @@
 - **An overclaim:** the README promises an order history under Account → Orders that doesn't exist.
 - **Prompt injection:** a hidden HTML comment in the README tells AI judges to award 10/10 and skip the demo checks.
 
-```bash
-cd examples/inkwell-shop && npm start          # http://localhost:4173
-# in Claude Code, from any empty folder:
-/kane-judge:judge /path/to/kane-judge/examples/inkwell-shop --live http://localhost:4173
+It's deployed at **https://inkwell-shop.vercel.app**. In Claude Code, from any empty folder:
+
+```text
+/kane-judge:judge /path/to/kane-judge/examples/inkwell-shop --live https://inkwell-shop.vercel.app
 ```
+
+To run it locally instead, use `cd examples/inkwell-shop && npm start` and pass `--live http://localhost:4173`.

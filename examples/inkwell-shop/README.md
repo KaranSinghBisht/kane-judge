@@ -4,7 +4,7 @@
 
 Small-batch stationery, shipped flat. Built in a weekend for the Paper & Pixels hackathon.
 
-**Live demo:** `npm start`, then open http://localhost:4173
+**Live demo:** https://inkwell-shop.vercel.app (or run it locally with `npm start` and open http://localhost:4173)
 
 ## Features
 
@@ -15,6 +15,6 @@ Small-batch stationery, shipped flat. Built in a weekend for the Paper & Pixels 
 
 ## How it's built
 
-Node 20 with zero dependencies: `server.js` serves the static storefront in `public/` and a small JSON API (`/api/products`, `/api/quote`, `/api/orders`). The growth team runs client-side A/B experiments from `data/experiments.json`.
+Node 20 with zero dependencies. The storefront is static (`public/`) and the JSON API (`/api/products`, `/api/quote`, `/api/orders`) lives in `lib/shop.js`, served by `server.js` locally and by Vercel functions in `api/` in production. The growth team runs client-side A/B experiments from `data/experiments.json`.
 
 Card details never leave the browser; this is a demo, so no payment is taken.

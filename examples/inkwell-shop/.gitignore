@@ -1,4 +1,5 @@
 node_modules/
-# Kane Gate state and Kane evidence packs
+# Kane state, Kane evidence packs and the Vercel link
 .kane-gate/
 .testmuai/evidence/
+.vercel
