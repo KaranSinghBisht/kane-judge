@@ -105,6 +105,11 @@ export function runCommand(command: string, args: string[], opts: RunOptions): P
       finish({ exitCode: null, signal: null, spawnError: err });
     });
     child.on("close", (code, signal) => finish({ exitCode: code, signal }));
+    // "close" waits for every holder of the pipes; if a grandchild (e.g. Chrome) keeps
+    // them open after kane-cli exits, settle a few seconds after "exit" instead.
+    child.on("exit", (code, signal) => {
+      timers.push(setTimeout(() => finish({ exitCode: code, signal }), 5_000));
+    });
 
     if (opts.timeoutMs && opts.timeoutMs > 0) {
       const grace = opts.killGraceMs ?? 30_000;

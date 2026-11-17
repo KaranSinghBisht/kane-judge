@@ -14,8 +14,26 @@ const PATTERNS: RegExp[] = [
   /\bdisregard (?:the )?(?:rubric|criteria|judging instructions)\b/i,
 ];
 
-const HIDDEN = /<!--([\s\S]*?)-->/g;
 const MAX_HINTS = 6;
+const MAX_COMMENT = 2_000;
+
+/** HTML comments (bodies, capped) and the text with them removed, in linear time. */
+function splitComments(raw: string): { comments: string[]; rest: string } {
+  const comments: string[] = [];
+  const parts: string[] = [];
+  let i = 0;
+  while (i < raw.length) {
+    const open = raw.indexOf("<!--", i);
+    if (open === -1) break;
+    parts.push(raw.slice(i, open), " ");
+    const close = raw.indexOf("-->", open + 4);
+    const end = close === -1 ? raw.length : close;
+    comments.push(raw.slice(open + 4, Math.min(end, open + 4 + MAX_COMMENT)));
+    i = close === -1 ? raw.length : close + 3;
+  }
+  if (i < raw.length) parts.push(raw.slice(i));
+  return { comments, rest: parts.join("") };
+}
 
 function excerpt(text: string, index: number, length: number): string {
   const start = Math.max(0, index - 60);
@@ -35,11 +53,11 @@ function scan(text: string, label: string, out: string[]): void {
 export function findInjectionHints(sources: Record<string, string>): string[] {
   const hints: string[] = [];
   for (const [label, raw] of Object.entries(sources)) {
-    for (const comment of raw.matchAll(HIDDEN)) {
-      const body = comment[1] ?? "";
+    const { comments, rest } = splitComments(raw);
+    for (const body of comments) {
       if (PATTERNS.some((p) => p.test(body))) hints.push(`${label} (hidden HTML comment): "${excerpt(body, 0, body.length)}"`);
     }
-    scan(raw.replace(HIDDEN, " "), label, hints);
+    scan(rest, label, hints);
   }
   return [...new Set(hints)].slice(0, MAX_HINTS);
 }

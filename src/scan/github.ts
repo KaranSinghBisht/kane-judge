@@ -66,7 +66,7 @@ async function readCommits(base: string): Promise<{ items: CommitItem[]; complet
   const items: CommitItem[] = [];
   for (let page = 1; page <= COMMIT_PAGES; page++) {
     const list = await githubApi(`${base}/commits?per_page=100&page=${page}`);
-    if (!Array.isArray(list)) return { items, complete: page > 1 };
+    if (!Array.isArray(list)) return { items, complete: false };
     items.push(...list.map(readCommit).filter((c): c is CommitItem => c !== undefined));
     if (list.length < 100) return { items, complete: true };
   }

@@ -1,6 +1,6 @@
 ---
 description: Rank every project judged in this folder (SCOREBOARD.md and scoreboard.html)
-allowed-tools: Bash(node:*)
+allowed-tools: Bash(node *kane-judge.mjs *)
 ---
 
 !`node "${CLAUDE_PLUGIN_ROOT}/dist/kane-judge.mjs" board 2>&1`

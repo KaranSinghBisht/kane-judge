@@ -66,7 +66,7 @@ export interface RunKaneOptions {
 async function saveRaw(prefix: string, result: RunResult): Promise<void> {
   try {
     await mkdir(dirname(prefix), { recursive: true });
-    await writeFile(`${prefix}.ndjson`, result.stdout, "utf8");
+    await writeFile(`${prefix}.ndjson`, redact(result.stdout), "utf8");
     await writeFile(`${prefix}.stderr.txt`, redact(result.stderr), "utf8");
   } catch (err) {
     log.warn(`could not save Kane's raw output: ${safeMessage(err)}`);

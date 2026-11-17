@@ -24,7 +24,7 @@ export async function readJsonFile(path: string): Promise<unknown> {
   return JSON.parse(text) as unknown;
 }
 
-/** Writes JSON atomically (temp file + rename) so a killed hook never leaves half a file. */
+/** Writes JSON atomically (temp file + rename) so a killed process never leaves half a file. */
 export async function writeJsonAtomic(path: string, value: unknown): Promise<void> {
   await writeTextAtomic(path, `${JSON.stringify(value, null, 2)}\n`);
 }

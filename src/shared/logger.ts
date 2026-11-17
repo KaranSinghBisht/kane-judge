@@ -2,8 +2,8 @@ import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
 /**
- * Tiny logger. Diagnostics go to stderr (never stdout: in hook mode stdout
- * carries the JSON decision Claude Code reads) and, when configured, to a log
+ * Tiny logger. Diagnostics go to stderr (never stdout: stdout carries
+ * the command's own output) and, when configured, to a log
  * file inside the project folder. Debug lines only appear with KANE_JUDGE_DEBUG=1.
  */
 type Level = "debug" | "info" | "warn" | "error";
@@ -46,7 +46,7 @@ export const log = {
   error: (m: string) => write("error", m),
 };
 
-/** User-facing output (CLI text or hook JSON). The only path to stdout. */
+/** User-facing output (the CLI's own text). The only path to stdout. */
 export function out(text: string): void {
   process.stdout.write(text.endsWith("\n") ? text : `${text}\n`);
 }

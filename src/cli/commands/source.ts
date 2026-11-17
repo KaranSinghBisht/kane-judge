@@ -20,10 +20,11 @@ async function listTree(base: string): Promise<string> {
   const tree = asObject(await githubApi(`${base}/git/trees/${encodeURIComponent(branch)}?recursive=1`));
   const entries = Array.isArray(tree?.tree) ? tree.tree.map(asObject).filter((e): e is Json => e !== undefined) : [];
   if (entries.length === 0) return "Could not list this repository (private, missing, or GitHub rate limit reached).";
-  const files = entries.filter((e) => e.type === "blob").slice(0, MAX_TREE_ENTRIES);
+  const blobs = entries.filter((e) => e.type === "blob");
+  const files = blobs.slice(0, MAX_TREE_ENTRIES);
   const lines = files.map((e) => `${String(e.path)}  (${typeof e.size === "number" ? e.size : "?"} bytes)`);
-  const more = entries.length > MAX_TREE_ENTRIES ? `\n…and ${entries.length - MAX_TREE_ENTRIES} more entries` : "";
-  return `${files.length} file(s) on ${branch}:\n${lines.join("\n")}${more}`;
+  const more = blobs.length > files.length ? `\n…and ${blobs.length - files.length} more file(s)` : "";
+  return `${blobs.length} file(s) on ${branch}:\n${lines.join("\n")}${more}`;
 }
 
 async function readFile(base: string, path: string): Promise<string> {

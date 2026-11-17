@@ -1,4 +1,6 @@
 import { escapeHtml, link, page } from "./html.js";
+import type { ScanResult } from "../scan/types.js";
+import { mdText } from "./markdown.js";
 import type { KaneResults } from "./results.js";
 import { claimCounts, overall } from "./scorecard.js";
 import type { Verdict } from "./verdict.js";
@@ -20,15 +22,23 @@ export interface BoardRow {
   kaneRuns: number;
 }
 
+export interface BoardEntry {
+  verdict: Verdict;
+  results?: KaneResults;
+  scan?: ScanResult;
+  /** The project's folder name under projects/ (links point here, whatever the verdict says). */
+  dir?: string;
+}
+
 /** Leaderboard rows, best first; ties go to the project with more proven claims. */
-export function boardRows(entries: Array<{ verdict: Verdict; results?: KaneResults }>): BoardRow[] {
-  const rows = entries.map(({ verdict, results }) => {
+export function boardRows(entries: BoardEntry[]): BoardRow[] {
+  const rows = entries.map(({ verdict, results, scan, dir }) => {
     const o = overall(verdict);
     const c = claimCounts(verdict);
     return {
       rank: 0,
       name: verdict.project.name,
-      slug: verdict.project.slug,
+      slug: dir ?? verdict.project.slug,
       pct: o.pct,
       score: o.score,
       max: o.max,
@@ -36,7 +46,7 @@ export function boardRows(entries: Array<{ verdict: Verdict; results?: KaneResul
       broken: c.broken,
       unverifiable: c.unverifiable,
       claims: verdict.claims.length,
-      flags: verdict.flags.length,
+      flags: verdict.flags.length + (scan?.injectionHints.length ?? 0),
       live: verdict.project.live,
       kaneRuns: results?.runs.length ?? 0,
     };
@@ -45,12 +55,12 @@ export function boardRows(entries: Array<{ verdict: Verdict; results?: KaneResul
   return rows.map((row, i) => ({ ...row, rank: i + 1 }));
 }
 
-const card = (slug: string) => `${PROJECTS_DIR}/${slug}/scorecard.html`;
+const card = (slug: string) => `${PROJECTS_DIR}/${encodeURIComponent(slug)}/scorecard.html`;
 
 export function renderBoardMarkdown(rows: BoardRow[]): string {
   const head = ["| # | Project | Score | Proven | Broken | Unverifiable | Flags |", "|---|---|---|---|---|---|---|"];
   const body = rows.map(
-    (r) => `| ${r.rank} | [${r.name.replace(/[|<>]/g, " ")}](${card(r.slug)}) | ${r.pct}% | ${r.proven}/${r.claims} | ${r.broken} | ${r.unverifiable} | ${r.flags} |`,
+    (r) => `| ${r.rank} | [${mdText(r.name)}](${card(r.slug)}) | ${r.pct}% | ${r.proven}/${r.claims} | ${r.broken} | ${r.unverifiable} | ${r.flags} |`,
   );
   return ["# Scoreboard", "", ...head, ...body, "", "_Judged by Kane Judge with evidence from Kane CLI. First-round triage for human judges._", ""].join("\n");
 }

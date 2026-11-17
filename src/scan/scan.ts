@@ -7,7 +7,7 @@ import { scanRepo, type EventWindow, type RepoScan } from "./github.js";
 import { findInjectionHints } from "./injection.js";
 import { classifyLinks, parseRepo, type RepoRef } from "./links.js";
 import { isLocalDir, scanLocal } from "./local.js";
-import { fetchPage, isBotChallenge, probeStatus, type FetchedPage } from "./page.js";
+import { fetchPage, isBotChallenge, isPrivateHost, probeStatus, type FetchedPage } from "./page.js";
 import type { PageFacts, ScanResult } from "./types.js";
 
 export interface ScanOptions {
@@ -69,7 +69,7 @@ function linkSets(pages: FetchedPage[]): { demos: string[]; videos: string[] } {
 function chooseLive(opts: ScanOptions, demos: string[], repos: RepoScan[]): string | undefined {
   if (opts.live) return opts.live;
   const homepage = repos.map((r) => r.facts.homepage).find((h) => h && /^https?:\/\//.test(h) && !parseRepo(h));
-  return demos[0] ?? homepage;
+  return [...demos, homepage].find((url): url is string => !!url && !isPrivateHost(url));
 }
 
 function submissionMarkdown(result: ScanResult, pages: FetchedPage[], repos: RepoScan[]): string {

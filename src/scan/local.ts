@@ -29,18 +29,18 @@ async function readReadme(dir: string): Promise<string | undefined> {
 }
 
 async function localCommits(dir: string): Promise<{ items: Array<{ date: string; author: string }>; complete: boolean }> {
-  const result = await runCommand("git", ["-C", dir, "log", "--format=%aI%x09%an", "-n", String(MAX_COMMITS)], {
-    cwd: dir,
-    timeoutMs: 30_000,
-    killGraceMs: 2_000,
-  });
+  // Never let a repository's own config run programs (signature checks, fsmonitor, pagers).
+  const safe = ["-c", "gpg.program=false", "-c", "core.fsmonitor=false", "-c", "core.pager=cat", "-C", dir];
+  const opts = { cwd: dir, timeoutMs: 30_000, killGraceMs: 2_000 };
+  const result = await runCommand("git", [...safe, "log", "--no-show-signature", "--format=%aI%x09%an", "-n", String(MAX_COMMITS), "--", "."], opts);
   if (result.spawnError || result.exitCode !== 0) return { items: [], complete: false };
+  const shallow = await runCommand("git", [...safe, "rev-parse", "--is-shallow-repository"], opts);
   const items = result.stdout
     .split("\n")
     .map((line) => line.split("\t"))
     .filter((parts): parts is [string, string] => parts.length === 2 && parts[0] !== "")
     .map(([date, author]) => ({ date, author }));
-  return { items, complete: items.length < MAX_COMMITS };
+  return { items, complete: items.length < MAX_COMMITS && shallow.stdout.trim() !== "true" };
 }
 
 /** Reads a local checkout: its README and git history. Like the GitHub scan, it runs none of the project's code. */

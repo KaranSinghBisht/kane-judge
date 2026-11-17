@@ -1,9 +1,10 @@
 import { readdir } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative, resolve, isAbsolute } from "node:path";
 import type { ScanResult } from "../../scan/types.js";
 import { readJsonFile, writeTextAtomic } from "../../shared/fs.js";
 import { out } from "../../shared/logger.js";
-import { boardRows, renderBoardHtml, renderBoardMarkdown } from "../../judge/board.js";
+import { boardRows, renderBoardHtml, renderBoardMarkdown, type BoardEntry } from "../../judge/board.js";
+import { checkAgainstKane } from "../../judge/evidence-check.js";
 import { imageDataUri } from "../../judge/html.js";
 import { renderReportMarkdown } from "../../judge/report-md.js";
 import { isKaneResults, type KaneResults } from "../../judge/results.js";
@@ -13,6 +14,22 @@ import { checkVerdict } from "../../judge/verdict-check.js";
 import { PROJECTS_DIR, projectPaths, type ProjectPaths } from "../../judge/workspace.js";
 
 type Loaded = { ok: true; verdict: Verdict; results?: KaneResults; scan?: ScanResult } | { ok: false; errors: string[] };
+
+async function readOptional(path: string, what: string, valid: (v: unknown) => boolean): Promise<unknown> {
+  let raw: unknown;
+  try {
+    raw = await readJsonFile(path);
+  } catch {
+    out(`warning: ${what} is not valid JSON; the scorecard is built without it`);
+    return undefined;
+  }
+  if (raw === undefined) return undefined;
+  if (!valid(raw)) {
+    out(`warning: ${what} has an unexpected shape; the scorecard is built without it`);
+    return undefined;
+  }
+  return raw;
+}
 
 async function load(paths: ProjectPaths): Promise<Loaded> {
   let raw: unknown;
@@ -24,9 +41,11 @@ async function load(paths: ProjectPaths): Promise<Loaded> {
   if (raw === undefined) return { ok: false, errors: [`no verdict.json in ${paths.dir} yet`] };
   const checked = checkVerdict(raw);
   if (!checked.ok) return checked;
-  const results = await readJsonFile(paths.results).catch(() => undefined);
-  const scan = (await readJsonFile(paths.scan).catch(() => undefined)) as ScanResult | undefined;
-  return { ok: true, verdict: checked.verdict, results: isKaneResults(results) ? results : undefined, scan: scan?.version === 1 ? scan : undefined };
+  const results = (await readOptional(paths.results, "kane-results.json", isKaneResults)) as KaneResults | undefined;
+  const scan = (await readOptional(paths.scan, "scan.json", (v) => (v as ScanResult)?.version === 1)) as ScanResult | undefined;
+  const evidenceErrors = checkAgainstKane(checked.verdict, results);
+  if (evidenceErrors.length) return { ok: false, errors: evidenceErrors };
+  return { ok: true, verdict: checked.verdict, results, scan };
 }
 
 async function images(paths: ProjectPaths, verdict: Verdict, results?: KaneResults): Promise<Map<string, string>> {
@@ -34,7 +53,10 @@ async function images(paths: ProjectPaths, verdict: Verdict, results?: KaneResul
   for (const claim of verdict.claims) {
     const shot = flowFor(claim, results)?.screenshot;
     if (!shot || map.has(shot)) continue;
-    const uri = await imageDataUri(join(paths.dir, shot));
+    const abs = resolve(paths.dir, shot);
+    const rel = relative(paths.dir, abs);
+    if (rel.startsWith("..") || isAbsolute(rel)) continue;
+    const uri = await imageDataUri(abs);
     if (uri) map.set(shot, uri);
   }
   return map;
@@ -59,11 +81,12 @@ export async function reportCommand(dir: string): Promise<number> {
 /** `kane-judge board [workspace]`: rank every judged project. */
 export async function boardCommand(workspace: string): Promise<number> {
   const root = join(workspace, PROJECTS_DIR);
-  const slugs = await readdir(root).catch(() => [] as string[]);
-  const entries: Array<{ verdict: Verdict; results?: KaneResults }> = [];
+  const dirents = await readdir(root, { withFileTypes: true }).catch(() => []);
+  const slugs = dirents.filter((d) => d.isDirectory() && !d.name.startsWith(".")).map((d) => d.name);
+  const entries: BoardEntry[] = [];
   for (const slug of slugs.sort()) {
     const loaded = await load(projectPaths(join(root, slug)));
-    if (loaded.ok) entries.push({ verdict: loaded.verdict, results: loaded.results });
+    if (loaded.ok) entries.push({ verdict: loaded.verdict, results: loaded.results, scan: loaded.scan, dir: slug });
     else out(`skipped ${slug}: ${loaded.errors[0] ?? "no verdict"}`);
   }
   if (entries.length === 0) {

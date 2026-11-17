@@ -5,7 +5,9 @@ import type { Flow } from "../flows/discover.js";
 import type { FlowFailure, KaneOutcome } from "../kane/runner.js";
 import type { TestMdSummary } from "../kane/testmd-stream.js";
 import type { MemberResult } from "../kane/testrun-stream.js";
+import { safeMessage } from "../shared/errors.js";
 import { toPosix } from "../shared/fs.js";
+import { log as logger } from "../shared/logger.js";
 import type { FlowFailureFacts, FlowResult, StepResult } from "./results.js";
 import type { ProjectPaths } from "./workspace.js";
 
@@ -68,7 +70,10 @@ async function flowResult(ctx: Context, member: MemberResult): Promise<FlowResul
   const failed = member.status !== "passed" && member.status !== "skipped";
   const failure = ctx.outcome.kind === "failed" ? ctx.outcome.failures.find((f) => f.member.path === member.path) : undefined;
   const log = ctx.outcome.memberLogs.get(member.path);
-  const { ev, shot } = await evidenceFor(ctx, member, name, failed);
+  const { ev, shot } = await evidenceFor(ctx, member, name, failed).catch((err: unknown) => {
+    logger.warn(`could not read the evidence for ${name}: ${safeMessage(err)}`);
+    return { ev: undefined, shot: undefined };
+  });
   return {
     name,
     file: flow?.file ?? member.path,

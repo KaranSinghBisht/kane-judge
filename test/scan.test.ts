@@ -95,3 +95,24 @@ describe("isBotChallenge", () => {
     expect(isBotChallenge({ title: "Docs", html: "challenges.cloudflare.com is mentioned in the text", status: 200 })).toBe(false);
   });
 });
+
+describe("hostile HTML stays fast (linear time)", () => {
+  const timed = (fn: () => unknown): number => {
+    const start = performance.now();
+    fn();
+    return performance.now() - start;
+  };
+
+  it("handles 300 KB of unclosed <script, <!-- and <title openers in well under a second", () => {
+    for (const opener of ["<script ", "<!--", "<title>"]) {
+      const html = opener.repeat(300_000 / opener.length);
+      expect(timed(() => htmlToText(html))).toBeLessThan(1000);
+      expect(timed(() => pageTitle(html))).toBeLessThan(1000);
+      expect(timed(() => findInjectionHints({ page: html }))).toBeLessThan(1000);
+    }
+  });
+
+  it("still strips closed blocks and drops an unclosed one to the end", () => {
+    expect(htmlToText("<p>a</p><script>x</script><p>b</p><!-- c --><p>d</p><style>never closed")).toBe("a\nb\nd");
+  });
+});

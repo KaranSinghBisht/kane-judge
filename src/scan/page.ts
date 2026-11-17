@@ -29,11 +29,52 @@ function safeCodePoint(code: number): string | undefined {
   return Number.isInteger(code) && code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : undefined;
 }
 
+const SKIPPED_BLOCKS = ["script", "style", "noscript", "svg", "template"];
+
+/** Index just past the `>` that closes the tag starting at `from`, or the end of the text. */
+function afterTag(lower: string, from: number): number {
+  const end = lower.indexOf(">", from);
+  return end === -1 ? lower.length : end + 1;
+}
+
+function blockAt(lower: string, lt: number): string | undefined {
+  return SKIPPED_BLOCKS.find((tag) => lower.startsWith(tag, lt + 1) && /[\s>/]/.test(lower[lt + 1 + tag.length] ?? ">"));
+}
+
+/**
+ * Removes HTML comments and script/style/svg/template blocks in linear time.
+ * (Lazy regexes rescan to the end for every unclosed opener: quadratic on hostile pages.)
+ */
+export function stripHidden(html: string): string {
+  const lower = html.toLowerCase();
+  const parts: string[] = [];
+  let i = 0;
+  while (i < html.length) {
+    const lt = lower.indexOf("<", i);
+    if (lt === -1) break;
+    parts.push(html.slice(i, lt));
+    if (lower.startsWith("<!--", lt)) {
+      const close = lower.indexOf("-->", lt + 4);
+      i = close === -1 ? html.length : close + 3;
+    } else {
+      const tag = blockAt(lower, lt);
+      const close = tag ? lower.indexOf(`</${tag}`, lt + 1) : -1;
+      if (tag) i = close === -1 ? html.length : afterTag(lower, close);
+      else {
+        parts.push("<");
+        i = lt + 1;
+        continue;
+      }
+    }
+    parts.push(" ");
+  }
+  if (i < html.length) parts.push(html.slice(i));
+  return parts.join("");
+}
+
 /** Visible text of an HTML document: no scripts, styles or tags; one block per line. */
 export function htmlToText(html: string): string {
-  const stripped = html
-    .replace(/<(script|style|noscript|svg|template)\b[\s\S]*?<\/\1\s*>/gi, " ")
-    .replace(/<!--[\s\S]*?-->/g, " ")
+  const stripped = stripHidden(html)
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|li|h[1-6]|tr|section|article|header|footer|pre|blockquote|title)\s*>/gi, "\n")
     .replace(/<li\b[^>]*>/gi, "\n- ")
@@ -46,8 +87,13 @@ export function htmlToText(html: string): string {
 }
 
 export function pageTitle(html: string): string | undefined {
-  const match = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
-  const title = match?.[1] ? decodeEntities(match[1]).replace(/\s+/g, " ").trim() : "";
+  const lower = html.toLowerCase();
+  const open = lower.indexOf("<title");
+  if (open === -1) return undefined;
+  const start = afterTag(lower, open);
+  const close = lower.indexOf("</title", start);
+  if (close === -1) return undefined;
+  const title = decodeEntities(html.slice(start, Math.min(close, start + 500))).replace(/\s+/g, " ").trim();
   return title || undefined;
 }
 
@@ -103,10 +149,30 @@ export function isBotChallenge(page: Pick<FetchedPage, "title" | "html" | "statu
   return (page.status === 403 || page.status === 503 || page.status === 429) && CHALLENGE_MARKERS.some((m) => page.html.includes(m));
 }
 
-/** HTTP status of a URL (0 when it can't be reached). Used to check that a live demo is up. */
+/**
+ * True for loopback, private, link-local and cloud-metadata hosts. Links found in a
+ * submission are never probed when they point there (a submission must not be able
+ * to make the judge's machine reach its own network); an explicit --live is trusted.
+ */
+export function isPrivateHost(url: string): boolean {
+  let host: string;
+  try {
+    host = new URL(url).hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  } catch {
+    return true;
+  }
+  if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal")) return true;
+  if (host === "::1" || host.startsWith("fc") || host.startsWith("fd") || host.startsWith("fe80")) return true;
+  const octets = host.split(".").map(Number);
+  if (octets.length !== 4 || octets.some((n) => !Number.isInteger(n))) return false;
+  const [a = 0, b = 0] = octets;
+  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127);
+}
+
+/** HTTP status of a URL (0 when it can't be reached). Redirects are not followed: a 3xx still means "up". */
 export async function probeStatus(url: string, timeoutMs = 15_000): Promise<number> {
   try {
-    const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(timeoutMs), headers: { "User-Agent": USER_AGENT } });
+    const res = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(timeoutMs), headers: { "User-Agent": USER_AGENT } });
     await res.body?.cancel();
     return res.status;
   } catch {

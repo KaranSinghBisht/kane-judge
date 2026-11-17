@@ -1,15 +1,11 @@
 import { safeHref } from "./html.js";
+import { mdText as md } from "./markdown.js";
 import { claimCounts, flowFor, headline, overall, type ScorecardInput } from "./scorecard.js";
 
 /** A Markdown link only for http(s) URLs; local paths and other schemes never leave the machine in a report. */
 function mdLink(url: string | undefined, label: string): string | undefined {
   const href = safeHref(url);
   return href ? `[${label}](${href})` : undefined;
-}
-
-/** Markdown has no escaping story for raw HTML in many renderers; neutralise angle brackets in untrusted text. */
-function md(text: string | number | undefined): string {
-  return String(text ?? "").replace(/</g, "‹").replace(/>/g, "›").replace(/\r?\n/g, " ");
 }
 
 const ICON: Record<string, string> = { proven: "✅", broken: "❌", unverifiable: "⚠️", untested: "▫️" };
