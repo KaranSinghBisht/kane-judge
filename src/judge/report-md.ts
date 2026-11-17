@@ -1,4 +1,11 @@
+import { safeHref } from "./html.js";
 import { claimCounts, flowFor, headline, overall, type ScorecardInput } from "./scorecard.js";
+
+/** A Markdown link only for http(s) URLs; local paths and other schemes never leave the machine in a report. */
+function mdLink(url: string | undefined, label: string): string | undefined {
+  const href = safeHref(url);
+  return href ? `[${label}](${href})` : undefined;
+}
 
 /** Markdown has no escaping story for raw HTML in many renderers; neutralise angle brackets in untrusted text. */
 function md(text: string | number | undefined): string {
@@ -17,7 +24,7 @@ export function renderReportMarkdown(input: ScorecardInput): string {
     "",
     `**${md(headline(v))}**`,
     "",
-    [v.project.live && `[Live demo](${v.project.live})`, v.project.repo && `[Repo](${v.project.repo})`, v.project.submission && `[Submission](${v.project.submission})`]
+    [mdLink(v.project.live, "Live demo"), mdLink(v.project.repo, "Repo"), mdLink(v.project.submission, "Submission"), mdLink(v.project.video, "Video")]
       .filter(Boolean)
       .join(" · "),
     "",

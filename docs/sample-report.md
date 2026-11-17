@@ -2,7 +2,7 @@
 
 **Kane proved 2 of 4 claims · 2 broken**
 
-[Live demo](http://localhost:4173) · [Repo](/Users/kryptos/Desktop/Projects/hackathons/kane/kane-judge/examples/inkwell-shop)
+[Live demo](http://localhost:4173/)
 
 A small stationery shop whose browse, cart, checkout and order-number loop works end to end in the live demo (2 of 4 README claims proven). The headline promo feature is broken: after SAVE10 is applied the discount shows but the order Total row disappears, because a 100%-rollout client-side experiment trims the summary to three rows. The README's 'Account → Orders' history does not exist anywhere in the shop.
 
