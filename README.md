@@ -94,7 +94,7 @@ The agent judges your project the way a judge would, tells you what they would h
 
 Write `check only` after the command to get the findings without any changes. After you redeploy, `kane-judge run projects/<slug> --start-url https://your-app.example.app --gate` replays the same flows against the deployed build.
 
-On the sample shop this took 10 minutes and about 250 Kane credits, and the final gate replayed in half a minute ([the scorecard](docs/sample-preflight-report.md)).
+On the sample shop this took 10 minutes and about 250 Kane credits, and the final gate replayed in half a minute ([the scorecard](docs/sample-preflight-report.md)). Replayed with `--start-url` against the deployed shop, which we keep broken, the same promo flow fails again and the gate exits 1.
 
 Try it on the sample (it has no dependencies):
 
@@ -183,7 +183,7 @@ kane-judge run projects/my-app --start-url "$PREVIEW_URL" --gate
 ## Limits
 
 - Web demos on desktop Chrome. A CLI, library or plugin has nothing for Kane to use, so its claims come back *unverifiable*, with the repo facts and questions for the team. Kane's mobile targets fit the same model but aren't wired up.
-- A flow's first run is authored by Kane's AI, which takes a minute or two and about 50 credits. Judging the sample (five flows, one re-run) took 12 minutes and 270 credits. A real project with three investigation rounds cost about 640, and a browser game that needed several rewrites about 1,350.
+- A flow's first run is authored by Kane's AI, which takes a minute or two and about 50 credits; replays take seconds and cost almost nothing. Judging the sample took 8 to 12 minutes and 200 to 270 credits in our runs. A real project with three investigation rounds cost about 640, and a browser game that needed several rewrites about 1,350.
 - The claim verdicts are bound to Kane's evidence. The rubric scores are Claude's judgment and can move a few points between runs.
 - Scores are a first-round triage for human judges, not a final decision.
 
