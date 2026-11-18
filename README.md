@@ -18,7 +18,7 @@ It has two modes:
 
 ## Try it in one paste
 
-You need Node 20+, Google Chrome, Claude Code 2.1.91 or later, and a free [TestMu AI](https://www.testmuai.com/kane-cli/) account for Kane CLI (new accounts get 10,000 credits).
+You need Node 20+, Google Chrome, Claude Code 2.1.91 or later running on your own machine (Kane drives your local Chrome, so the terminal or an IDE, not the web app), and a free [TestMu AI](https://www.testmuai.com/kane-cli/) account for Kane CLI (new accounts get 10,000 credits).
 
 ```bash
 npm install -g @testmuai/kane-cli
