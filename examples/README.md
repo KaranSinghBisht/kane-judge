@@ -23,13 +23,26 @@ npm start &     # http://localhost:4173
 claude          # then: /kane-judge:preflight . --live http://localhost:4173
 ```
 
-## `judged/inkwell-shop/`: the run behind the README's scorecard
+## `judged/inkwell-shop/`: the run behind the README's judge scorecard
 
-Everything Kane Judge wrote while judging the sample: the scan, the four flows Claude wrote (plain English, one per claim), Kane's results across every run, the screenshots Kane took, and the verdict.
+A share copy (`kane-judge share`) of a real judging of the sample: the scan with the use-cases Kane found in the README, the flows Claude wrote, Kane's results, the screenshots and step frames Kane took, the verdict, and Kane's evidence pack with the Kane account removed.
 
 ```bash
-node dist/kane-judge.mjs report examples/judged/inkwell-shop   # rebuild scorecard.html and report.md: no Kane credits
-node dist/kane-judge.mjs run examples/judged/inkwell-shop      # re-run the flows with your own Kane account
+node dist/kane-judge.mjs demo                                   # re-check it and try to cheat it: no account, no credits
+node dist/kane-judge.mjs report examples/judged/inkwell-shop    # rebuild scorecard.html and report.md
+cd examples/judged/inkwell-shop && kane-cli evidence verdict packs/*.evidence --policy kane-judge-claims.policy.yaml
 ```
 
-`report` checks the verdict against Kane's results first. After your own `run`, it rebuilds the scorecard only if Kane found what the verdict says it found.
+Re-running its flows with your own Kane account (`node dist/kane-judge.mjs run examples/judged/inkwell-shop`) costs about 250 credits. `report` then rebuilds the scorecard only if Kane found what the verdict says it found.
+
+## `ab-readme-only/`: the same project, judged by reading only
+
+A control: six runs of a model that sees only the README. None found the broken features.
+
+## `gate/`: keep the flows as a gate
+
+A pre-push hook and a GitHub Actions workflow around `kane-judge run --gate`.
+
+## `kane-findings/`: two false passes in Kane CLI 0.10.5
+
+The repro page, the flows and every trial transcript behind [`docs/kane-cli-findings.md`](../docs/kane-cli-findings.md).

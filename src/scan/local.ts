@@ -17,7 +17,7 @@ export function isLocalDir(input: string): boolean {
   }
 }
 
-async function readReadme(dir: string): Promise<string | undefined> {
+export async function readLocalReadme(dir: string): Promise<string | undefined> {
   for (const name of README_NAMES) {
     try {
       return (await readFile(join(dir, name), "utf8")).slice(0, README_LIMIT);
@@ -46,7 +46,7 @@ async function localCommits(dir: string): Promise<{ items: Array<{ date: string;
 /** Reads a local checkout: its README and git history. Like the GitHub scan, it runs none of the project's code. */
 export async function scanLocal(dir: string, window?: EventWindow): Promise<RepoScan> {
   const abs = resolve(dir);
-  const [readme, commits] = await Promise.all([readReadme(abs), localCommits(abs)]);
+  const [readme, commits] = await Promise.all([readLocalReadme(abs), localCommits(abs)]);
   const facts = commitFacts(commits.items, commits.complete, window);
   return {
     facts: {

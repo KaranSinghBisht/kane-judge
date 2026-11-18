@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gatePassed } from "../src/cli/commands/run.js";
+import { gateProblems } from "../src/cli/commands/run.js";
 import { describeFlowProblems, flowProblems } from "../src/flows/validate.js";
 import { parseFlowHeader } from "../src/flows/discover.js";
 import { collectFlowResults, NO_STEPS } from "../src/judge/collect.js";
@@ -18,7 +18,7 @@ import { isPrivateHost } from "../src/scan/page.js";
 import { must } from "./helpers/tmp.js";
 
 function flow(status: string, flowSha: string, at: string, extra: Partial<FlowResult> = {}): FlowResult {
-  return { name: "01-promo", file: "flows/01-promo_test.md", status, attempts: 0, authored: true, steps: [{ index: 1, heading: "Step", status: "passed" }], lastRunAt: at, flowSha, ...extra };
+  return { name: "01-promo", file: "flows/01-promo_test.md", status, attempts: 0, authored: true, steps: [{ index: 1, heading: "Step", status: "passed" }], asserts: { total: 1, passed: status === "passed" ? 1 : 0 }, lastRunAt: at, flowSha, ...extra };
 }
 
 function history(...runs: Array<[string, string]>): KaneResults {
@@ -102,7 +102,7 @@ describe("evidence rules enforced in code", () => {
 
   it("refuses to call a claim proven after more than two rewrites of its flow", () => {
     const bent = history(["failed", "a"], ["failed", "b"], ["failed", "c"], ["passed", "d"]);
-    expect(flowVersions(must(bent.flows["01-promo"]))).toBe(MAX_FLOW_VERSIONS + 1);
+    expect(flowVersions(bent, must(bent.flows["01-promo"]))).toBe(MAX_FLOW_VERSIONS + 1);
     expect(checkAgainstKane(verdict("proven"), bent).join("\n")).toMatch(/rewritten 3 times before it passed; the limit is 2/);
     expect(checkAgainstKane(verdict("proven"), history(["failed", "a"], ["failed", "b"], ["passed", "c"]))).toEqual([]);
   });
@@ -144,12 +144,23 @@ describe("run --gate", () => {
   const run: RunRecord = { at: "t", flows: ["a"], outcome: "passed", durationS: 1 };
   const pass = { policy: "kane-judge-claims", result: "pass", gates: [], failedGates: [], warnings: [], erroredGates: [] };
 
-  it("holds only when every flow passed and Kane's verdict, if any, is a pass", () => {
-    expect(gatePassed({ ...run, kaneVerdict: pass }, [{ status: "passed" }])).toBe(true);
-    expect(gatePassed(run, [{ status: "passed" }])).toBe(true);
-    expect(gatePassed({ ...run, kaneVerdict: { ...pass, result: "fail" } }, [{ status: "passed" }])).toBe(false);
-    expect(gatePassed({ ...run, kaneVerdict: pass }, [{ status: "passed" }, { status: "failed" }])).toBe(false);
-    expect(gatePassed(run, [])).toBe(false);
+  const ok = { name: "01-promo", status: "passed", steps: [{ index: 1 }], asserts: { total: 2, passed: 2 } };
+
+  it("holds only when every flow passed, ran asserts, and Kane's own verdict is a pass", () => {
+    expect(gateProblems({ ...run, kaneVerdict: pass }, [ok])).toEqual([]);
+    expect(gateProblems({ ...run, kaneVerdict: { ...pass, result: "fail" } }, [ok]).join()).toContain("Kane's verdict on the evidence pack is fail");
+    expect(gateProblems({ ...run, kaneVerdict: pass }, [ok, { ...ok, name: "02-pay", status: "failed" }])).toEqual(["02-pay failed"]);
+    expect(gateProblems({ ...run, kaneVerdict: pass }, []).join()).toContain("no flows");
+  });
+
+  it("fails when Kane's verdict is missing: no sign-off is not a sign-off", () => {
+    expect(gateProblems(run, [ok])).toEqual(["Kane's verdict on the evidence pack is missing"]);
+  });
+
+  it("fails a pass that ran no steps or no assert in Kane's evidence", () => {
+    expect(gateProblems({ ...run, kaneVerdict: pass }, [{ ...ok, steps: [] }]).join()).toContain("ran no steps");
+    expect(gateProblems({ ...run, kaneVerdict: pass }, [{ ...ok, asserts: { total: 0, passed: 0 } }]).join()).toContain("without a single assert step");
+    expect(gateProblems({ ...run, kaneVerdict: pass }, [{ ...ok, asserts: undefined }]).join()).toContain("without a single assert step");
   });
 });
 
@@ -176,17 +187,17 @@ describe("Kane's bug verdict", () => {
 describe("a flow Kane can't really run never counts as a pass", () => {
   // What a model wrote when it had not read the flow guide: Kane 0.10.5 ran nothing and reported "passed".
   const NUMBERED = "# Promo code SAVE10\n\nOpen https://shop.example.app.\n\n1. Add the pen.\n2. Verify the total.\n";
-  const GOOD = "---\nurl: https://shop.example.app/\n---\n\n# Promo\n\n## Apply the code\nApply SAVE10. Verify the summary visibly shows a Total.\n";
+  const GOOD = "---\nurl: https://shop.example.app/\ntags: [judge, c1]\n---\n\n# Promo\n\n## Apply the code\nApply SAVE10. Verify the summary visibly shows a Total.\n";
   const asFlow = (text: string) => ({ name: "01-promo", file: "flows/01-promo_test.md", ...parseFlowHeader(text) });
 
   it("is refused before the run when it has no start URL, no steps or no checks", () => {
     expect(flowProblems(asFlow(NUMBERED), NUMBERED).join("; ")).toMatch(/no `url:`.*no `## ` steps/);
     expect(flowProblems(asFlow(GOOD), GOOD)).toEqual([]);
     const noCheck = GOOD.replace("Verify the summary visibly shows a Total.", "Look at the summary.");
-    expect(flowProblems(asFlow(noCheck), noCheck).join("; ")).toMatch(/no step has a check/);
+    expect(flowProblems(asFlow(noCheck), noCheck).join("; ")).toMatch(/no check in step "Apply the code"/);
     const badUrl = GOOD.replace("https://shop.example.app/", "shop.example.app");
     expect(flowProblems(asFlow(badUrl), badUrl).join("; ")).toMatch(/must be an http\(s\) URL/);
-    expect(describeFlowProblems([{ file: "flows/01-promo_test.md", problems: ["no `## ` steps"] }])).toContain("Kane would report them as passed without doing anything");
+    expect(describeFlowProblems([{ file: "flows/01-promo_test.md", problems: ["no `## ` steps"] }])).toContain("Kane would report a flow without steps as passed without doing anything");
   });
 
   it("is recorded as no-steps, not passed, when Kane reports a pass but its log ran nothing", async () => {
@@ -197,7 +208,7 @@ describe("a flow Kane can't really run never counts as a pass", () => {
     const [result] = await collectFlowResults(outcome as never, [asFlow(GOOD)], projectPaths("/nonexistent/project"), "2026-11-18T00:00:00Z");
     expect(must(result).status).toBe(NO_STEPS);
     expect(must(result).failure?.kaneSays).toContain("no steps were run");
-    expect(gatePassed({ at: "t", flows: ["01-promo"], outcome: "passed", durationS: 8 }, [must(result)])).toBe(false);
+    expect(gateProblems({ at: "t", flows: ["01-promo"], outcome: "passed", durationS: 8 }, [must(result)]).join()).toContain("01-promo no-steps");
   });
 
   it("can't back a proven claim even if a results file says passed with no steps", () => {

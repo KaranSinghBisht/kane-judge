@@ -61,7 +61,8 @@ describe("scorecard", () => {
 
   it("renders a markdown report without raw HTML from the submission", () => {
     const md = renderReportMarkdown({ verdict: verdict({ summary: XSS }), images: new Map() });
-    expect(md).toContain("# Inkwell · 75% (15/20)");
+    expect(md).toContain("# Inkwell · Kane proved 1 of 3 claims");
+    expect(md).toContain("rubric 75% (15/20, the agent's judgement)");
     expect(md).not.toContain("<script>");
   });
 });
@@ -122,13 +123,14 @@ describe("results and summary", () => {
 });
 
 describe("board", () => {
-  it("ranks by score, then by proven claims", () => {
+  it("ranks by the share of claims Kane proved; the agent's rubric score only breaks ties", () => {
     const a = verdict({ project: { name: "A", slug: "a" } });
     const b = verdict({ project: { name: "B", slug: "b" }, scores: [{ criterion: "Works", score: 9, max: 10, why: "" }] });
     const c = verdict({ project: { name: "C", slug: "c" }, claims: [...verdict().claims, { id: "c4", claim: "x", source: "y", status: "proven", evidence: "z" }] });
     const rows = boardRows([{ verdict: a }, { verdict: b }, { verdict: c }]);
-    expect(rows.map((r) => `${r.rank}:${r.name}`)).toEqual(["1:B", "2:C", "3:A"]);
-    expect(renderBoardMarkdown(rows)).toContain("| 1 | [B](projects/b/scorecard.html) | 90% |");
+    expect(rows.map((r) => `${r.rank}:${r.name}`)).toEqual(["1:C", "2:B", "3:A"]);
+    expect(renderBoardMarkdown(rows)).toContain("| 2 | [B](projects/b/scorecard.html) | 1/3 | 1 | 1 | 90% | 0 |");
+    expect(renderBoardMarkdown(rows)).toContain("Ranked by the share of claims Kane proved");
     expect(renderBoardHtml(rows)).toContain('href="projects/b/scorecard.html"');
   });
 });

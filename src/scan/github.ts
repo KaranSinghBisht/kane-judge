@@ -139,12 +139,39 @@ function unreadable(ref: RepoRef): RepoScan {
   };
 }
 
+/** Set on a subfolder scan that found neither a README nor a commit. */
+export const NOTHING_FOUND = "nothing found at";
+
+/**
+ * A /tree/ URL doesn't say where the branch name ends: `tree/feature/login/apps/web`
+ * may be branch `feature/login`. When the first reading finds nothing, the repo's
+ * branch list settles it: the longest branch name that the URL starts with wins.
+ */
+async function resolveSlashBranch(ref: RepoRef): Promise<RepoRef | undefined> {
+  const list = await githubApi(`repos/${ref.owner}/${ref.repo}/branches?per_page=100`);
+  if (!Array.isArray(list) || !ref.ref || !ref.path) return undefined;
+  const full = `${ref.ref}/${ref.path}`;
+  const names = list.map((b) => str(asObject(b)?.name)).filter((n): n is string => !!n && n !== ref.ref);
+  const branch = names.filter((n) => full === n || full.startsWith(`${n}/`)).sort((a, b) => b.length - a.length)[0];
+  if (!branch) return undefined;
+  const path = full.slice(branch.length + 1) || undefined;
+  const root = `https://github.com/${ref.owner}/${ref.repo}`;
+  return { ...ref, ref: branch, path, url: path ? `${root}/tree/${branch}/${encodePath(path)}` : root };
+}
+
 /**
  * Reads repo metadata, languages, commit history and README. Never clones or runs anything.
  * For a subfolder submission (a /tree/<branch>/<folder> URL) the README and the commit
  * history are the folder's own.
  */
 export async function scanRepo(ref: RepoRef, window?: EventWindow): Promise<RepoScan> {
+  const first = await scanRepoAt(ref, window);
+  if (!first.facts.error?.startsWith(NOTHING_FOUND)) return first;
+  const other = await resolveSlashBranch(ref);
+  return other ? scanRepoAt(other, window) : first;
+}
+
+async function scanRepoAt(ref: RepoRef, window?: EventWindow): Promise<RepoScan> {
   const base = `repos/${ref.owner}/${ref.repo}`;
   const meta = asObject(await githubApi(base));
   if (!meta) return unreadable(ref);
@@ -167,7 +194,7 @@ export async function scanRepo(ref: RepoRef, window?: EventWindow): Promise<Repo
     languages: ref.path ? {} : languagesOf(languages),
     commits: commitFacts(commits.items, commits.complete, window),
     readmeChars: readme?.length,
-    error: ref.path && !readme && commits.items.length === 0 ? `nothing found at ${ref.path} on ${ref.ref ?? "the default branch"}: check the folder and branch` : undefined,
+    error: ref.path && !readme && commits.items.length === 0 ? `${NOTHING_FOUND} ${ref.path} on ${ref.ref ?? "the default branch"}: check the folder and branch` : undefined,
   };
   return { facts, readme };
 }

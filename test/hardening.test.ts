@@ -16,7 +16,7 @@ function verdictWith(claims: VerdictClaim[]): Verdict {
 }
 
 function results(status: string) {
-  const flow: FlowResult = { name: "01-a", file: "flows/01-a_test.md", status, attempts: 0, authored: true, steps: [{ index: 1, heading: "Step", status: "passed" }], lastRunAt: "t" };
+  const flow: FlowResult = { name: "01-a", file: "flows/01-a_test.md", status, attempts: 0, authored: true, steps: [{ index: 1, heading: "Step", status: "passed" }], asserts: { total: 1, passed: 1 }, lastRunAt: "t" };
   return mergeRun(emptyResults(), { at: "t", flows: ["01-a"], outcome: "passed", durationS: 1 }, [flow]);
 }
 

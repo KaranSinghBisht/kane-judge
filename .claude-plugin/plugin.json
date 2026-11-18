@@ -1,6 +1,6 @@
 {
   "name": "kane-judge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Judge hackathon projects by using their live demos, and pre-flight your own before you submit: claims become Kane CLI browser tests, failures are investigated or fixed, and every verdict points at Kane's evidence.",
   "author": { "name": "Karan Singh Bisht", "url": "https://github.com/KaranSinghBisht" },
   "homepage": "https://github.com/KaranSinghBisht/kane-judge",

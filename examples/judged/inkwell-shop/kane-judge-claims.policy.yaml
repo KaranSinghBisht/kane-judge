@@ -1,0 +1,13 @@
+# Kane Judge's gate on a run's sealed Kane evidence pack.
+# Kane's own verdict engine judges it (no AI, no credits):
+#   kane-cli evidence verdict <pack> --policy policies/claims.yaml
+# A flow is one claim, so "no failed flows" means every claim Kane tested held up,
+# and a flow that passed without a single assert step proves nothing.
+policy: kane-judge-claims
+gates:
+  - { id: no-failed-flows, metric: totals.failed, equals: 0, severity: blocking }
+  - { id: no-unjudged-flows, metric: totals.broken, equals: 0, severity: blocking }
+  - { id: no-skipped-flows, metric: totals.skipped, equals: 0, severity: blocking }
+  - { id: every-passed-flow-has-checks, metric: metrics.tests_without_checks, where: "test.status == 'passed'", equals: 0, severity: blocking }
+  - { id: nothing-flaky, metric: metrics.flaky_rate, max: 0, severity: warning }
+  - { id: no-exhausted-heals, metric: metrics.heal.exhausted_tests, equals: 0, severity: warning }

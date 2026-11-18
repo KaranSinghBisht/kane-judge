@@ -36,7 +36,7 @@ function verdict(overrides: Partial<Verdict> = {}): Verdict {
 }
 
 function flowRun(status: string, flowSha: string, at: string): FlowResult {
-  return { name: "01-promo", file: "flows/01-promo_test.md", status, attempts: 0, authored: false, steps: [{ index: 1, heading: "Step", status: "passed" }], lastRunAt: at, flowSha };
+  return { name: "01-promo", file: "flows/01-promo_test.md", status, attempts: 0, authored: false, steps: [{ index: 1, heading: "Step", status: "passed" }], asserts: { total: 1, passed: status === "passed" ? 1 : 0 }, lastRunAt: at, flowSha };
 }
 
 function run(at: string, flows = ["01-promo"], kaneVerdict?: KanePolicyVerdict): RunRecord {
@@ -52,23 +52,36 @@ function history(...runs: Array<[string, string]>): KaneResults {
 }
 
 describe("fix proof: the same test must fail, then pass", () => {
+  const proofOf = (results: KaneResults) => fixProof(results, must(results.flows["01-promo"]));
+
   it("accepts a flow that failed and then passed with identical text", () => {
-    const results = history(["failed", "aaa"], ["passed", "aaa"]);
-    expect(fixProof(must(results.flows["01-promo"]))).toEqual({ failedAt: "2026-11-18T10:00:00Z", passedAt: "2026-11-18T10:01:00Z" });
+    expect(proofOf(history(["failed", "aaa"], ["passed", "aaa"]))).toEqual({ failedAt: "2026-11-18T10:00:00Z", passedAt: "2026-11-18T10:01:00Z" });
   });
 
   it("refuses a flow that was edited between the failing and the passing run", () => {
-    expect(fixProof(must(history(["failed", "aaa"], ["passed", "bbb"]).flows["01-promo"]))).toBeUndefined();
+    expect(proofOf(history(["failed", "aaa"], ["passed", "bbb"]))).toBeUndefined();
   });
 
   it("refuses a flow Kane never saw failing, or one that is still failing", () => {
-    expect(fixProof(must(history(["passed", "aaa"]).flows["01-promo"]))).toBeUndefined();
-    expect(fixProof(must(history(["failed", "aaa"], ["failed", "aaa"]).flows["01-promo"]))).toBeUndefined();
+    expect(proofOf(history(["passed", "aaa"]))).toBeUndefined();
+    expect(proofOf(history(["failed", "aaa"], ["failed", "aaa"]))).toBeUndefined();
   });
 
-  it("compares against the last failing run, so an earlier rewrite of the test doesn't matter", () => {
-    const results = history(["failed", "old"], ["failed", "new"], ["passed", "new"]);
-    expect(fixProof(must(results.flows["01-promo"]))).toBeDefined();
+  it("anchors to the first failing run: a test weakened after it failed can't prove a fix, however it gets to green", () => {
+    expect(proofOf(history(["failed", "strict"], ["failed", "weak"], ["passed", "weak"]))).toBeUndefined();
+    expect(proofOf(history(["failed", "strict"], ["failed", "weak"], ["failed", "strict"], ["passed", "strict"]))).toBeDefined();
+  });
+
+  it("moves the anchor only to a run where Kane itself confirmed a product bug", () => {
+    const at = (i: number) => `2026-11-18T10:0${i}:00Z`;
+    const bug = { confirmed: true, title: "Total row missing" };
+    const runs: FlowResult[] = [
+      flowRun("failed", "wrong-route", at(0)), // the test's own mistake
+      { ...flowRun("failed", "right-route", at(1)), failure: { console: [], network: [], bugVerdict: bug } },
+      flowRun("passed", "right-route", at(2)),
+    ];
+    const results = runs.reduce((acc, flow) => mergeRun(acc, run(flow.lastRunAt), [flow]), emptyResults());
+    expect(proofOf(results)).toMatchObject({ failedAt: at(1), passedAt: at(2) });
   });
 });
 
@@ -190,7 +203,7 @@ describe("a fixed claim shows the same test before and after", () => {
   ]);
 
   it("keeps the failing run's screenshot next to the passing one", () => {
-    expect(fixProof(must(results.flows["01-promo"]))).toMatchObject({ failedShot: "evidence/01-promo-run1-failed.jpg", passedShot: "evidence/01-promo-run2-passed.jpg" });
+    expect(fixProof(results, must(results.flows["01-promo"]))).toMatchObject({ failedShot: "evidence/01-promo-run1-failed.jpg", passedShot: "evidence/01-promo-run2-passed.jpg" });
     expect(claimShots(fixed, results)).toEqual(["evidence/01-promo-run1-failed.jpg", "evidence/01-promo-run2-passed.jpg"]);
     expect(claimShots(claim(), results)).toEqual(["evidence/01-promo-run2-passed.jpg"]);
   });

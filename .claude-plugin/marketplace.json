@@ -7,7 +7,7 @@
       "name": "kane-judge",
       "source": "./",
       "description": "Judge hackathon projects by using their live demos with Kane CLI, or pre-flight your own and fix what Kane finds, with an evidence-backed scorecard.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "license": "Apache-2.0"
     }
   ]

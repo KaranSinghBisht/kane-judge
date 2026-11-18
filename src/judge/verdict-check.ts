@@ -57,6 +57,16 @@ function readFix(raw: unknown, where: string, p: Problems): ClaimFix | undefined
   return { summary: requireText(raw, "summary", `${where}.fix`, p), files: list };
 }
 
+/** The use-case ids a claim covers: `["u1", "u3"]`. */
+function readCovers(raw: unknown, where: string, p: Problems): string[] | undefined {
+  if (raw === undefined) return undefined;
+  if (!Array.isArray(raw) || raw.some((id) => typeof id !== "string" || !/^u\d+$/i.test(id.trim()))) {
+    p.add(where, '"covers" must be an array of use-case ids from the scan, like ["u1", "u3"]');
+    return undefined;
+  }
+  return [...new Set(raw.map((id: string) => id.trim().toLowerCase()))];
+}
+
 /** A judge never changes the project it judges; only a builder's pre-flight can fix or withdraw a claim. */
 function checkFixRules(claim: VerdictClaim, mode: VerdictMode, where: string, p: Problems): void {
   if (claim.fix && mode !== "preflight") p.add(where, '"fix" is only allowed in pre-flight mode ("mode": "preflight"): a judge never changes the project it judges');
@@ -85,6 +95,7 @@ function readClaim(raw: unknown, i: number, p: Problems, mode: VerdictMode): Ver
     evidence: requireText(raw, "evidence", where, p),
     investigation: readSteps(raw.investigation, where, p),
     fix: readFix(raw.fix, where, p),
+    covers: readCovers(raw.covers, where, p),
   };
   checkFixRules(claim, mode, where, p);
   return claim;
@@ -104,9 +115,11 @@ function readScore(raw: unknown, i: number, p: Problems): VerdictScore | undefin
     return undefined;
   }
   const max = typeof raw.max === "number" && raw.max > 0 ? raw.max : 10;
+  // One criterion can't outweigh the rest: every criterion is scored out of at most 10.
+  if (max > 10) p.add(where, `"max" can be at most 10 (got ${max})`);
   const score = typeof raw.score === "number" && Number.isFinite(raw.score) ? raw.score : NaN;
   if (Number.isNaN(score) || score < 0 || score > max) p.add(where, `"score" must be a number from 0 to ${max}`);
-  return { criterion: requireText(raw, "criterion", where, p), score, max, why: requireText(raw, "why", where, p) };
+  return { criterion: requireText(raw, "criterion", where, p), score, max, why: requireText(raw, "why", where, p), unverified: text(raw.unverified) };
 }
 
 function readStrings(raw: unknown, key: string, p: Problems): string[] {
@@ -152,5 +165,6 @@ export function checkVerdict(raw: unknown): VerdictCheck {
     judgedAt: text(raw.judgedAt),
     rubric: text(raw.rubric),
   };
+  if (Array.isArray(raw.claims) && verdict.claims.length === 0) p.add("claims", "a verdict needs at least one claim");
   return p.list.length ? { ok: false, errors: p.list } : { ok: true, verdict };
 }

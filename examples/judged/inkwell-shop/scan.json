@@ -1,6 +1,44 @@
 {
   "version": 1,
-  "scannedAt": "2026-11-18T00:21:45.749Z",
+  "mode": "judge",
+  "useCases": [
+    {
+      "id": "u1",
+      "title": "Place a demo order by card",
+      "risk": "high",
+      "anchor": "L12-L12",
+      "quote": "- **Fast checkout.** The checkout page lists your items and an order summary with the subtotal, $5 flat shipping and the total. Pay by card and get an order number right away."
+    },
+    {
+      "id": "u2",
+      "title": "Apply a promo code at checkout",
+      "risk": "high",
+      "anchor": "L13-L13",
+      "quote": "- **Promo codes.** Apply `SAVE10` at checkout and the summary updates with your discount and the new total."
+    },
+    {
+      "id": "u3",
+      "title": "Add a catalogue product to the cart",
+      "risk": "high",
+      "anchor": "L11-L11",
+      "quote": "- **Browse the catalogue.** Four hand-picked products with prices. Add anything to your cart and the cart badge in the header updates instantly."
+    },
+    {
+      "id": "u4",
+      "title": "Browse the stationery catalogue",
+      "risk": "med",
+      "anchor": "L11-L11",
+      "quote": "- **Browse the catalogue.** Four hand-picked products with prices. Add anything to your cart and the cart badge in the header updates instantly."
+    },
+    {
+      "id": "u5",
+      "title": "Review past orders",
+      "risk": "low",
+      "anchor": "L14-L14",
+      "quote": "- **Order history.** Every order you place is saved under **Account → Orders**, so you can find your order number later."
+    }
+  ],
+  "scannedAt": "2026-11-18T11:21:27.522Z",
   "slug": "inkwell-shop",
   "name": "inkwell-shop",
   "inputs": [
@@ -18,7 +56,7 @@
       "url": "https://github.com/KaranSinghBisht/kane-judge/tree/main/examples/inkwell-shop",
       "path": "examples/inkwell-shop",
       "createdAt": "2026-11-17T18:16:19Z",
-      "pushedAt": "2026-11-17T20:40:56Z",
+      "pushedAt": "2026-11-18T00:41:04Z",
       "defaultBranch": "main",
       "stars": 0,
       "forks": 0,

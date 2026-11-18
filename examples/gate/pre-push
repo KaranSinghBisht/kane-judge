@@ -1,0 +1,20 @@
+#!/bin/sh
+# Kane Judge gate for `git push`: the push goes through only if every claim flow
+# still passes and Kane's verdict engine signs the run.
+#
+#   cp examples/gate/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+#
+# Your app has to be running where the flows' `url:` points. To test another
+# build instead, set KANE_JUDGE_START_URL. Skip the gate once with
+# `git push --no-verify`.
+PROJECT="${KANE_JUDGE_PROJECT:-projects/my-app}"
+
+if ! command -v kane-judge >/dev/null 2>&1; then
+  echo "pre-push: kane-judge is not installed (npm install -g github:KaranSinghBisht/kane-judge); push not checked." >&2
+  exit 0
+fi
+
+if [ -n "$KANE_JUDGE_START_URL" ]; then
+  exec kane-judge run "$PROJECT" --start-url "$KANE_JUDGE_START_URL" --gate </dev/null
+fi
+exec kane-judge run "$PROJECT" --gate </dev/null

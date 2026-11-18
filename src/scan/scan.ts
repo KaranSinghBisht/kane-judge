@@ -1,10 +1,11 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PROJECTS_DIR, projectPaths, slugify } from "../judge/workspace.js";
-import { safeMessage } from "../shared/errors.js";
-import { writeJsonAtomic, writeTextAtomic } from "../shared/fs.js";
+import type { UseCaseResult } from "../kane/usecases.js";
+import { KaneJudgeError, safeMessage } from "../shared/errors.js";
+import { readJsonFile, writeJsonAtomic, writeTextAtomic } from "../shared/fs.js";
 import { log } from "../shared/logger.js";
-import { scanRepo, type EventWindow, type RepoScan } from "./github.js";
+import { NOTHING_FOUND, scanRepo, type EventWindow, type RepoScan } from "./github.js";
 import { findInjectionHints } from "./injection.js";
 import { classifyLinks, parseRepo, type RepoRef } from "./links.js";
 import { isLocalDir, scanLocal } from "./local.js";
@@ -22,6 +23,10 @@ export interface ScanOptions {
   window?: EventWindow;
   /** Folder that holds `projects/`. */
   workspace: string;
+  /** The builder's own project, checked before submitting: fixes and withdrawn claims are allowed. */
+  preflight?: boolean;
+  /** Asks Kane for the use-cases a README promises. Left out, the scan has no use-case list. */
+  useCases?: (readme: string) => Promise<UseCaseResult>;
 }
 
 export interface ScanOutput {
@@ -97,6 +102,17 @@ function chooseLive(opts: ScanOptions, demos: string[], repos: RepoScan[], readm
   return [...demos, homepage, ...readmeDemos].find((url): url is string => !!url && !isPrivateHost(url));
 }
 
+/** The use-cases Kane found, for the agent: each has to be covered by a claim in the verdict. */
+function useCaseLines(result: ScanResult): string[] {
+  if (!result.useCases?.length) return result.useCasesNote ? ["## Use-cases Kane found in the README", `- none: ${result.useCasesNote}`, ""] : [];
+  return [
+    "## Use-cases Kane found in the README",
+    "Kane's own reading of the README (`kane-cli context ingest`). Every one has to be covered by a claim in verdict.json (`\"covers\": [\"u1\"]`), tested or not.",
+    ...result.useCases.map((u) => `- ${u.id} [${u.risk ?? "?"}] ${u.title}${u.anchor ? ` (README ${u.anchor})` : ""}${u.quote ? `: "${u.quote}"` : ""}`),
+    "",
+  ];
+}
+
 function submissionMarkdown(result: ScanResult, pages: FetchedPage[], repos: RepoScan[]): string {
   const lines = [
     `# ${result.name}`,
@@ -110,12 +126,28 @@ function submissionMarkdown(result: ScanResult, pages: FetchedPage[], repos: Rep
     ...result.demoCandidates.filter((d) => d !== result.live).slice(0, 5).map((d) => `- Other demo-like link: ${d}`),
     ...result.pages.filter((p) => p.chars === 0).map((p) => `- Could not read ${p.url}: ${p.title ?? "no content"}`),
     "",
+    ...useCaseLines(result),
     "## Red flags from the scan",
     ...(result.injectionHints.length ? result.injectionHints.map((h) => `- Possible prompt injection aimed at AI judges: ${h}`) : ["- none"]),
   ];
   for (const page of pages) lines.push("", `## Submission page: ${page.finalUrl}`, "", clip(page.text));
   for (const repo of repos) if (repo.readme) lines.push("", `## README (${repo.facts.fullName})`, "", clip(repo.readme));
   return `${lines.join("\n")}\n`;
+}
+
+/** What makes two scans the same submission: the repos they read (a local folder by its full path), or else the pages. */
+function identity(scan: Pick<ScanResult, "repos" | "inputs">): string {
+  const sources = scan.repos.length ? scan.repos.map((r) => r.url.replace(/\/tree\/.*$/, "")) : scan.inputs;
+  return [...new Set(sources)].sort().join("\n");
+}
+
+/** Two submissions can share a name ("app", "web"). A folder that already holds a different one is never reused. */
+async function refuseCollision(scanPath: string, result: ScanResult): Promise<void> {
+  const existing = (await readJsonFile(scanPath).catch(() => undefined)) as ScanResult | undefined;
+  if (!existing || !Array.isArray(existing.inputs) || !Array.isArray(existing.repos)) return;
+  if (identity(existing) !== identity(result)) {
+    throw new KaneJudgeError(`projects/${result.slug} already holds another submission (${existing.inputs.join(", ")}). Give this one its own folder with --slug <name>.`, "SLUG_TAKEN");
+  }
 }
 
 /** Gathers what a submission claims and where it runs, without executing any of its code. */
@@ -129,6 +161,8 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
     ...(await Promise.all(localDirs.map((d) => scanLocal(d, opts.window)))),
     ...(await Promise.all(repoRefs.map((r) => scanRepo(r, opts.window)))),
   ];
+  const missing = repos.find((r) => r.facts.error?.startsWith(NOTHING_FOUND));
+  if (missing) throw new KaneJudgeError(`${missing.facts.url}: ${missing.facts.error}`, "FOLDER_NOT_FOUND");
   const { demos, videos } = linkSets(pages);
   const readmeDemos = repos.flatMap((r) => (r.readme ? readmeDemoLinks(r.readme) : []));
   const live = chooseLive(opts, demos, repos, readmeDemos);
@@ -138,8 +172,13 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
     ...pages.map((p) => [`page ${p.finalUrl}`, p.html] as const),
     ...repos.filter((r) => r.readme).map((r) => [`README ${r.facts.fullName}`, r.readme ?? ""] as const),
   ]);
+  const readme = repos.find((r) => r.readme)?.readme;
+  const kane = readme && opts.useCases ? await opts.useCases(readme) : undefined;
   const result: ScanResult = {
     version: 1,
+    mode: opts.preflight ? "preflight" : "judge",
+    useCases: kane?.useCases.length ? kane.useCases : undefined,
+    useCasesNote: kane?.note,
     scannedAt: new Date().toISOString(),
     slug,
     name,
@@ -155,6 +194,7 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
   };
   const dir = join(opts.workspace, PROJECTS_DIR, slug);
   const paths = projectPaths(dir);
+  await refuseCollision(paths.scan, result);
   await mkdir(paths.flowsDir, { recursive: true });
   await writeProjectGitignore(dir);
   await writeJsonAtomic(paths.scan, result);

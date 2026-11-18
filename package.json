@@ -1,6 +1,6 @@
 {
   "name": "kane-judge",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Judge hackathon projects by using their live demos, and pre-flight your own: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin.",
   "type": "module",
   "license": "Apache-2.0",
@@ -14,6 +14,7 @@
     "commands/",
     "hooks/",
     "policies/",
+    "examples/judged/",
     ".claude-plugin/",
     "README.md",
     "LICENSE"
@@ -26,7 +27,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run test && npm run build"
+    "check": "npm run typecheck && npm run test && npm run build && npm run build:site",
+    "build:site": "node scripts/build-site.mjs"
   },
   "keywords": [
     "claude-code",
@@ -39,17 +41,16 @@
     "browser-testing",
     "ai-agents"
   ],
-  "dependencies": {
-    "fflate": "0.8.3",
-    "picomatch": "4.0.7",
-    "yaml": "2.9.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "22.19.1",
     "@types/picomatch": "4.0.2",
     "esbuild": "0.27.0",
+    "fflate": "0.8.3",
+    "picomatch": "4.0.7",
     "typescript": "5.9.3",
-    "vitest": "5.1.0"
+    "vitest": "5.1.0",
+    "yaml": "2.9.1"
   },
   "repository": {
     "type": "git",

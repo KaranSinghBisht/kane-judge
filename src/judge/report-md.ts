@@ -3,7 +3,7 @@ import { safeHref } from "./html.js";
 import { mdText as md } from "./markdown.js";
 import { fixProof } from "./results.js";
 import { describeBugVerdict } from "./summary.js";
-import { allFlags, claimCounts, claimLabel, claimsInReadingOrder, flowFor, headline, kaneSignOff, overall, runTrail, shareLink, type ScorecardInput } from "./scorecard.js";
+import { allFlags, claimCounts, claimLabel, claimsInReadingOrder, coverageLine, coverageRows, flowFor, headline, kaneSignOff, overall, runTrail, shareLink, type ScorecardInput } from "./scorecard.js";
 import type { VerdictClaim } from "./verdict.js";
 
 /** A Markdown link only for http(s) URLs; local paths and other schemes never leave the machine in a report. */
@@ -19,7 +19,7 @@ function fixLine(claim: VerdictClaim, input: ScorecardInput): string | undefined
   const lead = claim.status === "withdrawn" ? "Claim withdrawn" : claim.status === "proven" ? "Fixed in pre-flight" : "Fix attempted; Kane still fails it";
   const files = claim.fix.files.length ? ` Changed: ${claim.fix.files.map((f) => `\`${md(f)}\``).join(", ")}.` : "";
   const flow = flowFor(claim, input.results);
-  const proof = flow && claim.status === "proven" ? fixProof(flow) : undefined;
+  const proof = flow && input.results && claim.status === "proven" ? fixProof(input.results, flow) : undefined;
   const proven = proof ? ` Kane ran the same test before and after: failed at ${proof.failedAt.slice(11, 16)}, passed at ${proof.passedAt.slice(11, 16)} UTC.` : "";
   return `  - ${lead}: ${md(claim.fix.summary)}${files}${proven}`;
 }
@@ -54,9 +54,9 @@ export function renderReportMarkdown(input: ScorecardInput): string {
   const o = overall(v);
   const signed = kaneSignOff(v, input.results);
   const lines = [
-    `# ${md(v.project.name)} · ${o.pct}% (${o.score}/${o.max})`,
+    `# ${md(v.project.name)} · Kane proved ${claimCounts(v).proven} of ${v.claims.length} claims`,
     "",
-    `**${md(headline(v))}**`,
+    `**${md(headline(v))}** · rubric ${o.pct}% (${o.score}/${o.max}, the agent's judgement)`,
     ...(v.mode === "preflight" ? ["", "_Pre-flight: checked and fixed by the builder before submitting._"] : []),
     ...(signed ? ["", `Kane's verdict on the sealed evidence pack (policy \`${md(signed.kane.policy)}\`): **${md(describePolicyVerdict(signed.kane))}**`] : []),
     "",
@@ -69,7 +69,13 @@ export function renderReportMarkdown(input: ScorecardInput): string {
     "## Claims",
     ...claimsInReadingOrder(v).flatMap((claim) => claimLines(claim, input)),
   ];
-  lines.push("", "## Scores", ...v.scores.map((s) => `- **${md(s.criterion)}** ${s.score}/${s.max}: ${md(s.why)}`));
+  const coverage = coverageRows(v, input.scan);
+  if (coverage.length) {
+    lines.push("", "## Coverage: everything the README promises", "", `${md(coverageLine(v, input.scan) ?? "")}. The list is Kane's own reading of the README (\`kane-cli context ingest\`).`, "");
+    lines.push(...coverage.map((row) => `- ${row.id} ${md(row.title)}${row.anchor ? ` (README ${row.anchor})` : ""}: ${row.claims.map((c) => `${c.id} ${claimLabel(c)}`).join(", ") || "not covered"}`));
+  }
+  lines.push("", "## Suggested scores", "", "_The agent's judgement, for a human judge to adjust._", "");
+  lines.push(...v.scores.map((s) => `- **${md(s.criterion)}** ${s.score}/${s.max}: ${md(s.why)}${s.unverified ? ` Couldn't verify: ${md(s.unverified)}` : ""}`));
   const flags = allFlags(input);
   if (flags.length) lines.push("", "## Red flags", ...flags.map((f) => `- ${md(f)}`));
   if (v.questions.length) lines.push("", "## Questions to ask the team", ...v.questions.map((q, i) => `${i + 1}. ${md(q)}`));

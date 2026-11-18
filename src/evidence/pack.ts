@@ -99,7 +99,7 @@ function testDirs(zip: ZipReader): string[] {
   return [...dirs];
 }
 
-function pickTestDir(zip: ZipReader, target: PackTarget): string | undefined {
+export function pickTestDir(zip: ZipReader, target: PackTarget): string | undefined {
   const dirs = testDirs(zip);
   if (target.testId && dirs.includes(`tests/${target.testId}`)) return `tests/${target.testId}`;
   if (dirs.length <= 1) return dirs[0];
@@ -199,6 +199,42 @@ export async function readFailureEvidence(packPath: string, target: PackTarget):
   return ev;
 }
 
+export interface CheckCounts {
+  /** Assert steps Kane ran for the test. */
+  asserts: number;
+  /** Assert steps that passed. */
+  passed: number;
+}
+
+/**
+ * How many assert steps Kane ran for one test, from the test's result.yaml in
+ * the sealed pack. A test can pass with none (Kane's own `tests_without_checks`
+ * metric counts exactly this), and such a pass proves nothing.
+ */
+export async function readCheckCounts(packPath: string, target: PackTarget): Promise<CheckCounts | undefined> {
+  let zip: ZipReader;
+  try {
+    zip = await ZipReader.open(packPath);
+  } catch (err) {
+    log.warn(`could not open evidence pack ${packPath}: ${safeMessage(err)}`);
+    return undefined;
+  }
+  const testDir = pickTestDir(zip, target);
+  const text = testDir ? zip.readText(`${testDir}/result.yaml`) : undefined;
+  if (!text) return undefined;
+  let doc: unknown;
+  try {
+    doc = parseYaml(text);
+  } catch (err) {
+    log.debug(`result.yaml unreadable: ${safeMessage(err)}`);
+    return undefined;
+  }
+  const steps = asRecord(doc)?.steps;
+  if (!Array.isArray(steps)) return undefined;
+  const asserts = steps.map(asRecord).filter((step) => step?.kind === "assert");
+  return { asserts: asserts.length, passed: asserts.filter((step) => step?.status === "passed").length };
+}
+
 /** Extracts the last step's screenshot: proof of where a passing flow ended up. */
 export async function readProofScreenshot(packPath: string, target: PackTarget & { screenshotTo: string }): Promise<string | undefined> {
   let zip: ZipReader;
@@ -215,8 +251,8 @@ export async function readProofScreenshot(packPath: string, target: PackTarget &
   return (await writeEntry(zip, last, dest)) ? dest : undefined;
 }
 
-async function writeEntry(zip: ZipReader, entry: string, destination: string): Promise<boolean> {
-  const bytes = zip.readBytes([entry]).get(entry);
+/** Writes bytes that came out of a pack to disk; false (and a log line) when that fails. */
+export async function writeBytes(bytes: Uint8Array | undefined, destination: string): Promise<boolean> {
   if (!bytes) return false;
   try {
     await mkdir(dirname(destination), { recursive: true });
@@ -226,4 +262,8 @@ async function writeEntry(zip: ZipReader, entry: string, destination: string): P
     log.warn(`could not write ${destination}: ${safeMessage(err)}`);
     return false;
   }
+}
+
+async function writeEntry(zip: ZipReader, entry: string, destination: string): Promise<boolean> {
+  return writeBytes(zip.readBytes([entry]).get(entry), destination);
 }

@@ -1,8 +1,10 @@
 import type { KanePolicyVerdict } from "../kane/policy.js";
+import { isPrivateHost } from "../scan/page.js";
 import type { ScanResult } from "../scan/types.js";
 import { demoInjectionHints } from "./demo-hints.js";
-import { badge, escapeHtml, link, page, safeHref, scoreRow } from "./html.js";
-import { fixProof, resultsStamp, type FlowResult, type KaneResults, type RunRecord } from "./results.js";
+import { badge, escapeHtml, link, page, safeHref, scoreRow, shotFigure, type ReplayFrame } from "./html.js";
+import type { PackCheck } from "./pack-verify.js";
+import { claimRuns, fixProof, resultsStamp, type FlowResult, type FlowRunEntry, type KaneResults, type ReplayStep, type RunRecord } from "./results.js";
 import { CLAIM_STATUSES, type ClaimStatus, type Verdict, type VerdictClaim } from "./verdict.js";
 
 /** The <meta> tag in which a scorecard records the Kane runs it was built from (see `resultsStamp`). */
@@ -14,6 +16,8 @@ export interface ScorecardInput {
   scan?: ScanResult;
   /** Project-relative screenshot path -> data URI. */
   images: Map<string, string>;
+  /** What re-reading Kane's sealed evidence packs found when the report was built. */
+  packs?: PackCheck;
 }
 
 export function overall(verdict: Verdict): { score: number; max: number; pct: number } {
@@ -88,19 +92,21 @@ function verdictWord(kane: KanePolicyVerdict): string {
 
 const clock = (iso: string) => iso.slice(11, 16);
 
+/** Says when the flow's text changed since the run before, and whether what it checks changed with it. */
+function rewriteNote(before: FlowRunEntry | undefined, run: FlowRunEntry): string {
+  if (!before?.flowSha || !run.flowSha || before.flowSha === run.flowSha) return "";
+  if (!before.checksSha || !run.checksSha) return " (flow rewritten)";
+  return before.checksSha === run.checksSha ? " (flow rewritten, same checks)" : " (flow rewritten, checks changed)";
+}
+
 /**
- * Kane's own record of a flow's runs: "✗ 20:25 → ✗ 20:32 (flow rewritten) → ✓ 20:35".
- * Built from run results and flow hashes, never from the judge's notes.
+ * Kane's own record of the runs behind a claim: "✗ 20:25 → ✗ 20:32 (flow rewritten, same checks) → ✓ 20:35".
+ * Built from run results and flow hashes, never from the judge's notes. With `results`,
+ * it covers every flow that carried the claim, so renaming a flow file hides nothing.
  */
-export function runTrail(flow: FlowResult): string {
-  const history = flow.history ?? [];
-  return history
-    .map((run, i) => {
-      const before = history[i - 1];
-      const rewritten = before?.flowSha && run.flowSha && before.flowSha !== run.flowSha ? " (flow rewritten)" : "";
-      return `${run.status === "passed" ? "✓" : "✗"} ${clock(run.at)}${rewritten}`;
-    })
-    .join(" → ");
+export function runTrail(flow: FlowResult, results?: KaneResults): string {
+  const history: FlowRunEntry[] = results ? claimRuns(results, flow) : (flow.history ?? []);
+  return history.map((run, i) => `${run.status === "passed" ? "✓" : "✗"} ${clock(run.at)}${rewriteNote(history[i - 1], run)}`).join(" → ");
 }
 
 /** The Test Manager link of the latest run, or of the most recent earlier run that has one. */
@@ -116,11 +122,11 @@ export function allFlags(input: Pick<ScorecardInput, "verdict" | "scan" | "resul
   return [...new Set([...input.verdict.flags, ...automatic.map((h) => `Possible prompt injection aimed at AI judges (automatic scan): ${h}`)])];
 }
 
-function fixBlock(claim: VerdictClaim, flow?: FlowResult): string {
+function fixBlock(claim: VerdictClaim, flow: FlowResult | undefined, results: KaneResults | undefined): string {
   if (!claim.fix) return "";
   const lead = claim.status === "withdrawn" ? "Claim withdrawn." : claim.status === "proven" ? "Fixed in pre-flight." : "Fix attempted; Kane still fails it.";
   const files = claim.fix.files.length ? ` <span class="muted">Changed: ${claim.fix.files.map((f) => `<code>${escapeHtml(f)}</code>`).join(", ")}</span>` : "";
-  const proof = flow && claim.status === "proven" ? fixProof(flow) : undefined;
+  const proof = flow && results && claim.status === "proven" ? fixProof(results, flow) : undefined;
   const proofLine = proof ? `<div class="muted">Kane ran the same test before and after: failed at ${escapeHtml(clock(proof.failedAt))}, passed at ${escapeHtml(clock(proof.passedAt))} UTC.</div>` : "";
   return `<div class="fix"><b>${lead}</b> ${escapeHtml(claim.fix.summary)}${files}${proofLine}</div>`;
 }
@@ -138,28 +144,59 @@ function bugLine(flow?: FlowResult): string {
 export function claimShots(claim: VerdictClaim, results?: KaneResults): string[] {
   const flow = flowFor(claim, results);
   if (!flow) return [];
-  const proof = claim.fix && claim.status === "proven" ? fixProof(flow) : undefined;
+  const proof = results && claim.fix && claim.status === "proven" ? fixProof(results, flow) : undefined;
   return [proof?.failedShot, flow.screenshot].filter((s): s is string => !!s);
 }
 
-function shot(src: string, alt: string, caption?: string): string {
-  const img = `<img class="shot" alt="${escapeHtml(alt)}" src="${escapeHtml(src)}">`;
-  return caption ? `<figure>${img}<figcaption>${escapeHtml(caption)}</figcaption></figure>` : img;
+/** The step screenshots a claim's replays need, one list per replay (the "before" of a fix, then the latest run). */
+export function claimReplays(claim: VerdictClaim, results?: KaneResults): string[][] {
+  const flow = flowFor(claim, results);
+  if (!flow) return [];
+  const proof = results && claim.fix && claim.status === "proven" ? fixProof(results, flow) : undefined;
+  return [proof?.failedFrames, flow.frames].filter((f): f is ReplayStep[] => !!f && f.length > 1).map((f) => f.map((step) => step.file));
 }
 
-/** One screenshot, or the same test's screen before and after a fix. */
-function shotsBlock(claim: VerdictClaim, flow: FlowResult | undefined, images: Map<string, string>): string {
+/** Kane's line for a step, without its internal call syntax: `analyze: ANALYZE(visual, 'x…')` -> `analyze: x…`. */
+export function stepCaption(step: ReplayStep, failure?: string): string {
+  if (step.status === "failed" && failure) return `failed: ${failure}`;
+  const raw = step.summary ?? step.kind ?? "step";
+  return raw
+    .replace(/ANALYZE\([a-z_]+,\s*'?/i, "")
+    .replace(/\s*\|\s*HINTS:.*$/i, "")
+    .replace(/'?\)?\s*$/, "")
+    .trim();
+}
+
+/** A run's steps as replay frames, or nothing unless every one of its screenshots was loaded. */
+function replayOf(steps: ReplayStep[] | undefined, images: Map<string, string>, failure?: string): ReplayFrame[] | undefined {
+  if (!steps || steps.length < 2) return undefined;
+  const frames = steps.map((step) => ({ src: images.get(step.file) ?? "", cap: stepCaption(step, failure), ok: step.status !== "failed" }));
+  return frames.every((f) => f.src !== "") ? frames : undefined;
+}
+
+/** One screenshot, or the same test's screen before and after a fix. Each is a step-by-step replay when Kane's frames are there. */
+function shotsBlock(claim: VerdictClaim, flow: FlowResult | undefined, input: ScorecardInput): string {
+  const images = input.images;
   const latest = flow?.screenshot ? images.get(flow.screenshot) : undefined;
-  const proof = flow && claim.fix && claim.status === "proven" ? fixProof(flow) : undefined;
+  const proof = flow && input.results && claim.fix && claim.status === "proven" ? fixProof(input.results, flow) : undefined;
   const before = proof?.failedShot ? images.get(proof.failedShot) : undefined;
+  const after = replayOf(flow?.frames, images, flow?.failure?.error ?? flow?.failure?.kaneSays);
   if (proof && before && latest) {
-    return `<div class="pair">${shot(before, `Before the fix: ${claim.claim}`, `Before · Kane's run at ${clock(proof.failedAt)} UTC failed`)}${shot(
-      latest,
-      `After the fix: ${claim.claim}`,
-      `After · the same test at ${clock(proof.passedAt)} UTC passed`,
-    )}</div>`;
+    const failed = shotFigure(before, `Before the fix: ${claim.claim}`, `Before · Kane's run at ${clock(proof.failedAt)} UTC failed`, replayOf(proof.failedFrames, images));
+    return `<div class="pair">${failed}${shotFigure(latest, `After the fix: ${claim.claim}`, `After · the same test at ${clock(proof.passedAt)} UTC passed`, after)}</div>`;
   }
-  return latest ? shot(latest, `Kane screenshot for: ${claim.claim}`) : "";
+  return latest ? shotFigure(latest, `Kane screenshot for: ${claim.claim}`, after ? "Kane's run, step by step: press play, or drag the slider" : undefined, after) : "";
+}
+
+/** The facts under a claim that come from Kane's results, not from the agent: which flow, how it went, where to replay it. */
+function flowMeta(flow: FlowResult, share: { url: string; latest: boolean } | undefined, trail: string): string {
+  const title = flow.title ? ` “${escapeHtml(flow.title)}”` : "";
+  // On a failing flow the count would mislead: the checks before the failing step did pass.
+  const checks = flow.asserts && flow.status === "passed" ? ` · ${flow.asserts.passed} of ${flow.asserts.total} assert step(s) passed` : "";
+  const target = flow.startUrl ? ` · run against <code>${escapeHtml(flow.startUrl)}</code> instead of the flow's own URL` : "";
+  const manager = share ? ` · ${link(share.url, share.latest ? "Kane Test Manager run" : "Kane Test Manager (earlier run)")}` : "";
+  const record = trail ? `<br>Kane's record (UTC): ${escapeHtml(trail)}` : "";
+  return `<div class="muted" style="font-size:13px;margin-top:8px">Flow <code>${escapeHtml(flow.name)}</code>${title} · ${escapeHtml(flow.status)} after ${escapeHtml(flow.attempts)} Kane run(s)${checks}${target}${manager}${record}</div>`;
 }
 
 function claimCard(claim: VerdictClaim, input: ScorecardInput): string {
@@ -170,14 +207,10 @@ function claimCard(claim: VerdictClaim, input: ScorecardInput): string {
         .join("")}</ol>`
     : "";
   const share = flow ? shareLink(flow) : undefined;
-  const trail = flow ? runTrail(flow) : "";
-  const meta = flow
-    ? `<div class="muted" style="font-size:13px;margin-top:8px">Flow <code>${escapeHtml(flow.name)}</code> · ${escapeHtml(flow.status)} after ${escapeHtml(flow.attempts)} Kane run(s)${
-        share ? ` · ${link(share.url, share.latest ? "Kane Test Manager run" : "Kane Test Manager (earlier run)")}` : ""
-      }${trail ? `<br>Kane's record (UTC): ${escapeHtml(trail)}` : ""}</div>`
-    : "";
+  const trail = flow ? runTrail(flow, input.results) : "";
+  const meta = flow ? flowMeta(flow, share, trail) : "";
   return `<section class="card">${badge(claimLabel(claim))}<span class="claim${claim.status === "withdrawn" ? " struck" : ""}">${escapeHtml(claim.claim)}</span>
-<div class="source">${escapeHtml(claim.source)}</div><div>${escapeHtml(claim.evidence)}</div>${bugLine(flow)}${fixBlock(claim, flow)}${meta}${steps}${shotsBlock(claim, flow, input.images)}</section>`;
+<div class="source">${escapeHtml(claim.source)}</div><div>${escapeHtml(claim.evidence)}</div>${bugLine(flow)}${fixBlock(claim, flow, input.results)}${meta}${steps}${shotsBlock(claim, flow, input)}</section>`;
 }
 
 function signOffLine(input: ScorecardInput): string {
@@ -187,20 +220,30 @@ function signOffLine(input: ScorecardInput): string {
   return `<p class="stamp ${signed.kane.result === "pass" ? "ok" : "bad"}">Kane's verdict on the sealed evidence pack: <b>${escapeHtml(verdictWord(signed.kane))}</b> · policy <code>${escapeHtml(signed.kane.policy)}</code>${pack}</p>`;
 }
 
+/** The denominator, in the header: how many promises Kane found in the README and how many were tested. */
+function coverageNote(input: ScorecardInput): string {
+  const line = coverageLine(input.verdict, input.scan);
+  return line ? `<p class="muted" style="margin:4px 0 0;font-size:14px">${escapeHtml(line)}.</p>` : "";
+}
+
 function header(input: ScorecardInput): string {
   const verdict = input.verdict;
   const p = verdict.project;
+  const local = p.live !== undefined && safeHref(p.live) !== undefined && isPrivateHost(p.live);
   const links = [
-    safeHref(p.live) && link(p.live, "Live demo"),
+    local ? `<span class="muted">Tested on the builder's local build, ${escapeHtml(p.live)}</span>` : safeHref(p.live) && link(p.live, "Live demo"),
     safeHref(p.repo) && link(p.repo, "Repository"),
     safeHref(p.submission) && link(p.submission, "Submission"),
     safeHref(p.video) && link(p.video, "Video"),
   ].filter(Boolean);
   const o = overall(verdict);
+  const c = claimCounts(verdict);
   const mode = verdict.mode === "preflight" ? '<div class="mode">Pre-flight · checked and fixed by the builder before submitting</div>' : "";
+  // The biggest number is the one Kane backs. The rubric score is the agent's judgement and says so.
   return `<header class="hero"><div>${mode}<h1>${escapeHtml(p.name)}</h1><div class="links">${links.join("")}</div>
-<p class="headline">${escapeHtml(headline(verdict))}</p>${signOffLine(input)}</div>
-<div class="total"><b>${o.pct}%</b><span class="muted">${escapeHtml(`${o.score} / ${o.max}`)}</span></div></header>`;
+<p class="headline">${escapeHtml(headline(verdict))}</p>${coverageNote(input)}${signOffLine(input)}</div>
+<div class="total"><b>${c.proven}<span class="of">/${verdict.claims.length}</span></b><span class="muted">claims proven by Kane</span>
+<span class="rubric">Rubric ${o.pct}% <span class="muted">(${escapeHtml(`${o.score}/${o.max}`)}, the agent's judgement)</span></span></div></header>`;
 }
 
 function flagsSection(input: ScorecardInput): string {
@@ -231,12 +274,49 @@ function factsSection(scan?: ScanResult): string {
   ].join("")}</div>`;
 }
 
-function runsSection(results?: KaneResults): string {
+/** Says whether this report was checked against Kane's sealed packs themselves, or only against the recorded results. */
+function packNote(packs?: PackCheck): string {
+  if (!packs || packs.verified + packs.missing === 0) return "";
+  const shared = packs.shared ? ` ${packs.shared === packs.verified ? "They are" : `${packs.shared} of them are`} share copies: the Kane account and local paths were removed, and everything else is as Kane sealed it.` : "";
+  if (packs.missing === 0) return ` When this report was built, all ${packs.verified} pack(s) were re-read: each still had the hash recorded for it, and each flow's status in the pack matched the results.${shared}`;
+  const some = packs.verified ? `${packs.verified} pack(s) were re-read and matched; ` : "";
+  return ` When this report was built, ${some}${packs.missing} pack(s) were not on this machine, so those runs were checked against the recorded results only.${shared} The Test Manager links are Kane's own copy.`;
+}
+
+/** One line per use-case Kane found in the README, with the claim that accounts for it. */
+export function coverageRows(verdict: Verdict, scan?: ScanResult): Array<{ id: string; title: string; anchor?: string; risk?: string; claims: VerdictClaim[] }> {
+  return (scan?.useCases ?? []).map((u) => ({ id: u.id, title: u.title, anchor: u.anchor, risk: u.risk, claims: verdict.claims.filter((c) => c.covers?.includes(u.id)) }));
+}
+
+/** "Kane found 5 use-cases in the README: 4 tested, 1 not tested" */
+export function coverageLine(verdict: Verdict, scan?: ScanResult): string | undefined {
+  const rows = coverageRows(verdict, scan);
+  if (rows.length === 0) return undefined;
+  const tested = rows.filter((row) => row.claims.some((c) => c.status === "proven" || c.status === "broken")).length;
+  return `Kane found ${rows.length} use-case(s) in the README: ${tested} tested by a Kane flow, ${rows.length - tested} not`;
+}
+
+/** The denominator: what the README promises (as Kane itself read it), and what became of each promise. */
+function coverageSection(input: ScorecardInput): string {
+  const rows = coverageRows(input.verdict, input.scan);
+  const line = coverageLine(input.verdict, input.scan);
+  if (!line) return "";
+  const body = rows
+    .map((row) => {
+      const claims = row.claims.map((c) => `${badge(claimLabel(c))} <span class="muted">${escapeHtml(c.id)}</span>`).join(" ") || '<span class="muted">not covered</span>';
+      return `<tr><td>${escapeHtml(row.id)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.risk ?? "")}</td><td>${escapeHtml(row.anchor ?? "")}</td><td>${claims}</td></tr>`;
+    })
+    .join("");
+  return `<h2>Coverage: everything the README promises</h2><p class="muted">${escapeHtml(line)}. The list is Kane's own reading of the README (<code>kane-cli context ingest</code>), so the agent can't pick only the promises that hold: a verdict that leaves one out is refused.</p>
+<table><thead><tr><th>#</th><th>Use-case Kane found</th><th>Risk</th><th>README</th><th>Claim</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function runsSection(results?: KaneResults, packs?: PackCheck): string {
   if (!results || results.runs.length === 0) return "";
   const rows = results.runs
     .map(
       (r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.at.slice(0, 16).replace("T", " "))}</td><td>${escapeHtml(r.flows.join(", "))}</td>
-<td>${escapeHtml(r.outcome)}</td><td>${escapeHtml(r.durationS)}s</td><td>${escapeHtml(r.kaneVerdict ? verdictWord(r.kaneVerdict) : "—")}</td>
+<td>${escapeHtml(r.outcome)}${r.heal === false ? " · healing off" : ""}</td><td>${escapeHtml(r.durationS)}s</td><td>${escapeHtml(r.kaneVerdict ? verdictWord(r.kaneVerdict) : "—")}</td>
 <td>${escapeHtml(r.evidencePath?.split("/").pop()?.slice(0, 13) ?? r.reason ?? "")}</td></tr>`,
     )
     .join("");
@@ -244,7 +324,7 @@ function runsSection(results?: KaneResults): string {
   const sealed = results.runs.filter((r) => r.evidencePath).length;
   const judged = results.runs.filter((r) => r.kaneVerdict).length;
   const verdicts = judged ? ` Kane's own verdict engine (<code>kane-cli evidence verdict</code>) judged ${judged} of them against the <code>kane-judge-claims</code> policy.` : "";
-  return `<h2>Kane runs</h2><p class="muted">${results.runs.length} run(s) of ${flows.length} flow(s) in real Chrome via <code>kane-cli testrun</code>. ${sealed} sealed an evidence pack.${verdicts}</p>
+  return `<h2>Kane runs</h2><p class="muted">${results.runs.length} run(s) of ${flows.length} flow(s) in real Chrome via <code>kane-cli testrun</code>. ${sealed} sealed an evidence pack.${verdicts}${packNote(packs)}</p>
 <table><thead><tr><th>#</th><th>When (UTC)</th><th>Flows</th><th>Outcome</th><th>Time</th><th>Kane's verdict</th><th>Evidence pack</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -260,16 +340,18 @@ function footer(verdict: Verdict): string {
 /** The scorecard: one self-contained HTML page per project. */
 export function renderScorecard(input: ScorecardInput): string {
   const v = input.verdict;
-  const scores = v.scores.map((s) => scoreRow(s.criterion, s.score, s.max, s.why)).join("");
+  const scores = v.scores.map((s) => scoreRow(s.criterion, s.score, s.max, s.why, s.unverified)).join("");
   const questions = v.questions.length ? `<h2>Questions to ask the team</h2><ol>${v.questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("")}</ol>` : "";
   const body = [
     header(input),
     `<h2>Summary</h2><p>${escapeHtml(v.summary)}</p>`,
     `<h2>Claims, tested in a real browser</h2>${claimsInReadingOrder(v).map((c) => claimCard(c, input)).join("")}`,
-    scores && `<h2>Scores${v.rubric ? ` · ${escapeHtml(v.rubric)}` : ""}</h2><div class="card">${scores}</div>`,
+    coverageSection(input),
+    scores &&
+      `<h2>Suggested scores${v.rubric ? ` · ${escapeHtml(v.rubric)}` : ""}</h2><p class="muted">The agent's judgement, for a human judge to adjust. Each score has to cite the claims it rests on, or say what couldn't be verified.</p><div class="card">${scores}</div>`,
     flagsSection(input),
     questions,
-    runsSection(input.results),
+    runsSection(input.results, input.packs),
     factsSection(input.scan),
     footer(v),
   ];

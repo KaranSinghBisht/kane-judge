@@ -1,7 +1,7 @@
 ---
 description: Judge a hackathon project by using its live demo with Kane CLI (claims → Kane tests → evidence-backed scorecard)
 argument-hint: "<submission, repo or folder>... [--live <demo-url>] [--since 2026-11-12 --until 2026-11-19]"
-allowed-tools: Skill, Bash(kane-judge *), Bash(node *kane-judge.mjs*), Read, Write, Edit, Glob, Grep
+allowed-tools: Skill, Bash(kane-judge *), Read, Write, Edit, Glob, Grep
 ---
 
 Judge this hackathon project with the Kane Judge skill (`judging`): $ARGUMENTS

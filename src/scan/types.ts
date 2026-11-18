@@ -43,8 +43,19 @@ export interface PageFacts {
   chars: number;
 }
 
+import type { KaneUseCase } from "../kane/usecases.js";
+
 export interface ScanResult {
   version: 1;
+  /** The use-cases Kane itself found in the README: the denominator every verdict has to account for. */
+  useCases?: KaneUseCase[];
+  /** Why there is no use-case list, when Kane could not be asked. */
+  useCasesNote?: string;
+  /**
+   * `preflight` only when the builder scanned their own folder with --preflight.
+   * `report` holds the verdict to this, so a verdict can't declare itself a pre-flight.
+   */
+  mode?: "judge" | "preflight";
   scannedAt: string;
   slug: string;
   name: string;

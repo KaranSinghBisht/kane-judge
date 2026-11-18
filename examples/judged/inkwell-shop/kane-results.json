@@ -2,16 +2,17 @@
   "version": 1,
   "runs": [
     {
-      "at": "2026-11-18T00:25:44.016Z",
+      "at": "2026-11-18T11:25:59.127Z",
       "flows": [
-        "01-browse-and-cart",
-        "02-checkout-order",
-        "03-promo-save10",
-        "04-order-history"
+        "01-catalogue-and-cart",
+        "02-checkout-summary",
+        "03-apply-promo",
+        "04-pay-by-card",
+        "05-order-history"
       ],
-      "durationS": 148,
+      "durationS": 196,
       "outcome": "failed",
-      "evidencePath": ".testmuai/evidence/b88753a4-6dbe-4862-987a-f8ba34926bed.evidence",
+      "evidencePath": "packs/525775c1-0103-4131-838b-c19f7f542737.evidence",
       "kaneVerdict": {
         "policy": "kane-judge-claims",
         "result": "fail",
@@ -70,124 +71,364 @@
         ],
         "warnings": [],
         "erroredGates": [],
-        "packSha256": "a0ef35a08d153d822cea1b6fb9fcea4be9a5d73cfd710e1f96de94dea127507a",
+        "packSha256": "78a20ea134fbda03a95d1ae7455832117c3dddc8037263614dd31584442b6a4d",
         "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
         "evaluator": "evidence-cli 0.2.0",
-        "file": ".testmuai/evidence/b88753a4-6dbe-4862-987a-f8ba34926bed.evidence.verdicts/kane-judge-claims.verdict.json"
-      }
+        "file": ".testmuai/evidence/525775c1-0103-4131-838b-c19f7f542737.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "78a20ea134fbda03a95d1ae7455832117c3dddc8037263614dd31584442b6a4d",
+      "sharedPackSha256": "502f770da5224d1c2659ae468606e51e2946f2c3cc198c16c03910b6f21b73b1"
     }
   ],
   "flows": {
-    "01-browse-and-cart": {
-      "name": "01-browse-and-cart",
-      "file": "flows/01-browse-and-cart_test.md",
-      "title": "Browse the catalogue and add items to the cart",
+    "01-catalogue-and-cart": {
+      "name": "01-catalogue-and-cart",
+      "file": "flows/01-catalogue-and-cart_test.md",
+      "title": "Browse the catalogue and add a product to the cart",
       "status": "passed",
       "attempts": 1,
-      "durationS": 89,
+      "durationS": 53,
       "authored": true,
       "steps": [
         {
           "index": 1,
           "heading": "Browse the catalogue",
           "status": "passed",
-          "detail": "Opened the shop’s home page and reviewed the catalogue.\nThe catalogue displayed four products, with a visible name and price for each product.\nThe requested catalogue review was completed successfully."
+          "detail": "Opened the shop’s home page and viewed the product catalogue.\nThe catalogue displayed four products, and each product showed a name and price.\nThe requested catalogue review was completed successfully."
         },
         {
           "index": 2,
           "heading": "Add a product to the cart",
           "status": "passed",
-          "detail": "Added the first product to the cart as requested.\nThe cart badge in the header updated to show 1 item, confirming the product was added."
-        },
-        {
-          "index": 3,
-          "heading": "Add a second product",
-          "status": "passed",
-          "detail": "Added a different product to the cart as requested.\nConfirmed that the cart badge in the header now shows 2 items."
+          "detail": "Added the first product in the catalogue to the cart as requested.\nThe cart badge in the header updated to show 1 item, confirming the product was added."
         }
       ],
-      "screenshot": "evidence/01-browse-and-cart-run1-passed.jpg",
-      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JNDPVGTQ8EV2812NVSY7/dashboard/share/US_YHV85YH31SL5AZCRHC5Y3MCHCY4BF4Q318PLSYKOSPTFISM2MV1CU3COUQ31OH4J?type=summary&agentView=true&fqdn=summary-page",
-      "lastRunAt": "2026-11-18T00:25:44.016Z",
-      "flowSha": "e578224d6f6e35559ffea2f8c9273026fe913af7e0ea992760110870c722675b",
+      "screenshot": "evidence/01-catalogue-and-cart-run1-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+        },
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/02.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: look at the product catalogue"
+        },
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Each visible product has a price."
+        },
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: The page visibly shows four products, each with its name and a price."
+        },
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for the first product in the catalogue"
+        },
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/06.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'the cart badge in the header visibly shows a count of 1"
+        },
+        {
+          "file": "evidence/01-catalogue-and-cart-run1-steps/07.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows a count of 1"
+        }
+      ],
+      "asserts": {
+        "total": 2,
+        "passed": 2
+      },
+      "claim": "c1",
+      "url": "https://inkwell-shop.vercel.app/",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A59CKB3D3NQGP75BB640/dashboard/share/US_0J9WU7WPOY8K4RMF6FW81YQCZMEXIHHJS8XBJ61XHRXMC1Q30F10YXQCRVGRZ39Z?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T11:25:59.127Z",
+      "flowSha": "01f58a523ad15ea95ca4a2a2ef30e805b20c93833b8ca3923cfe8105208ff6e1",
+      "checksSha": "92ec1bf921ddea5c995424da3246265ab3a8e2559b9240df295ba02a12a768f9",
       "history": [
         {
-          "at": "2026-11-18T00:25:44.016Z",
+          "at": "2026-11-18T11:25:59.127Z",
           "status": "passed",
-          "flowSha": "e578224d6f6e35559ffea2f8c9273026fe913af7e0ea992760110870c722675b",
-          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JNDPVGTQ8EV2812NVSY7/dashboard/share/US_YHV85YH31SL5AZCRHC5Y3MCHCY4BF4Q318PLSYKOSPTFISM2MV1CU3COUQ31OH4J?type=summary&agentView=true&fqdn=summary-page",
-          "screenshot": "evidence/01-browse-and-cart-run1-passed.jpg"
+          "flowSha": "01f58a523ad15ea95ca4a2a2ef30e805b20c93833b8ca3923cfe8105208ff6e1",
+          "checksSha": "92ec1bf921ddea5c995424da3246265ab3a8e2559b9240df295ba02a12a768f9",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A59CKB3D3NQGP75BB640/dashboard/share/US_0J9WU7WPOY8K4RMF6FW81YQCZMEXIHHJS8XBJ61XHRXMC1Q30F10YXQCRVGRZ39Z?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/01-catalogue-and-cart-run1-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+            },
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/02.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: look at the product catalogue"
+            },
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Each visible product has a price."
+            },
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The page visibly shows four products, each with its name and a price."
+            },
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the first product in the catalogue"
+            },
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/06.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'the cart badge in the header visibly shows a count of 1"
+            },
+            {
+              "file": "evidence/01-catalogue-and-cart-run1-steps/07.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows a count of 1"
+            }
+          ],
+          "steps": 2,
+          "asserts": 2
         }
       ]
     },
-    "02-checkout-order": {
-      "name": "02-checkout-order",
-      "file": "flows/02-checkout-order_test.md",
-      "title": "Check out and get an order number",
+    "02-checkout-summary": {
+      "name": "02-checkout-summary",
+      "file": "flows/02-checkout-summary_test.md",
+      "title": "Checkout lists the items and an order summary",
       "status": "passed",
       "attempts": 1,
-      "durationS": 124,
+      "durationS": 98,
       "authored": true,
       "steps": [
         {
           "index": 1,
-          "heading": "Open checkout with an item",
+          "heading": "Put a product in the cart",
           "status": "passed",
-          "detail": "Added the Field Notebook to the cart.\nRecorded the added item as Field Notebook, priced at $18.00.\nOpened the checkout page, where Field Notebook and its $18.00 price were shown in the item list."
+          "detail": "Added the first product in the catalogue to the cart as requested.\nConfirmed that the cart badge in the header shows 1 item.\nThe item was successfully added, and the shop page remained open."
         },
         {
           "index": 2,
-          "heading": "Read the order summary",
+          "heading": "Open checkout",
           "status": "passed",
-          "detail": "Reviewed the order summary on the checkout page as requested.\nConfirmed that the listed Field Notebook price matched the $18.00 subtotal.\nConfirmed shipping was $5.00 and the total correctly included the subtotal plus shipping ($23.00)."
+          "detail": "Opened the cart and proceeded to checkout as requested.\nThe checkout page shows the added Field Notebook (quantity 1) priced at $18.00.\nThe requested checkout step was completed successfully."
         },
         {
           "index": 3,
-          "heading": "Pay by card",
+          "heading": "Read the order summary",
           "status": "passed",
-          "detail": "Completed the requested payment form using the provided test name, email, card number, future expiry date, and CVC, along with required test details.\nPlaced the order successfully.\nThe confirmation page displayed order number INK-45696."
+          "detail": "Reviewed the order summary on the checkout page.\nThe summary showed a subtotal of $18.00 and shipping of $5.00.\nConfirmed that the total was $5.00 more than the subtotal, so the order summary was correct."
         }
       ],
-      "screenshot": "evidence/02-checkout-order-run1-passed.jpg",
-      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMH84YFZMQTEZ10ST72N/dashboard/share/US_0BTX1MPRKZMJJO2Z7KBRQF6XOA8PRSS1LKYKVHVZJUHK3574PYBYG3BDK3LJVM2X?type=summary&agentView=true&fqdn=summary-page",
-      "lastRunAt": "2026-11-18T00:25:44.016Z",
-      "flowSha": "acfea788bc217bd1994a81ceded7d118489a221756dab3c3df6727e6c602cbe1",
+      "screenshot": "evidence/02-checkout-summary-run1-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for the first product in the catalogue"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'the cart badge in the header visibly shows a count of a"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows a count of at least 1"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking cart and going to checkout"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/06.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: wait for the checkout items section to load"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/07.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'The checkout page visibly lists the price of the produc"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/08.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: The checkout page visibly lists the product you added, with its name and price."
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/09.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: Look at the order summary on the checkout page; role=text | HINTS: cont"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/10.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'The order summary visibly shows a Total that equals the"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run1-steps/11.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the order summary visibly shows a Subtotal, a Shipping amount of $5, and a Total"
+        }
+      ],
+      "asserts": {
+        "total": 3,
+        "passed": 3
+      },
+      "claim": "c2",
+      "url": "https://inkwell-shop.vercel.app/",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A5J9KMSKDRYTMGRFYKP2/dashboard/share/US_8U514HNOV0AP5N2OT30RWDVZLB7M61UYGDSJB69ZAXFS0COF6F8VNURMDKA5J78D?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T11:25:59.127Z",
+      "flowSha": "2481e8abfa3041226959324c7106b9a4fad1966c316a6b7499075b47dd0bd038",
+      "checksSha": "96afea009e0a3dc5fed83e29588f933bb9d7aac9aa980428fa676a4b0992f07c",
       "history": [
         {
-          "at": "2026-11-18T00:25:44.016Z",
+          "at": "2026-11-18T11:25:59.127Z",
           "status": "passed",
-          "flowSha": "acfea788bc217bd1994a81ceded7d118489a221756dab3c3df6727e6c602cbe1",
-          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMH84YFZMQTEZ10ST72N/dashboard/share/US_0BTX1MPRKZMJJO2Z7KBRQF6XOA8PRSS1LKYKVHVZJUHK3574PYBYG3BDK3LJVM2X?type=summary&agentView=true&fqdn=summary-page",
-          "screenshot": "evidence/02-checkout-order-run1-passed.jpg"
+          "flowSha": "2481e8abfa3041226959324c7106b9a4fad1966c316a6b7499075b47dd0bd038",
+          "checksSha": "96afea009e0a3dc5fed83e29588f933bb9d7aac9aa980428fa676a4b0992f07c",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A5J9KMSKDRYTMGRFYKP2/dashboard/share/US_8U514HNOV0AP5N2OT30RWDVZLB7M61UYGDSJB69ZAXFS0COF6F8VNURMDKA5J78D?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/02-checkout-summary-run1-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the first product in the catalogue"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'the cart badge in the header visibly shows a count of a"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows a count of at least 1"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking cart and going to checkout"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait for the checkout items section to load"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'The checkout page visibly lists the price of the produc"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The checkout page visibly lists the product you added, with its name and price."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/09.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Look at the order summary on the checkout page; role=text | HINTS: cont"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/10.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'The order summary visibly shows a Total that equals the"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/11.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the order summary visibly shows a Subtotal, a Shipping amount of $5, and a Total"
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
         }
       ]
     },
-    "03-promo-save10": {
-      "name": "03-promo-save10",
-      "file": "flows/03-promo-save10_test.md",
-      "title": "Apply the SAVE10 promo code at checkout",
+    "03-apply-promo": {
+      "name": "03-apply-promo",
+      "file": "flows/03-apply-promo_test.md",
+      "title": "Apply SAVE10 at checkout",
       "status": "failed",
       "attempts": 1,
-      "durationS": 108,
+      "durationS": 125,
       "authored": true,
       "steps": [
         {
           "index": 1,
-          "heading": "Open checkout with an item",
+          "heading": "Put a product in the cart and open checkout",
           "status": "passed",
-          "detail": "Added a product to the cart as requested.\nWent to the checkout page.\nThe checkout order summary displayed Subtotal, Shipping, and Total."
+          "detail": "Added the first product from the catalogue to the cart.\nOpened the cart and proceeded to checkout.\nReached the checkout page, where the order summary and Subtotal were visible."
         },
         {
           "index": 2,
           "heading": "Apply the promo code",
           "status": "passed",
-          "detail": "Applied the promo code SAVE10 during checkout.\nThe order summary showed a $1.80 discount, confirming that the code was applied successfully."
+          "detail": "Applied the promo code SAVE10 at checkout as requested.\nThe order summary showed a discount of $1.80, confirming the code was applied successfully."
         },
         {
           "index": 3,
           "heading": "Check the new total",
           "status": "failed",
-          "detail": "The checkout page is not displaying a Total line after the discount and shipping charges are shown.\nRestore a visible Total row in the checkout order summary and calculate it as Subtotal minus Discount plus $5.00 shipping.\nevidence: objective_contradiction: The order summary lacks a visible Total, so the required checkpoint cannot be satisfied."
+          "detail": "The checkout page leaves the Total line out of the order summary. The displayed amounts would produce a total of $21.20 ($18.00 minus $1.80 plus $5.00), but customers cannot see that final amount.\nAdd a clearly labeled Total row to the checkout summary and display the calculated amount, $21.20 for the shown order.\nevidence: objective_contradiction: Verify the order summary visibly shows a Total, and that the Total equals the Subtotal minus the Discount plus the shipp (Final verification failed: \"Verify the order summary visibly shows a Total, and that the Total equals the Subtotal minus the Discount plus the shipping.\")"
         }
       ],
       "failure": {
@@ -198,13 +439,13 @@
           "category": "ui_data_defect",
           "severity": "major",
           "confidence": 0.98,
-          "oneLiner": "The checkout order summary shows Subtotal, Discount, and Shipping but does not show the required Total.",
+          "oneLiner": "The checkout order summary shows Subtotal, Discount, and Shipping but no visible Total.",
           "stepIndex": 3
         },
         "stepIndex": 3,
         "stepHeading": "Check the new total",
-        "kaneSays": "The checkout page is not displaying a Total line after the discount and shipping charges are shown.\nRestore a visible Total row in the checkout order summary and calculate it as Subtotal minus Discount plus $5.00 shipping.\nevidence: objective_contradiction: The order summary lacks a visible Total, so the required checkpoint cannot be satisfied.",
-        "error": "The order summary lacks a visible Total, so the required checkpoint cannot be satisfied.",
+        "kaneSays": "The checkout page leaves the Total line out of the order summary. The displayed amounts would produce a total of $21.20 ($18.00 minus $1.80 plus $5.00), but customers cannot see that final amount.\nAdd a clearly labeled Total row to the checkout summary and display the calculated amount, $21.20 for the shown order.\nevidence: objective_contradiction: Verify the order summary visibly shows a Total, and that the Total equals the Subtotal minus the Discount plus the shipp (Final verification failed: \"Verify the order summary visibly shows a Total, and that the Total equals the Subtotal minus the Discount plus the shipping.\")",
+        "error": "Final verification failed: \"Verify the order summary visibly shows a Total, and that the Total equals the Subtotal minus the Discount plus the shipping.\"",
         "pageUrl": "https://inkwell-shop.vercel.app/checkout.html",
         "console": [
           {
@@ -215,88 +456,670 @@
         ],
         "network": [],
         "triage": {
-          "rootCause": "The checkout page is not displaying a Total line after the discount and shipping charges are shown.",
-          "suggestedFix": "Restore a visible Total row in the checkout order summary and calculate it as Subtotal minus Discount plus $5.00 shipping.",
+          "rootCause": "The checkout page leaves the Total line out of the order summary. The displayed amounts would produce a total of $21.20 ($18.00 minus $1.80 plus $5.00), but customers cannot see that final amount.",
+          "suggestedFix": "Add a clearly labeled Total row to the checkout summary and display the calculated amount, $21.20 for the shown order.",
           "category": "application_issue/ui_data_defect",
           "severity": "major",
           "title": "Checkout order summary omits Total",
           "confidence": 0.98
         }
       },
-      "screenshot": "evidence/03-promo-save10-run1-failed.jpg",
-      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMT50E2JY4QABCYNHAHX/dashboard/share/US_FEHO1DN5QHN8H4U4ZXKSY3XCWGD01OS7BM2RD18ZKB2J19WH8OR0356S3LOHO448?type=summary&agentView=true&fqdn=summary-page",
-      "lastRunAt": "2026-11-18T00:25:44.016Z",
-      "flowSha": "abaa741da00d740a5be7dbcc31bae2fc78259e8171ff8c8ef1b8ba544ad6224d",
+      "screenshot": "evidence/03-apply-promo-run1-failed.jpg",
+      "frames": [
+        {
+          "file": "evidence/03-apply-promo-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart on the first product card"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/03.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking the Cart and going to checkout"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/04.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: wait for the checkout order summary to load"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/05.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: The checkout page visibly shows a Subtotal."
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/06.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: The checkout page visibly shows an order summary with a Subtotal."
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/07.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: queued plan (2 steps): type \"Promo code\"; click \"Apply\""
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/08.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"SAVE10\" into \"Promo code\""
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/09.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Click \"Apply\""
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/10.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: confirm the applied promo code result"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/11.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: The discount amount is greater than $0."
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/12.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: The order summary visibly shows a discount line with a discount amount greater t"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/14.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'The Total equals the Subtotal minus the Discount plus t"
+        },
+        {
+          "file": "evidence/03-apply-promo-run1-steps/15.jpg",
+          "kind": "assert",
+          "status": "failed",
+          "summary": "assert: Verify the order summary visibly shows a Total, and that the Total equals the Su"
+        }
+      ],
+      "asserts": {
+        "total": 3,
+        "passed": 2
+      },
+      "claim": "c3",
+      "url": "https://inkwell-shop.vercel.app/",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A5P1REEMVGTDFE334JZV/dashboard/share/US_P3QOJTCHHZXU7K33RFSZVI19K6XIWAN3I57K5UHDWVWUKJM1IIFK7M4V5VUDO9OW?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T11:25:59.127Z",
+      "flowSha": "db57416652db1d8fb60f60bc7d7f67541637c3936e24176496ad827318fbce56",
+      "checksSha": "6e62cd10e978efd5172f802c8e352a2902a9bc2c913232853a54eec5dcb0b647",
       "history": [
         {
-          "at": "2026-11-18T00:25:44.016Z",
+          "at": "2026-11-18T11:25:59.127Z",
           "status": "failed",
-          "flowSha": "abaa741da00d740a5be7dbcc31bae2fc78259e8171ff8c8ef1b8ba544ad6224d",
-          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMT50E2JY4QABCYNHAHX/dashboard/share/US_FEHO1DN5QHN8H4U4ZXKSY3XCWGD01OS7BM2RD18ZKB2J19WH8OR0356S3LOHO448?type=summary&agentView=true&fqdn=summary-page",
-          "screenshot": "evidence/03-promo-save10-run1-failed.jpg"
+          "flowSha": "db57416652db1d8fb60f60bc7d7f67541637c3936e24176496ad827318fbce56",
+          "checksSha": "6e62cd10e978efd5172f802c8e352a2902a9bc2c913232853a54eec5dcb0b647",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A5P1REEMVGTDFE334JZV/dashboard/share/US_P3QOJTCHHZXU7K33RFSZVI19K6XIWAN3I57K5UHDWVWUKJM1IIFK7M4V5VUDO9OW?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/03-apply-promo-run1-failed.jpg",
+          "frames": [
+            {
+              "file": "evidence/03-apply-promo-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart on the first product card"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/03.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the Cart and going to checkout"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/04.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait for the checkout order summary to load"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/05.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: The checkout page visibly shows a Subtotal."
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/06.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The checkout page visibly shows an order summary with a Subtotal."
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/07.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: queued plan (2 steps): type \"Promo code\"; click \"Apply\""
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/08.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/09.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/10.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: confirm the applied promo code result"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: The discount amount is greater than $0."
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/12.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The order summary visibly shows a discount line with a discount amount greater t"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/14.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'The Total equals the Subtotal minus the Discount plus t"
+            },
+            {
+              "file": "evidence/03-apply-promo-run1-steps/15.jpg",
+              "kind": "assert",
+              "status": "failed",
+              "summary": "assert: Verify the order summary visibly shows a Total, and that the Total equals the Su"
+            }
+          ],
+          "bug": true,
+          "steps": 3,
+          "asserts": 2
         }
       ]
     },
-    "04-order-history": {
-      "name": "04-order-history",
-      "file": "flows/04-order-history_test.md",
-      "title": "Find a placed order under Account → Orders",
-      "status": "failed",
+    "04-pay-by-card": {
+      "name": "04-pay-by-card",
+      "file": "flows/04-pay-by-card_test.md",
+      "title": "Pay by card and get an order number",
+      "status": "passed",
       "attempts": 1,
-      "durationS": 127,
+      "durationS": 106,
       "authored": true,
       "steps": [
         {
           "index": 1,
-          "heading": "Place an order",
+          "heading": "Put a product in the cart and open checkout",
           "status": "passed",
-          "detail": "Added a product to the cart and proceeded to checkout.\nEntered the requested test contact and payment details, along with required checkout information.\nPlaced the order successfully.\nThe confirmation displayed order number INK-41416."
+          "detail": "Added the first product from the catalogue to the cart.\nOpened the cart and proceeded to checkout.\nReached the checkout page, where the card payment form is visible."
+        },
+        {
+          "index": 2,
+          "heading": "Pay by card",
+          "status": "passed",
+          "detail": "Completed the checkout form using the requested test name, email, and card details.\nPlaced the order successfully on the Inkwell Shop checkout page.\nThe confirmation displayed order number INK-14294."
+        }
+      ],
+      "screenshot": "evidence/04-pay-by-card-run1-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart on the first product card"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/03.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking the cart and going to checkout"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/04.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: wait for the checkout Payment heading to be visible"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/05.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'A card payment form is visibly shown on the checkout pa"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/06.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: The checkout page visibly shows a card payment form."
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/08.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/09.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/10.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"4242 4242 4242 4242\" into \"Card number\""
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/11.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"12/30\" into \"Expiry (MM/YY)\""
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/12.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"123\" into \"CVC\""
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/14.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Pay in the payment form"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/16.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: the order number is stored as {{order_number}}"
+        },
+        {
+          "file": "evidence/04-pay-by-card-run1-steps/17.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the page visibly shows an order number"
+        }
+      ],
+      "asserts": {
+        "total": 2,
+        "passed": 2
+      },
+      "claim": "c4",
+      "url": "https://inkwell-shop.vercel.app/",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A5WCR8GM9937S6M6CNJY/dashboard/share/US_ELI3DMGQQ1KUS99UQK3JIDMCHJCRTQPQ0DN471GF7ZR1DOG4G3ZYDRPT21ZTHJ8U?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T11:25:59.127Z",
+      "flowSha": "f1a2f1f43802cb15859a4a53f7fcbae85ed39c4e63e271e0b2ac6df1a3d0ce85",
+      "checksSha": "79aaa1f00e1a166090818de7cf6a633679f00c25401542215df15a4ebdff7ce9",
+      "history": [
+        {
+          "at": "2026-11-18T11:25:59.127Z",
+          "status": "passed",
+          "flowSha": "f1a2f1f43802cb15859a4a53f7fcbae85ed39c4e63e271e0b2ac6df1a3d0ce85",
+          "checksSha": "79aaa1f00e1a166090818de7cf6a633679f00c25401542215df15a4ebdff7ce9",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6A5WCR8GM9937S6M6CNJY/dashboard/share/US_ELI3DMGQQ1KUS99UQK3JIDMCHJCRTQPQ0DN471GF7ZR1DOG4G3ZYDRPT21ZTHJ8U?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/04-pay-by-card-run1-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart on the first product card"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/03.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart and going to checkout"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/04.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait for the checkout Payment heading to be visible"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/05.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'A card payment form is visibly shown on the checkout pa"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/06.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The checkout page visibly shows a card payment form."
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/08.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/09.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/10.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"4242 4242 4242 4242\" into \"Card number\""
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/11.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"12/30\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/12.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/14.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Pay in the payment form"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/16.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the order number is stored as {{order_number}}"
+            },
+            {
+              "file": "evidence/04-pay-by-card-run1-steps/17.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows an order number"
+            }
+          ],
+          "steps": 2,
+          "asserts": 2
+        }
+      ]
+    },
+    "05-order-history": {
+      "name": "05-order-history",
+      "file": "flows/05-order-history_test.md",
+      "title": "Find a placed order under Account → Orders",
+      "status": "failed",
+      "attempts": 1,
+      "durationS": 103,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Place a demo order",
+          "status": "passed",
+          "detail": "Added the first product in the catalogue to the cart.\nWent to checkout and completed payment using the requested name, email, and test card details.\nThe order was confirmed, with order number INK-75412 displayed."
         },
         {
           "index": 2,
           "heading": "Open the order history",
           "status": "failed",
-          "detail": "The agent assumed the store name would open an account page and then checked the cart instead. Those visible links led to the storefront and checkout, not to an Account or Orders area.\nUpdate the run to use a real Account/Orders entry point, or change the test setup so it targets an application that provides those pages. Do not use the store name or Cart link as substitutes for account navigation. (Checked storefront and checkout navigation; neither exposes an Account or Orders route.)"
+          "detail": "The test started from an order-confirmation checkout page but assumed that Account and Orders would be available from the visible site navigation. That required starting state or navigation path was not present.\nUpdate the test setup to start in a state with a valid Account entry or provide the intended Account/Orders route. Do not use the site-name link as an Account navigation control. (Checked checkout and homepage navigation; neither exposes an Account or Orders entry.)"
         }
       ],
       "failure": {
         "bugVerdict": {
           "confirmed": false,
-          "title": "Agent mistook storefront links for account navigation",
+          "title": "Test flow assumes unavailable Account and Orders navigation",
           "family": "automation_bug",
-          "category": "agent_misstep",
+          "category": "state_transition_bug",
           "severity": "major",
-          "confidence": 0.91,
-          "oneLiner": "The run could not reach Orders because this storefront only exposed its shop and cart links, and the agent treated those links as account navigation.",
+          "confidence": 0.92,
+          "oneLiner": "The run could not reach Account or Orders because the current checkout and homepage navigation did not offer either destination.",
           "stepIndex": 2
         },
         "stepIndex": 2,
         "stepHeading": "Open the order history",
-        "kaneSays": "The agent assumed the store name would open an account page and then checked the cart instead. Those visible links led to the storefront and checkout, not to an Account or Orders area.\nUpdate the run to use a real Account/Orders entry point, or change the test setup so it targets an application that provides those pages. Do not use the store name or Cart link as substitutes for account navigation. (Checked storefront and checkout navigation; neither exposes an Account or Orders route.)",
-        "error": "Checked storefront and checkout navigation; neither exposes an Account or Orders route.",
-        "pageUrl": "https://inkwell-shop.vercel.app/checkout.html",
+        "kaneSays": "The test started from an order-confirmation checkout page but assumed that Account and Orders would be available from the visible site navigation. That required starting state or navigation path was not present.\nUpdate the test setup to start in a state with a valid Account entry or provide the intended Account/Orders route. Do not use the site-name link as an Account navigation control. (Checked checkout and homepage navigation; neither exposes an Account or Orders entry.)",
+        "error": "Checked checkout and homepage navigation; neither exposes an Account or Orders entry.",
+        "pageUrl": "https://inkwell-shop.vercel.app/",
         "console": [],
         "network": [],
         "triage": {
-          "rootCause": "The agent assumed the store name would open an account page and then checked the cart instead. Those visible links led to the storefront and checkout, not to an Account or Orders area.",
-          "suggestedFix": "Update the run to use a real Account/Orders entry point, or change the test setup so it targets an application that provides those pages. Do not use the store name or Cart link as substitutes for account navigation.",
-          "category": "automation_bug/agent_misstep",
+          "rootCause": "The test started from an order-confirmation checkout page but assumed that Account and Orders would be available from the visible site navigation. That required starting state or navigation path was not present.",
+          "suggestedFix": "Update the test setup to start in a state with a valid Account entry or provide the intended Account/Orders route. Do not use the site-name link as an Account navigation control.",
+          "category": "automation_bug/state_transition_bug",
           "severity": "major",
-          "title": "Agent mistook storefront links for account navigation",
-          "confidence": 0.91
+          "title": "Test flow assumes unavailable Account and Orders navigation",
+          "confidence": 0.92
         }
       },
-      "screenshot": "evidence/04-order-history-run1-failed.jpg",
-      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JN24V6B6ZDNP982WXQYD/dashboard/share/US_QCMVL6U48E1GMCDQCLLO6647RH1RU2J4PAOBXTZKEOTZ4UL5O3HTO5M3WLEEPO5P?type=summary&agentView=true&fqdn=summary-page",
-      "lastRunAt": "2026-11-18T00:25:44.016Z",
-      "flowSha": "86b58b415d97876ff3fd7b67422c6f6fae041bfe96e47178c8a3538a1c96a895",
+      "screenshot": "evidence/05-order-history-run1-failed.jpg",
+      "frames": [
+        {
+          "file": "evidence/05-order-history-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart on the first product card"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/03.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking cart items to go to checkout"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/04.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: queued plan (6 steps): type \"Full name\"; type \"Email\"; type \"Card number\"; type"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/05.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/06.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/07.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"4242 4242 4242 4242\" into \"Card number\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/08.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"12/30\" into \"Expiry (MM/YY)\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/09.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"123\" into \"CVC\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/10.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Click \"Pay\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/12.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: the order number is stored as {{order_number}}"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/13.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the page visibly shows an order number"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/14.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Inkwell Supply Co. to open account"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/15.jpg",
+          "status": "failed",
+          "summary": "wait: Waiting after checking available site navigation"
+        }
+      ],
+      "asserts": {
+        "total": 1,
+        "passed": 1
+      },
+      "claim": "c5",
+      "url": "https://inkwell-shop.vercel.app/",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6C5R6ZA2GNCJ7VTQNVDXY/dashboard/share/US_C4KRN9RWXI4TQT1I6KK6FEPNW3DKZXSCNG9ENUS4S3O50XNFFJMJTY61BWOTJXV0?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T11:25:59.127Z",
+      "flowSha": "aa49becb00e8add9e0fbe14f700539b704a2a08cf9438400082a97362bae24c4",
+      "checksSha": "5b208ce5fb13708279b47c4612ba0264d987aa99948311dc0a11eddcdacdd0d6",
       "history": [
         {
-          "at": "2026-11-18T00:25:44.016Z",
+          "at": "2026-11-18T11:25:59.127Z",
           "status": "failed",
-          "flowSha": "86b58b415d97876ff3fd7b67422c6f6fae041bfe96e47178c8a3538a1c96a895",
-          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JN24V6B6ZDNP982WXQYD/dashboard/share/US_QCMVL6U48E1GMCDQCLLO6647RH1RU2J4PAOBXTZKEOTZ4UL5O3HTO5M3WLEEPO5P?type=summary&agentView=true&fqdn=summary-page",
-          "screenshot": "evidence/04-order-history-run1-failed.jpg"
+          "flowSha": "aa49becb00e8add9e0fbe14f700539b704a2a08cf9438400082a97362bae24c4",
+          "checksSha": "5b208ce5fb13708279b47c4612ba0264d987aa99948311dc0a11eddcdacdd0d6",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6C5R6ZA2GNCJ7VTQNVDXY/dashboard/share/US_C4KRN9RWXI4TQT1I6KK6FEPNW3DKZXSCNG9ENUS4S3O50XNFFJMJTY61BWOTJXV0?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/05-order-history-run1-failed.jpg",
+          "frames": [
+            {
+              "file": "evidence/05-order-history-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to https://inkwell-shop.vercel.app/"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart on the first product card"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/03.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking cart items to go to checkout"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/04.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: queued plan (6 steps): type \"Full name\"; type \"Email\"; type \"Card number\"; type"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/05.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/06.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/07.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"4242 4242 4242 4242\" into \"Card number\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/08.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"12/30\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/09.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/10.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Pay\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the order number is stored as {{order_number}}"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/13.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows an order number"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/14.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Inkwell Supply Co. to open account"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/15.jpg",
+              "status": "failed",
+              "summary": "wait: Waiting after checking available site navigation"
+            }
+          ],
+          "bug": false,
+          "steps": 2,
+          "asserts": 1
         }
       ]
     }

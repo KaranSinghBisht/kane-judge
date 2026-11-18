@@ -1,7 +1,7 @@
 ---
 description: Pre-flight your own project before you submit - find what a judge would find, fix it, and have Kane prove every fix
 argument-hint: "<your project folder> --live <your running app, e.g. http://localhost:3000> [check only]"
-allowed-tools: Skill, Bash(kane-judge *), Bash(node *kane-judge.mjs*), Read, Write, Edit, Glob, Grep
+allowed-tools: Skill, Bash(kane-judge *), Read, Write, Edit, Glob, Grep
 ---
 
 Pre-flight my own project with the Kane Judge skill (`judging`), in pre-flight mode: $ARGUMENTS

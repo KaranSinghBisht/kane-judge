@@ -1,6 +1,6 @@
 ---
 description: Rank every project judged in this folder (SCOREBOARD.md and scoreboard.html)
-allowed-tools: Bash(kane-judge *), Bash(node *kane-judge.mjs*)
+allowed-tools: Bash(kane-judge *)
 ---
 
 Run `kane-judge board` with the Bash tool. If the shell can't find `kane-judge`, run `node "${CLAUDE_PLUGIN_ROOT}/dist/kane-judge.mjs" board` instead.

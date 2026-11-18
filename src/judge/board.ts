@@ -32,7 +32,11 @@ export interface BoardEntry {
   dir?: string;
 }
 
-/** Leaderboard rows, best first; ties go to the project with more proven claims. */
+/**
+ * Leaderboard rows, best first. The rank follows what Kane proved (the share of
+ * a project's claims that are proven); the rubric score, which is the agent's
+ * judgement, only breaks ties.
+ */
 export function boardRows(entries: BoardEntry[]): BoardRow[] {
   const rows = entries.map(({ verdict, results, scan, dir }) => {
     const o = overall(verdict);
@@ -54,28 +58,31 @@ export function boardRows(entries: BoardEntry[]): BoardRow[] {
       preflight: verdict.mode === "preflight",
     };
   });
-  rows.sort((a, b) => b.pct - a.pct || b.proven - a.proven || a.name.localeCompare(b.name));
+  const share = (row: { proven: number; claims: number }) => (row.claims > 0 ? row.proven / row.claims : 0);
+  rows.sort((a, b) => share(b) - share(a) || b.pct - a.pct || b.proven - a.proven || a.name.localeCompare(b.name));
   return rows.map((row, i) => ({ ...row, rank: i + 1 }));
 }
+
+const RANKING_NOTE = "Ranked by the share of claims Kane proved; the rubric score is the agent's judgement and only breaks ties.";
 
 const card = (slug: string) => `${PROJECTS_DIR}/${encodeURIComponent(slug)}/scorecard.html`;
 
 export function renderBoardMarkdown(rows: BoardRow[]): string {
-  const head = ["| # | Project | Score | Proven | Broken | Unverifiable | Flags |", "|---|---|---|---|---|---|---|"];
+  const head = ["| # | Project | Proven by Kane | Broken | Unverifiable | Rubric | Flags |", "|---|---|---|---|---|---|---|"];
   const body = rows.map(
-    (r) => `| ${r.rank} | [${mdText(r.name)}](${card(r.slug)})${r.preflight ? " (pre-flight)" : ""} | ${r.pct}% | ${r.proven}/${r.claims} | ${r.broken} | ${r.unverifiable} | ${r.flags} |`,
+    (r) => `| ${r.rank} | [${mdText(r.name)}](${card(r.slug)})${r.preflight ? " (pre-flight)" : ""} | ${r.proven}/${r.claims} | ${r.broken} | ${r.unverifiable} | ${r.pct}% | ${r.flags} |`,
   );
-  return ["# Scoreboard", "", ...head, ...body, "", "_Judged by Kane Judge with evidence from Kane CLI. First-round triage for human judges._", ""].join("\n");
+  return ["# Scoreboard", "", ...head, ...body, "", `_${RANKING_NOTE} Judged by Kane Judge with evidence from Kane CLI. First-round triage for human judges._`, ""].join("\n");
 }
 
 export function renderBoardHtml(rows: BoardRow[]): string {
   const body = rows
     .map(
-      (r) => `<tr><td>${r.rank}</td><td><a href="${escapeHtml(card(r.slug))}">${escapeHtml(r.name)}</a>${r.preflight ? ' <span class="muted">(pre-flight)</span>' : ""}</td><td><b>${r.pct}%</b></td>
-<td>${r.proven}/${r.claims}</td><td>${r.broken}</td><td>${r.unverifiable}</td><td>${r.flags}</td><td>${r.live ? link(r.live, "demo") : "—"}</td></tr>`,
+      (r) => `<tr><td>${r.rank}</td><td><a href="${escapeHtml(card(r.slug))}">${escapeHtml(r.name)}</a>${r.preflight ? ' <span class="muted">(pre-flight)</span>' : ""}</td><td><b>${r.proven}/${r.claims}</b></td>
+<td>${r.broken}</td><td>${r.unverifiable}</td><td>${r.pct}%</td><td>${r.flags}</td><td>${r.live ? link(r.live, "demo") : "—"}</td></tr>`,
     )
     .join("");
-  const table = `<table><thead><tr><th>#</th><th>Project</th><th>Score</th><th>Proven</th><th>Broken</th><th>Unverifiable</th><th>Flags</th><th>Live</th></tr></thead><tbody>${body}</tbody></table>`;
-  return page("Scoreboard · Kane Judge", `<h1>Scoreboard</h1><p class="muted">${rows.length} project(s), each judged by using its live demo through Kane CLI.</p>${table}
+  const table = `<table><thead><tr><th>#</th><th>Project</th><th>Proven by Kane</th><th>Broken</th><th>Unverifiable</th><th>Rubric</th><th>Flags</th><th>Live</th></tr></thead><tbody>${body}</tbody></table>`;
+  return page("Scoreboard · Kane Judge", `<h1>Scoreboard</h1><p class="muted">${rows.length} project(s), each judged by using its live demo through Kane CLI. ${RANKING_NOTE}</p>${table}
 <footer>Judged by Kane Judge · evidence from Kane CLI (TestMu AI) · first-round triage for human judges.</footer>`);
 }

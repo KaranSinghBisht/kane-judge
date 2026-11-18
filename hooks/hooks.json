@@ -1,6 +1,14 @@
 {
-  "description": "Keeps a judging or pre-flight from ending while Kane's latest results are not yet in a scorecard that passed the evidence checks.",
+  "description": "Keeps a judging or pre-flight honest: the agent can't edit Kane's record, and can't end its turn while Kane's latest results are not yet in a scorecard that passed the evidence checks.",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/dist/kane-judge.mjs\" hook guard", "timeout": 10 }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

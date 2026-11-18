@@ -44,13 +44,18 @@ export interface VerdictClaim {
   investigation?: InvestigationStep[];
   /** Pre-flight only: the change made after Kane showed the claim broken. */
   fix?: ClaimFix;
+  /** The use-cases Kane found in the README that this claim accounts for (u1, u2, … from the scan). */
+  covers?: string[];
 }
 
 export interface VerdictScore {
   criterion: string;
   score: number;
   max: number;
+  /** The evidence behind the score. It has to cite the claims it rests on (c1, c3, …). */
   why: string;
+  /** What could not be verified for this criterion. Stands in for cited claims when there are none to cite. */
+  unverified?: string;
 }
 
 export interface VerdictProject {

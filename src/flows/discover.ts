@@ -45,8 +45,10 @@ interface FlowHeader {
 }
 
 /** Reads the frontmatter and title of a `_test.md` file. Malformed frontmatter is tolerated (Kane reports it). */
-export function parseFlowHeader(text: string): FlowHeader {
+export function parseFlowHeader(raw: string): FlowHeader {
   const header: FlowHeader = { tags: [] };
+  // A byte-order mark in front of the first `---` would hide the frontmatter.
+  const text = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
   let body = text;
   const fm = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(text);
   if (fm) {

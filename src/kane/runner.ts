@@ -22,6 +22,8 @@ export interface KaneRunConfig {
    * (Kane's `--override-start-url`): the same tests against a local build, then the deployed one.
    */
   startUrl?: string;
+  /** False runs Kane with `--no-adaptive-heal`: recorded steps replay as recorded. The gate does this. */
+  adaptiveHeal?: boolean;
 }
 
 /**
@@ -86,6 +88,8 @@ export function buildTestrunArgs(flows: Flow[], config: KaneRunConfig, label: st
   const args = ["testrun", "run", ...flows.map((f) => f.file), "--agent", "--parallel", String(config.parallel)];
   if (config.headless) args.push("--headless");
   if (config.startUrl) args.push("--override-start-url", config.startUrl);
+  // With healing off a replay runs as recorded: a miss fails instead of being re-authored into a pass.
+  if (config.adaptiveHeal === false) args.push("--no-adaptive-heal");
   const safeLabel = label.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 60);
   if (safeLabel) args.push("--name", safeLabel);
   return args;
