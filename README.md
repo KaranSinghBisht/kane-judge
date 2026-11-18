@@ -9,9 +9,12 @@ It has two modes:
 - **Judge** someone else's project. The agent may fix its own tests, never their product.
 - **Pre-flight** your own project before you submit. Same claims, same tests, but now the agent fixes your code (or corrects your README) and Kane must pass the *same test* before the fix counts.
 
-![A Kane Judge scorecard for the sample submission: the broken claims come first, each with Kane's screenshot, its Test Manager link and the investigation timeline](docs/scorecard.png)
+<p>
+  <a href="docs/sample-report.md"><img src="docs/scorecard.png" width="49%" alt="Judge mode: a scorecard for the sample submission. Kane's verdict on the sealed evidence pack is FAIL, and the first broken claim shows Kane's bug verdict and its screenshot of an order summary with no Total."></a>
+  <a href="docs/sample-preflight-report.md"><img src="docs/preflight.png" width="49%" alt="Pre-flight mode: the same project after the agent fixed it. Kane's verdict is PASS, and the fixed claim shows the change and Kane's screenshots of the same test before and after."></a>
+</p>
 
-*A real scorecard from judging [`examples/inkwell-shop`](examples/inkwell-shop). Full [HTML](docs/sample-scorecard.html) and [Markdown](docs/sample-report.md). The run behind it is committed in [`examples/judged/inkwell-shop`](examples/judged/inkwell-shop): flows, Kane's results, screenshots and the verdict.*
+*Two real scorecards for the sample submission, [`examples/inkwell-shop`](examples/inkwell-shop). Left, **judge**: Kane proved 2 of 4 claims and caught a Total that disappears ([report](docs/sample-report.md), [HTML](docs/sample-scorecard.html)). Right, **pre-flight**: the agent fixed the bug and Kane passed the same test ([report](docs/sample-preflight-report.md), [HTML](docs/sample-preflight-scorecard.html)). The judge run is committed in [`examples/judged/inkwell-shop`](examples/judged/inkwell-shop): flows, Kane's results, screenshots and the verdict.*
 
 ## Try it in one paste
 
@@ -91,9 +94,7 @@ The agent judges your project the way a judge would, tells you what they would h
 
 Write `check only` after the command to get the findings without any changes. After you redeploy, `kane-judge run projects/<slug> --start-url https://your-app.example.app --gate` replays the same flows against the deployed build.
 
-![A pre-flight scorecard: a claim Kane found broken, the fix, and Kane's record of the same test failing and then passing](docs/preflight.png)
-
-*A real pre-flight of the sample shop: 10 minutes, about 250 Kane credits. Full [HTML](docs/sample-preflight-scorecard.html) and [Markdown](docs/sample-preflight-report.md).*
+On the sample shop this took 10 minutes and about 250 Kane credits, and the final gate replayed in half a minute ([the scorecard](docs/sample-preflight-report.md)).
 
 Try it on the sample (it has no dependencies):
 
