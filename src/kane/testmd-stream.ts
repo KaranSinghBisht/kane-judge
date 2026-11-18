@@ -13,8 +13,27 @@ export interface TestMdStep {
   replayed?: boolean;
 }
 
+/**
+ * Kane's own bug verdict on a failed test (`test_md_bug_verdict`): whether it
+ * blames the product or the test. A lead for the judge, who judges the app
+ * against the claim; Kane judges the test against the app.
+ */
+export interface KaneBugVerdict {
+  /** True when Kane confirmed a product bug; false when it blames the test or its own agent. */
+  confirmed: boolean;
+  title?: string;
+  family?: string;
+  category?: string;
+  severity?: string;
+  confidence?: number;
+  oneLiner?: string;
+  stepIndex?: number;
+}
+
 export interface TestMdSummary {
   status: "passed" | "failed" | "unknown";
+  /** Kane's bug verdict for the failing step, when it gave one. */
+  bugVerdict?: KaneBugVerdict;
   durationS?: number;
   sessionId?: string;
   shareUrl?: string;
@@ -72,6 +91,19 @@ function applyInner(acc: Acc, e: KaneEvent): void {
   }
 }
 
+function readBugVerdict(e: KaneEvent): KaneBugVerdict {
+  return {
+    confirmed: e.confirmed === true,
+    title: str(e, "bug_title"),
+    family: str(e, "family"),
+    category: str(e, "category"),
+    severity: str(e, "severity"),
+    confidence: num(e, "confidence"),
+    oneLiner: str(e, "one_liner"),
+    stepIndex: num(e, "step_index"),
+  };
+}
+
 function applyFileLevel(acc: Acc, e: KaneEvent): boolean {
   const type = eventType(e);
   if (type === "test_md_step_start") {
@@ -91,6 +123,10 @@ function applyFileLevel(acc: Acc, e: KaneEvent): boolean {
       step.failedSubStep = num(e, "failed_sub_step_index") ?? step.failedSubStep;
     }
     acc.current = undefined;
+    return true;
+  }
+  if (type === "test_md_bug_verdict") {
+    acc.summary.bugVerdict = readBugVerdict(e);
     return true;
   }
   if (type === "test_md_summary") {

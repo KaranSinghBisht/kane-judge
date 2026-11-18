@@ -1,0 +1,4 @@
+#!/bin/sh
+# Lets Claude Code (and your shell) call the bundled CLI as a plain `kane-judge` command:
+# Claude Code puts an enabled plugin's bin/ folder on the PATH of its Bash tool.
+exec node "$(dirname "$0")/../dist/kane-judge.mjs" "$@"

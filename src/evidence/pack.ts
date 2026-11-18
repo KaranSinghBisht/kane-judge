@@ -19,7 +19,7 @@ export interface Triage {
 }
 
 /** Screenshot entries Kane may write for a step, best first. */
-const FAILURE_SHOTS = ["annotated.png", "screenshot.png", "screenshot.jpg", "screenshot.jpeg"];
+const FAILURE_SHOTS = ["screenshot.png", "screenshot.jpg", "screenshot.jpeg", "annotated.png"];
 const PROOF_SHOT = /\/screenshot\.(png|jpe?g)$/;
 
 /** `dest` with the extension of the zip entry it receives (Kane writes both PNG and JPEG). */
@@ -38,7 +38,7 @@ export interface StepEvidence {
   triage?: Triage;
   console: ConsoleEntry[];
   network: NetworkFailure[];
-  /** Zip entry of the failing step's screenshot (annotated when available). */
+  /** Zip entry of the screenshot that shows the failure: the page as it was when the flow stopped. */
   screenshotEntry?: string;
   /** Where the screenshot was extracted to, when requested. */
   screenshotPath?: string;
@@ -119,6 +119,14 @@ function failingStepDir(zip: ZipReader, testDir: string): string | undefined {
   return failures[failures.length - 1];
 }
 
+/** The last step's plain screenshot: the page as it was when the flow stopped. */
+function lastScreenshot(zip: ZipReader, testDir: string): string | undefined {
+  const shots = zip.names
+    .filter((n) => n.startsWith(`${testDir}/steps/`) && PROOF_SHOT.test(n))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  return shots[shots.length - 1];
+}
+
 /** "steps/0007-abc" -> ["7", "0007", "abc", "0007-abc"]: the keys logs may use to attribute entries. */
 function stepKeys(stepDir: string | undefined): string[] {
   if (!stepDir) return [];
@@ -179,10 +187,10 @@ export async function readFailureEvidence(packPath: string, target: PackTarget):
   if (!testDir) return ev;
   ev.testDir = testDir;
   ev.stepDir = failingStepDir(zip, testDir);
-  if (ev.stepDir) {
-    readFailureYaml(zip, ev.stepDir, ev);
-    ev.screenshotEntry = FAILURE_SHOTS.map((f) => `${ev.stepDir}/${f}`).find((n) => zip.has(n));
-  }
+  if (ev.stepDir) readFailureYaml(zip, ev.stepDir, ev);
+  // Kane files failure.yaml under the action that led to the failure (e.g. the click on "Apply"), whose
+  // screenshots show the page before that action. The last screenshot of the test shows the failure itself.
+  ev.screenshotEntry = lastScreenshot(zip, testDir) ?? (ev.stepDir ? FAILURE_SHOTS.map((f) => `${ev.stepDir}/${f}`).find((n) => zip.has(n)) : undefined);
   readLogs(zip, testDir, stepKeys(ev.stepDir), ev);
   if (ev.screenshotEntry && target.screenshotTo) {
     const dest = withEntryExtension(target.screenshotTo, ev.screenshotEntry);
@@ -201,11 +209,7 @@ export async function readProofScreenshot(packPath: string, target: PackTarget &
     return undefined;
   }
   const testDir = pickTestDir(zip, target);
-  if (!testDir) return undefined;
-  const shots = zip.names
-    .filter((n) => n.startsWith(`${testDir}/steps/`) && PROOF_SHOT.test(n))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  const last = shots[shots.length - 1];
+  const last = testDir ? lastScreenshot(zip, testDir) : undefined;
   if (!last) return undefined;
   const dest = withEntryExtension(target.screenshotTo, last);
   return (await writeEntry(zip, last, dest)) ? dest : undefined;

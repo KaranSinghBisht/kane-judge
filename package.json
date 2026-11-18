@@ -1,7 +1,7 @@
 {
   "name": "kane-judge",
-  "version": "0.1.0",
-  "description": "Judge hackathon projects by using their live demos: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin.",
+  "version": "0.2.0",
+  "description": "Judge hackathon projects by using their live demos, and pre-flight your own: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin.",
   "type": "module",
   "license": "Apache-2.0",
   "bin": {
@@ -9,8 +9,11 @@
   },
   "files": [
     "dist/",
+    "bin/",
     "skills/",
     "commands/",
+    "hooks/",
+    "policies/",
     ".claude-plugin/",
     "README.md",
     "LICENSE"

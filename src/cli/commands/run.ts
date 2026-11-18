@@ -1,19 +1,31 @@
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { locatePack } from "../../evidence/pack.js";
 import { discoverFlows, type Flow } from "../../flows/discover.js";
+import { describeFlowProblems, flowProblems } from "../../flows/validate.js";
 import { eventType, num, str, type KaneEvent } from "../../kane/ndjson.js";
+import { judgePack } from "../../kane/policy.js";
 import { DEFAULT_RUN_CONFIG, runKane, type KaneOutcome, type KaneRunConfig } from "../../kane/runner.js";
-import { readJsonFile, toPosix, writeJsonAtomic } from "../../shared/fs.js";
+import { displayPath, readJsonFile, toPosix, writeJsonAtomic } from "../../shared/fs.js";
 import { configureLogger, out } from "../../shared/logger.js";
 import { collectFlowResults } from "../../judge/collect.js";
 import { emptyResults, isKaneResults, mergeRun, type KaneResults, type RunRecord } from "../../judge/results.js";
 import { formatRunProblem, formatRunSummary } from "../../judge/summary.js";
+import { RUN_MARKER } from "../../judge/pending.js";
 import { projectPaths, type ProjectPaths } from "../../judge/workspace.js";
 
 export interface RunArgs {
   dir: string;
   only: string[];
   config: Partial<KaneRunConfig>;
+  /** Exit 1 unless every flow passed and Kane's verdict on the pack is a pass (for pre-push hooks and CI). */
+  gate?: boolean;
+}
+
+/** The gate holds only when no flow failed and, when Kane judged the pack, its verdict is a pass. */
+export function gatePassed(run: RunRecord, results: Array<{ status: string }>): boolean {
+  const allPassed = results.length > 0 && results.every((r) => r.status === "passed");
+  return allPassed && (run.kaneVerdict ? run.kaneVerdict.result === "pass" : true);
 }
 
 function progress(event: KaneEvent): void {
@@ -38,8 +50,31 @@ function selectFlows(all: Flow[], only: string[]): { flows: Flow[]; missing: str
   return { flows, missing: only.filter((name) => !all.some((f) => f.name === name)) };
 }
 
-function record(outcome: KaneOutcome, flows: Flow[], paths: ProjectPaths, evidencePath?: string): RunRecord {
-  const base = { at: new Date().toISOString(), flows: flows.map((f) => f.name), durationS: Math.round(outcome.durationMs / 1000) };
+/** Flows Kane could not really run (no start URL, no steps, no checks), with what is wrong in each. */
+async function invalidFlows(flows: Flow[], paths: ProjectPaths): Promise<Array<{ file: string; problems: string[] }>> {
+  const invalid: Array<{ file: string; problems: string[] }> = [];
+  for (const flow of flows) {
+    const text = await readFile(join(paths.dir, flow.file), "utf8");
+    const problems = flowProblems(flow, text);
+    if (problems.length) invalid.push({ file: flow.file, problems });
+  }
+  return invalid;
+}
+
+/** Runs `work` with a marker in the project, so the Stop hook knows Kane is still running there. */
+async function whileMarked<T>(paths: ProjectPaths, work: () => Promise<T>): Promise<T> {
+  const marker = join(paths.dir, RUN_MARKER);
+  await mkdir(join(paths.dir, ".kane-judge"), { recursive: true });
+  await writeFile(marker, JSON.stringify({ pid: process.pid, startedAt: Date.now() }), "utf8");
+  try {
+    return await work();
+  } finally {
+    await rm(marker, { force: true });
+  }
+}
+
+function record(outcome: KaneOutcome, flows: Flow[], paths: ProjectPaths, evidencePath?: string, startUrl?: string): RunRecord {
+  const base = { at: new Date().toISOString(), flows: flows.map((f) => f.name), durationS: Math.round(outcome.durationMs / 1000), ...(startUrl ? { startUrl } : {}) };
   if (outcome.kind === "error" || outcome.kind === "timeout") {
     return { ...base, outcome: outcome.kind, reason: outcome.reason, detail: outcome.kind === "error" ? outcome.detail : undefined };
   }
@@ -56,26 +91,34 @@ export async function runFlowsCommand(args: RunArgs): Promise<number> {
     out(`No flows to run. Write one *_test.md per claim in ${paths.flowsDir}.`);
     return 2;
   }
-  const noUrl = flows.filter((f) => !f.url).map((f) => f.name);
-  if (noUrl.length) out(`Warning: no \`url:\` frontmatter in ${noUrl.join(", ")}; Kane needs a start URL.`);
-  process.stderr.write(`Kane Judge: running ${flows.length} flow(s) in real Chrome: ${flows.map((f) => f.name).join(", ")}\n`);
+  const invalid = await invalidFlows(flows, paths);
+  if (invalid.length) {
+    out(describeFlowProblems(invalid));
+    return 2;
+  }
   const config = { ...DEFAULT_RUN_CONFIG, ...args.config };
+  process.stderr.write(`Kane Judge: running ${flows.length} flow(s) in real Chrome${config.startUrl ? ` against ${config.startUrl}` : ""}: ${flows.map((f) => f.name).join(", ")}\n`);
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+$/, "");
   const rawLogPrefix = join(paths.dir, ".kane-judge", `run-${stamp}`);
-  const outcome = await runKane({ projectDir: paths.dir, config, flows, label: `kane-judge-${flows[0]?.name ?? "run"}`, onEvent: progress, rawLogPrefix });
+  const outcome = await whileMarked(paths, () => runKane({ projectDir: paths.dir, config, flows, label: `kane-judge-${flows[0]?.name ?? "run"}`, onEvent: progress, rawLogPrefix }));
   const startedMs = Date.now() - outcome.durationMs;
   const prev = await loadResults(paths);
   if (outcome.kind === "error" || outcome.kind === "timeout") {
-    const run = record(outcome, flows, paths);
+    const run = record(outcome, flows, paths, undefined, config.startUrl);
     await writeJsonAtomic(paths.results, mergeRun(prev, run, []));
     out(formatRunProblem(run));
     return 2;
   }
   const evidencePath = outcome.evidencePath ?? (await locatePack(paths.dir, { executionId: outcome.summary.executionId, sinceMs: startedMs - 5_000 }));
   const ran = { ...outcome, evidencePath };
-  const run = record(ran, flows, paths, evidencePath);
-  const results = await collectFlowResults(ran, flows, paths, run.at);
+  const kaneVerdict = evidencePath ? await judgePack({ kaneBin: config.kaneBin, projectDir: paths.dir, packPath: evidencePath }) : undefined;
+  const run: RunRecord = { ...record(ran, flows, paths, evidencePath, config.startUrl), kaneVerdict };
+  const earlierRuns = Object.fromEntries(Object.values(prev.flows).map((f) => [f.name, f.attempts]));
+  const results = await collectFlowResults(ran, flows, paths, run.at, earlierRuns);
   await writeJsonAtomic(paths.results, mergeRun(prev, run, results));
-  out(formatRunSummary(run, results, toPosix(relative(process.cwd(), paths.dir)) || paths.dir));
-  return 0;
+  out(formatRunSummary(run, results, displayPath(paths.dir)));
+  if (!args.gate) return 0;
+  const ok = gatePassed(run, results);
+  out(ok ? "Gate: PASS. Kane proved every flow." : "Gate: FAIL. Kane has not signed off (exit 1).");
+  return ok ? 0 : 1;
 }

@@ -162,7 +162,8 @@ export function isPrivateHost(url: string): boolean {
     return true;
   }
   if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local") || host.endsWith(".internal")) return true;
-  if (host === "::1" || host.startsWith("fc") || host.startsWith("fd") || host.startsWith("fe80")) return true;
+  // IPv6 literals only (they contain a colon): fdroid.org and fcc.gov are ordinary public names.
+  if (host.includes(":")) return host === "::1" || host === "::" || /^f[cd]/.test(host) || host.startsWith("fe80") || host.startsWith("::ffff:");
   const octets = host.split(".").map(Number);
   if (octets.length !== 4 || octets.some((n) => !Number.isInteger(n))) return false;
   const [a = 0, b = 0] = octets;

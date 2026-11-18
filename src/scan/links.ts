@@ -3,6 +3,10 @@ export interface RepoRef {
   owner: string;
   repo: string;
   url: string;
+  /** Branch or tag, from a /tree/<ref>/… or /blob/<ref>/… URL. */
+  ref?: string;
+  /** Folder inside the repo, when the submission lives in a subfolder (monorepos, example apps). */
+  path?: string;
 }
 
 export interface LinkSets {
@@ -28,6 +32,7 @@ const NOT_DEMO = [
   "challengepost-s3-challengepost.netdna-ssl.com", "d112y698adiu2z.cloudfront.net", "kaneclihack.sh",
   "slack.com", "lu.ma", "luma.com", "eventbrite.com", "calendly.com", "typeform.com", "forms.gle", "testmuai.com",
   "lambdatest.com", "apple.com", "anthropic.com", "openai.com", "vercel.com", "netlify.com", "wikipedia.org",
+  "shields.io", "badgen.net", "badge.fury.io", "imgur.com", "nodejs.org", "npmjs.org", "claude.ai", "claude.com",
 ];
 
 /** Hosts where hackathon demos are usually deployed; ranked first. */
@@ -38,6 +43,28 @@ const DEMO_HOSTS = [
 ];
 
 const hostMatches = (host: string, domain: string) => host === domain || host.endsWith(`.${domain}`);
+const SAFE_NAME = /^[A-Za-z0-9_.-]+$/;
+
+function decodeSegment(segment: string): string | undefined {
+  try {
+    const text = decodeURIComponent(segment);
+    return text === "" || text === "." || text === ".." || /[\\/\u0000-\u001f]/.test(text) ? undefined : text;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * The branch and folder of a /tree/<ref>/<folder> URL (or the folder holding a
+ * /blob/<ref>/<file>). Branch names that contain a slash are not supported.
+ */
+function subfolder(parts: string[]): Pick<RepoRef, "ref" | "path"> {
+  const [kind, ref, ...rest] = parts;
+  if ((kind !== "tree" && kind !== "blob") || !ref || !SAFE_NAME.test(ref)) return {};
+  const segments = (kind === "blob" ? rest.slice(0, -1) : rest).map(decodeSegment);
+  if (segments.some((s) => s === undefined)) return { ref };
+  return { ref, path: segments.length ? segments.join("/") : undefined };
+}
 
 export function parseRepo(url: string): RepoRef | undefined {
   let parsed: URL;
@@ -47,11 +74,14 @@ export function parseRepo(url: string): RepoRef | undefined {
     return undefined;
   }
   if (parsed.hostname !== "github.com" && parsed.hostname !== "www.github.com") return undefined;
-  const [owner, rawRepo] = parsed.pathname.split("/").filter(Boolean);
+  const [owner, rawRepo, ...rest] = parsed.pathname.split("/").filter(Boolean);
   if (!owner || !rawRepo || GITHUB_RESERVED.has(owner.toLowerCase())) return undefined;
   const repo = rawRepo.replace(/\.git$/i, "");
-  if (!/^[A-Za-z0-9_.-]+$/.test(owner) || !/^[A-Za-z0-9_.-]+$/.test(repo)) return undefined;
-  return { owner, repo, url: `https://github.com/${owner}/${repo}` };
+  if (!SAFE_NAME.test(owner) || !SAFE_NAME.test(repo)) return undefined;
+  const root = `https://github.com/${owner}/${repo}`;
+  const { ref, path } = subfolder(rest);
+  if (!ref || !path) return { owner, repo, url: root, ...(ref ? { ref } : {}) };
+  return { owner, repo, url: `${root}/tree/${ref}/${path.split("/").map(encodeURIComponent).join("/")}`, ref, path };
 }
 
 function isVideo(host: string, path: string): boolean {
@@ -62,6 +92,12 @@ function isVideo(host: string, path: string): boolean {
 
 function demoRank(host: string): number {
   return DEMO_HOSTS.some((d) => hostMatches(host, d)) ? 0 : 1;
+}
+
+/** True when the URL sits on a host hackathon demos are usually deployed to (vercel.app, netlify.app, …). */
+export function isDemoHost(url: string): boolean {
+  const host = safeHost(url);
+  return !!host && demoRank(host) === 0;
 }
 
 /** Classifies links; `pageUrl`'s own host is excluded from demo candidates. */

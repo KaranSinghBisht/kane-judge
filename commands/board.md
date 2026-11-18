@@ -1,8 +1,8 @@
 ---
 description: Rank every project judged in this folder (SCOREBOARD.md and scoreboard.html)
-allowed-tools: Bash(node *kane-judge.mjs *)
+allowed-tools: Bash(kane-judge *), Bash(node *kane-judge.mjs*)
 ---
 
-!`node "${CLAUDE_PLUGIN_ROOT}/dist/kane-judge.mjs" board 2>&1`
+Run `kane-judge board` with the Bash tool. If the shell can't find `kane-judge`, run `node "${CLAUDE_PLUGIN_ROOT}/dist/kane-judge.mjs" board` instead.
 
-Summarize the ranking in a few lines and point out any project whose demo was down or whose claims were mostly unverifiable.
+Then summarize the ranking in a few lines, and point out any project whose demo was down or whose claims were mostly unverifiable.

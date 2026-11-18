@@ -17,11 +17,19 @@ export interface KaneRunConfig {
   headless: boolean;
   /** Wall-clock limit for the whole Kane run, in seconds. */
   timeoutSec: number;
-  /** Passed through as `--bug-detection` when set. */
-  bugDetection?: "off" | "stop" | "continue";
+  /**
+   * Run every flow against this URL instead of the one in its `url:` frontmatter
+   * (Kane's `--override-start-url`): the same tests against a local build, then the deployed one.
+   */
+  startUrl?: string;
 }
 
-export const DEFAULT_RUN_CONFIG: KaneRunConfig = { kaneBin: "kane-cli", parallel: 2, headless: true, timeoutSec: 900 };
+/**
+ * Four workers: a project's 3–5 claim flows usually run in one round. Nine
+ * minutes, so the run ends by itself inside the 10-minute limit of an agent's
+ * foreground shell call instead of being killed half-way.
+ */
+export const DEFAULT_RUN_CONFIG: KaneRunConfig = { kaneBin: "kane-cli", parallel: 4, headless: true, timeoutSec: 540 };
 
 export interface FlowFailure {
   flow?: Flow;
@@ -77,7 +85,7 @@ async function saveRaw(prefix: string, result: RunResult): Promise<void> {
 export function buildTestrunArgs(flows: Flow[], config: KaneRunConfig, label: string): string[] {
   const args = ["testrun", "run", ...flows.map((f) => f.file), "--agent", "--parallel", String(config.parallel)];
   if (config.headless) args.push("--headless");
-  if (config.bugDetection) args.push("--bug-detection", config.bugDetection);
+  if (config.startUrl) args.push("--override-start-url", config.startUrl);
   const safeLabel = label.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 60);
   if (safeLabel) args.push("--name", safeLabel);
   return args;

@@ -3,10 +3,11 @@ coverage/
 *.log
 .DS_Store
 
-# Kane Judge raw run logs and Kane run artifacts
+# Kane Judge raw run logs and Kane run artifacts, wherever flows are run
 .kane-judge/
-.testmuai/evidence/
-**/.testmuai/evidence/
+**/.kane-judge/
+**/.testmuai/
+**/flows/output-*/
 
 # Local agent tooling state
 .omc/

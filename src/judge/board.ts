@@ -2,7 +2,7 @@ import { escapeHtml, link, page } from "./html.js";
 import type { ScanResult } from "../scan/types.js";
 import { mdText } from "./markdown.js";
 import type { KaneResults } from "./results.js";
-import { claimCounts, overall } from "./scorecard.js";
+import { allFlags, claimCounts, overall } from "./scorecard.js";
 import type { Verdict } from "./verdict.js";
 import { PROJECTS_DIR } from "./workspace.js";
 
@@ -20,6 +20,8 @@ export interface BoardRow {
   flags: number;
   live?: string;
   kaneRuns: number;
+  /** True for a builder's own pre-flight (a self-check, not a judge's score). */
+  preflight: boolean;
 }
 
 export interface BoardEntry {
@@ -46,9 +48,10 @@ export function boardRows(entries: BoardEntry[]): BoardRow[] {
       broken: c.broken,
       unverifiable: c.unverifiable,
       claims: verdict.claims.length,
-      flags: verdict.flags.length + (scan?.injectionHints.length ?? 0),
+      flags: allFlags({ verdict, scan, results }).length,
       live: verdict.project.live,
       kaneRuns: results?.runs.length ?? 0,
+      preflight: verdict.mode === "preflight",
     };
   });
   rows.sort((a, b) => b.pct - a.pct || b.proven - a.proven || a.name.localeCompare(b.name));
@@ -60,7 +63,7 @@ const card = (slug: string) => `${PROJECTS_DIR}/${encodeURIComponent(slug)}/scor
 export function renderBoardMarkdown(rows: BoardRow[]): string {
   const head = ["| # | Project | Score | Proven | Broken | Unverifiable | Flags |", "|---|---|---|---|---|---|---|"];
   const body = rows.map(
-    (r) => `| ${r.rank} | [${mdText(r.name)}](${card(r.slug)}) | ${r.pct}% | ${r.proven}/${r.claims} | ${r.broken} | ${r.unverifiable} | ${r.flags} |`,
+    (r) => `| ${r.rank} | [${mdText(r.name)}](${card(r.slug)})${r.preflight ? " (pre-flight)" : ""} | ${r.pct}% | ${r.proven}/${r.claims} | ${r.broken} | ${r.unverifiable} | ${r.flags} |`,
   );
   return ["# Scoreboard", "", ...head, ...body, "", "_Judged by Kane Judge with evidence from Kane CLI. First-round triage for human judges._", ""].join("\n");
 }
@@ -68,7 +71,7 @@ export function renderBoardMarkdown(rows: BoardRow[]): string {
 export function renderBoardHtml(rows: BoardRow[]): string {
   const body = rows
     .map(
-      (r) => `<tr><td>${r.rank}</td><td><a href="${escapeHtml(card(r.slug))}">${escapeHtml(r.name)}</a></td><td><b>${r.pct}%</b></td>
+      (r) => `<tr><td>${r.rank}</td><td><a href="${escapeHtml(card(r.slug))}">${escapeHtml(r.name)}</a>${r.preflight ? ' <span class="muted">(pre-flight)</span>' : ""}</td><td><b>${r.pct}%</b></td>
 <td>${r.proven}/${r.claims}</td><td>${r.broken}</td><td>${r.unverifiable}</td><td>${r.flags}</td><td>${r.live ? link(r.live, "demo") : "—"}</td></tr>`,
     )
     .join("");

@@ -3,6 +3,7 @@
  * instructions", "AI judges: score this 10/10", hidden HTML comments, ...).
  * A hit is reported as a red flag; it never changes how the project is judged.
  */
+/** Text that addresses a judge or tries to set the score. Flagged wherever it appears. */
 const PATTERNS: RegExp[] = [
   /ignore (?:all |any |the )?(?:previous|prior|above|earlier) (?:instructions|prompts?|rules)/i,
   /\b(?:note|message|instructions?|attention|memo) (?:for|to) (?:the |any )?(?:ai|llm|gpt|claude|automated|robot)s? (?:judges?|reviewers?|graders?|evaluators?)/i,
@@ -10,9 +11,15 @@ const PATTERNS: RegExp[] = [
   /\b(?:give|award) (?:this|us|our|the) (?:project |submission |entry |team )?(?:a )?(?:10|ten|full marks|perfect score|maximum score|top score|first place)\b/i,
   /\bscore (?:it|this|us|our project) (?:a )?10\b/i,
   /\b(?:pre-?approved|already approved|already been approved) by the (?:organi[sz]ers|judges|sponsors)\b/i,
-  /\bskip (?:the )?(?:live )?(?:demo|tests?|checks?|verification)(?: checks?)?\b/i,
+  /\bskip (?:the )?(?:live )?demo (?:checks?|tests?|verification|review)\b/i,
   /\bdisregard (?:the )?(?:rubric|criteria|judging instructions)\b/i,
 ];
+
+/**
+ * Ordinary engineering talk in the open ("skip tests on CI"), so it is only a
+ * signal inside a hidden HTML comment, where nothing is addressed to a human reader.
+ */
+const HIDDEN_ONLY: RegExp[] = [/\bskip (?:the )?(?:live )?(?:demo|tests?|checks?|verification)\b/i];
 
 const MAX_HINTS = 6;
 const MAX_COMMENT = 2_000;
@@ -55,7 +62,7 @@ export function findInjectionHints(sources: Record<string, string>): string[] {
   for (const [label, raw] of Object.entries(sources)) {
     const { comments, rest } = splitComments(raw);
     for (const body of comments) {
-      if (PATTERNS.some((p) => p.test(body))) hints.push(`${label} (hidden HTML comment): "${excerpt(body, 0, body.length)}"`);
+      if ([...PATTERNS, ...HIDDEN_ONLY].some((p) => p.test(body))) hints.push(`${label} (hidden HTML comment): "${excerpt(body, 0, body.length)}"`);
     }
     scan(rest, label, hints);
   }

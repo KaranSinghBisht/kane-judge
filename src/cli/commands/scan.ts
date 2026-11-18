@@ -1,7 +1,7 @@
-import { relative } from "node:path";
 import { isLocalDir } from "../../scan/local.js";
 import { scanSubmission } from "../../scan/scan.js";
 import type { ScanResult } from "../../scan/types.js";
+import { displayPath } from "../../shared/fs.js";
 import { out } from "../../shared/logger.js";
 
 export interface ScanArgs {
@@ -65,6 +65,6 @@ export async function scanCommand(args: ScanArgs): Promise<number> {
   }
   const window = args.since || args.until ? { since: args.since, until: args.until } : undefined;
   const { result, dir } = await scanSubmission({ ...args, window });
-  out(describe(result, relative(process.cwd(), dir) || dir));
+  out(describe(result, displayPath(dir)));
   return 0;
 }

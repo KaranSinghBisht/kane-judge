@@ -1,13 +1,15 @@
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { PROJECTS_DIR, projectPaths, slugify } from "../judge/workspace.js";
 import { safeMessage } from "../shared/errors.js";
 import { writeJsonAtomic, writeTextAtomic } from "../shared/fs.js";
+import { log } from "../shared/logger.js";
 import { scanRepo, type EventWindow, type RepoScan } from "./github.js";
 import { findInjectionHints } from "./injection.js";
 import { classifyLinks, parseRepo, type RepoRef } from "./links.js";
 import { isLocalDir, scanLocal } from "./local.js";
 import { fetchPage, isBotChallenge, isPrivateHost, probeStatus, type FetchedPage } from "./page.js";
+import { readmeDemoLinks } from "./readme-links.js";
 import type { PageFacts, ScanResult } from "./types.js";
 
 export interface ScanOptions {
@@ -25,6 +27,23 @@ export interface ScanOptions {
 export interface ScanOutput {
   result: ScanResult;
   dir: string;
+}
+
+/** Keeps Kane's bulky or machine-specific run artifacts out of git; flows, results, screenshots and the scorecard stay. */
+const PROJECT_GITIGNORE = `# Written by kane-judge scan. Kane's raw logs, sealed evidence packs and per-flow output folders.
+.kane-judge/
+.kane-judge.log
+.testmuai/
+flows/output-*/
+`;
+
+/** Writes the project's .gitignore once; a file the user already has (or has edited) is left alone. */
+async function writeProjectGitignore(dir: string): Promise<void> {
+  try {
+    await writeFile(join(dir, ".gitignore"), PROJECT_GITIGNORE, { encoding: "utf8", flag: "wx" });
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "EEXIST") log.warn(`could not write ${join(dir, ".gitignore")}: ${safeMessage(err)}`);
+  }
 }
 
 const MAX_REPOS = 3;
@@ -54,10 +73,15 @@ async function readPages(urls: string[]): Promise<{ pages: FetchedPage[]; failed
   return { pages, failed };
 }
 
+/** Repos to read: the ones given directly win over the same repo linked from a page (they may name a subfolder). */
 function pickRepos(inputs: string[], pages: FetchedPage[]): RepoRef[] {
   const direct = inputs.map(parseRepo).filter((r): r is RepoRef => r !== undefined);
   const found = pages.flatMap((p) => classifyLinks(p.links, p.finalUrl).repos);
-  const unique = new Map([...direct, ...found].map((r) => [`${r.owner}/${r.repo}`.toLowerCase(), r]));
+  const unique = new Map<string, RepoRef>();
+  for (const repo of [...direct, ...found]) {
+    const key = `${repo.owner}/${repo.repo}`.toLowerCase();
+    if (!unique.has(key)) unique.set(key, repo);
+  }
   return [...unique.values()].slice(0, MAX_REPOS);
 }
 
@@ -66,10 +90,11 @@ function linkSets(pages: FetchedPage[]): { demos: string[]; videos: string[] } {
   return { demos: [...new Set(sets.flatMap((s) => s.demos))], videos: [...new Set(sets.flatMap((s) => s.videos))] };
 }
 
-function chooseLive(opts: ScanOptions, demos: string[], repos: RepoScan[]): string | undefined {
+/** The demo Kane will use: --live, else the submission page's demo link, the repo's homepage, then the README's. */
+function chooseLive(opts: ScanOptions, demos: string[], repos: RepoScan[], readmeDemos: string[]): string | undefined {
   if (opts.live) return opts.live;
   const homepage = repos.map((r) => r.facts.homepage).find((h) => h && /^https?:\/\//.test(h) && !parseRepo(h));
-  return [...demos, homepage].find((url): url is string => !!url && !isPrivateHost(url));
+  return [...demos, homepage, ...readmeDemos].find((url): url is string => !!url && !isPrivateHost(url));
 }
 
 function submissionMarkdown(result: ScanResult, pages: FetchedPage[], repos: RepoScan[]): string {
@@ -105,7 +130,8 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
     ...(await Promise.all(repoRefs.map((r) => scanRepo(r, opts.window)))),
   ];
   const { demos, videos } = linkSets(pages);
-  const live = chooseLive(opts, demos, repos);
+  const readmeDemos = repos.flatMap((r) => (r.readme ? readmeDemoLinks(r.readme) : []));
+  const live = chooseLive(opts, demos, repos, readmeDemos);
   const name = opts.name ?? cleanTitle(pages[0]?.title) ?? repos[0]?.facts.fullName.split("/").pop() ?? "project";
   const slug = opts.slug ?? slugify(name);
   const sources = Object.fromEntries([
@@ -120,7 +146,7 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
     inputs: opts.inputs,
     live,
     liveStatus: live ? await probeStatus(live) : undefined,
-    demoCandidates: demos,
+    demoCandidates: [...new Set([...demos, ...readmeDemos])],
     repos: repos.map((r) => r.facts),
     videos,
     window: opts.window,
@@ -130,6 +156,7 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
   const dir = join(opts.workspace, PROJECTS_DIR, slug);
   const paths = projectPaths(dir);
   await mkdir(paths.flowsDir, { recursive: true });
+  await writeProjectGitignore(dir);
   await writeJsonAtomic(paths.scan, result);
   await writeTextAtomic(paths.submission, submissionMarkdown(result, pages, repos));
   return { result, dir };

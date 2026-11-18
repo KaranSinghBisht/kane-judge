@@ -13,7 +13,7 @@ describe("buildTestrunArgs", () => {
       "kane/flows/admin/users_test.md",
       "--agent",
       "--parallel",
-      "2",
+      "4",
       "--headless",
       "--name",
       "judge",
@@ -29,13 +29,13 @@ describe("buildTestrunArgs", () => {
     expect(args[args.indexOf("--parallel") + 1]).toBe("5");
   });
 
-  it.each(["off", "stop", "continue"] as const)("passes --bug-detection %s through", (mode) => {
-    const args = buildTestrunArgs(FLOWS, makeConfig({ bugDetection: mode }), "judge");
-    expect(args[args.indexOf("--bug-detection") + 1]).toBe(mode);
+  it("retargets every flow with Kane's --override-start-url when a start URL is set", () => {
+    const args = buildTestrunArgs(FLOWS, makeConfig({ startUrl: "https://preview.example.app" }), "judge");
+    expect(args[args.indexOf("--override-start-url") + 1]).toBe("https://preview.example.app");
   });
 
-  it("omits --bug-detection when it is not configured", () => {
-    expect(buildTestrunArgs(FLOWS, makeConfig(), "judge")).not.toContain("--bug-detection");
+  it("omits --override-start-url when no start URL is set", () => {
+    expect(buildTestrunArgs(FLOWS, makeConfig(), "judge")).not.toContain("--override-start-url");
   });
 
   it("replaces every character outside [A-Za-z0-9_-] in the label with a dash", () => {

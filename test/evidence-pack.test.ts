@@ -147,9 +147,19 @@ describe("readFailureEvidence: a failing run", () => {
     ]);
   });
 
-  it("prefers the annotated screenshot", async () => {
-    const files = failingPack({ "tests/t-1/steps/0002-abc/screenshot.png": Uint8Array.from([9, 9, 9]) });
+  it("shows the page as it was when the flow stopped, not the action that led there", async () => {
+    // Kane 0.10.5 files failure.yaml under the click that triggered the failure; the steps after it hold the result.
+    const files = failingPack({
+      "tests/t-1/steps/0002-abc/screenshot.png": Uint8Array.from([9, 9, 9]),
+      "tests/t-1/steps/0003-def/screenshot.jpg": Uint8Array.from([7, 7, 7]),
+      "tests/t-1/steps/0010-xyz/screenshot.jpg": Uint8Array.from([5, 5, 5]),
+    });
     const ev = must(await readFailureEvidence(await writePack(await makeDir(), files), { testId: "t-1" }));
+    expect(ev.screenshotEntry).toBe("tests/t-1/steps/0010-xyz/screenshot.jpg");
+  });
+
+  it("uses the annotated action screenshot only when the test has no plain screenshot at all", async () => {
+    const ev = must(await readFailureEvidence(await writePack(await makeDir(), failingPack()), { testId: "t-1" }));
     expect(ev.screenshotEntry).toBe("tests/t-1/steps/0002-abc/annotated.png");
   });
 

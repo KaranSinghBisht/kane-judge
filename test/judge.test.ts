@@ -32,7 +32,7 @@ function verdict(overrides: Partial<Verdict> = {}): Verdict {
 }
 
 function flow(name: string, status = "passed"): FlowResult {
-  return { name, file: `flows/${name}_test.md`, status, attempts: 0, authored: true, steps: [], lastRunAt: "2026-11-18T00:00:00Z" };
+  return { name, file: `flows/${name}_test.md`, status, attempts: 0, authored: true, steps: [{ index: 1, heading: "Step", status: "passed" }], lastRunAt: "2026-11-18T00:00:00Z" };
 }
 
 const RUN: RunRecord = { at: "2026-11-18T00:00:00Z", flows: ["01-browse"], outcome: "failed", durationS: 61 };

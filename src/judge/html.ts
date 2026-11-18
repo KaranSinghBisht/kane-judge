@@ -55,9 +55,19 @@ h1{font-size:28px;line-height:1.2;margin:0 0 6px}h2{font-size:17px;margin:32px 0
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:12px 0}
 .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:3px 10px;margin-right:8px;vertical-align:2px}
 .proven{color:var(--ok);background:var(--ok-bg)}.broken{color:var(--bad);background:var(--bad-bg)}
-.unverifiable{color:var(--warn);background:var(--warn-bg)}.untested{color:var(--na);background:var(--na-bg)}
+.unverifiable{color:var(--warn);background:var(--warn-bg)}.untested,.withdrawn{color:var(--na);background:var(--na-bg)}
+.fixed{color:var(--ok);background:var(--ok-bg);box-shadow:inset 0 0 0 1px var(--ok)}.struck{text-decoration:line-through;color:var(--muted)}
+.fix{border-left:3px solid var(--ok);background:var(--ok-bg);border-radius:0 8px 8px 0;padding:8px 12px;margin:10px 0;font-size:14px}
+.kane-bug{border-left:3px solid var(--line);padding:6px 12px;margin:10px 0;font-size:14px;border-radius:0 8px 8px 0}
+.kane-bug.yes{border-color:var(--bad);background:var(--bad-bg)}.kane-bug.no{border-color:var(--warn);background:var(--warn-bg)}
+.stamp{display:inline-block;font-size:13px;border-radius:8px;padding:5px 10px;margin:10px 0 0}
+.stamp.ok{color:var(--ok);background:var(--ok-bg)}.stamp.bad{color:var(--bad);background:var(--bad-bg)}
+.mode{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace}
 .claim{font-size:16px;font-weight:600}.source{border-left:3px solid var(--line);padding:2px 0 2px 12px;color:var(--muted);margin:10px 0;font-style:italic}
-.shot{display:block;max-width:100%;max-height:380px;border:1px solid var(--line);border-radius:8px;margin-top:12px;object-fit:contain;background:#fff}
+.shot{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;margin-top:12px;background:#fff}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}figure{margin:0}figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+@media (max-width:640px){.pair{grid-template-columns:1fr}}
 .timeline{margin:12px 0 0;padding-left:20px;font-size:14px}.timeline li{margin:4px 0}
 .score{display:grid;grid-template-columns:150px 1fr 56px;gap:12px;align-items:center;margin:10px 0}
 .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
@@ -71,9 +81,12 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 @media (max-width:640px){.hero{grid-template-columns:1fr}.score{grid-template-columns:1fr 48px}.score .bar{grid-column:1/3;order:3}.why{grid-column:1/3}}
 @media print{body{background:#fff}.card,.hero{break-inside:avoid}}`;
 
-export function page(title: string, body: string): string {
+export function page(title: string, body: string, meta: Record<string, string> = {}): string {
+  const extra = Object.entries(meta)
+    .map(([name, content]) => `<meta name="${escapeHtml(name)}" content="${escapeHtml(content)}">`)
+    .join("");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light dark"><title>${escapeHtml(title)}</title><style>${CSS}</style></head><body><main>${body}</main></body></html>\n`;
+<meta name="color-scheme" content="light dark">${extra}<title>${escapeHtml(title)}</title><style>${CSS}</style></head><body><main>${body}</main></body></html>\n`;
 }
 
 export function badge(status: string): string {

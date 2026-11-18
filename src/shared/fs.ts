@@ -48,3 +48,10 @@ export function relativeInside(root: string, target: string): string | undefined
   if (rel === "" || rel.startsWith("..") || isAbsolute(rel)) return rel === "" ? "" : undefined;
   return toPosix(rel);
 }
+
+/** A path to show the user: relative to the working folder when it is inside it, absolute otherwise. */
+export function displayPath(target: string, cwd: string = process.cwd()): string {
+  const rel = relative(cwd, resolve(cwd, target));
+  if (rel === "") return ".";
+  return rel.startsWith("..") || isAbsolute(rel) ? resolve(cwd, target) : toPosix(rel);
+}

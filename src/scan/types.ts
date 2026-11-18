@@ -14,8 +14,11 @@ export interface CommitFacts {
 }
 
 export interface RepoFacts {
+  /** "owner/repo", plus the folder for a subfolder submission. */
   fullName: string;
   url: string;
+  /** Folder inside the repo that holds the submission, when it isn't the repo root. */
+  path?: string;
   description?: string;
   homepage?: string;
   createdAt?: string;

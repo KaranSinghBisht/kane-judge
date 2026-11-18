@@ -8,7 +8,7 @@ import { checkAgainstKane } from "../../judge/evidence-check.js";
 import { imageDataUri } from "../../judge/html.js";
 import { renderReportMarkdown } from "../../judge/report-md.js";
 import { isKaneResults, type KaneResults } from "../../judge/results.js";
-import { flowFor, headline, overall, renderScorecard } from "../../judge/scorecard.js";
+import { claimShots, headline, overall, renderScorecard } from "../../judge/scorecard.js";
 import type { Verdict } from "../../judge/verdict.js";
 import { checkVerdict } from "../../judge/verdict-check.js";
 import { PROJECTS_DIR, projectPaths, type ProjectPaths } from "../../judge/workspace.js";
@@ -50,9 +50,8 @@ async function load(paths: ProjectPaths): Promise<Loaded> {
 
 async function images(paths: ProjectPaths, verdict: Verdict, results?: KaneResults): Promise<Map<string, string>> {
   const map = new Map<string, string>();
-  for (const claim of verdict.claims) {
-    const shot = flowFor(claim, results)?.screenshot;
-    if (!shot || map.has(shot)) continue;
+  for (const shot of verdict.claims.flatMap((claim) => claimShots(claim, results))) {
+    if (map.has(shot)) continue;
     const abs = resolve(paths.dir, shot);
     const rel = relative(paths.dir, abs);
     if (rel.startsWith("..") || isAbsolute(rel)) continue;
