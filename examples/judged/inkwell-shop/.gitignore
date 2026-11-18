@@ -1,0 +1,5 @@
+# Written by kane-judge scan. Kane's raw logs, sealed evidence packs and per-flow output folders.
+.kane-judge/
+.kane-judge.log
+.testmuai/
+flows/output-*/

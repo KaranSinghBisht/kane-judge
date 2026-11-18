@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "project": {
+    "name": "Inkwell Supply Co.",
+    "slug": "inkwell-shop",
+    "repo": "https://github.com/KaranSinghBisht/kane-judge/tree/main/examples/inkwell-shop",
+    "live": "https://inkwell-shop.vercel.app"
+  },
+  "summary": "A small stationery shop whose storefront, cart and card checkout work end to end and return an order number. Two of the four README features fail in the live demo: once SAVE10 is applied the order summary shows the discount but no Total (a client-side experiment running at 100% rollout deletes the fourth summary row), and the promised Account → Orders history does not exist (no Account page, no link to one, and orders are never stored).",
+  "claims": [
+    {
+      "id": "c1",
+      "claim": "The catalogue shows four products with prices, and adding to the cart updates the header cart badge",
+      "source": "README: \"Browse the catalogue. Four hand-picked products with prices. Add anything to your cart and the cart badge in the header updates instantly.\"",
+      "flow": "flows/01-browse-and-cart_test.md",
+      "status": "proven",
+      "evidence": "Kane passed all three checks. The final screenshot shows Field Notebook $18.00, Brass Pen $42.00, Ink Sampler $12.50 and Desk Mat $29.00, each with an Add to cart button, and the header badge reading 2 after two adds.",
+      "investigation": [
+        { "round": 1, "kane": "passed: four products with prices; badge showed 1 after the first add and 2 after the second", "action": "proven: the final screenshot shows the four priced products and Cart badge 2" }
+      ]
+    },
+    {
+      "id": "c2",
+      "claim": "Checkout lists your items with an order summary (subtotal, $5 flat shipping, total), and paying by card returns an order number",
+      "source": "README: \"Fast checkout. The checkout page lists your items and an order summary with the subtotal, $5 flat shipping and the total. Pay by card and get an order number right away.\"",
+      "flow": "flows/02-checkout-order_test.md",
+      "status": "proven",
+      "evidence": "Kane passed all three steps: the summary showed Subtotal, $5.00 Shipping and a Total equal to Subtotal plus $5.00, and Pay with a test card ended on \"Order confirmed: Order #INK-45696 is on its way. Paid $23.00.\", consistent with an $18.00 item plus $5.00 shipping. No console errors were reported.",
+      "investigation": [
+        { "round": 1, "kane": "passed: items and summary visible, order placed with test data, order number shown", "action": "proven: the final screenshot shows the order confirmation with order number INK-45696" }
+      ]
+    },
+    {
+      "id": "c3",
+      "claim": "Applying SAVE10 at checkout updates the summary with the discount and the new total",
+      "source": "README: \"Promo codes. Apply `SAVE10` at checkout and the summary updates with your discount and the new total.\"",
+      "flow": "flows/03-promo-save10_test.md",
+      "status": "broken",
+      "evidence": "Kane applied SAVE10 and failed at step 3: \"The order summary lacks a visible Total.\" The screenshot shows Subtotal $18.00, Discount (SAVE10) −$1.80 and Shipping $5.00 but no Total row, and the console logged \"[experiments] compact-order-summary: limit-rows removed 1 of 4 rows in #order-summary\". Kane's own bug verdict: confirmed product bug, \"Checkout order summary omits Total\" (application_issue/ui_data_defect, major, confidence 0.98).",
+      "investigation": [
+        { "round": 1, "kane": "failed at step 3: no Total row after applying SAVE10; console: limit-rows removed 1 of 4 rows in #order-summary", "action": "APP_BROKEN: data/experiments.json runs compact-order-summary at rollout 100 with maxRows 3, and checkout.js adds a Discount row once a promo applies, so the experiment deletes the fourth row (the Total) for every visitor. Flow unchanged: the check is exactly what the README promises." }
+      ]
+    },
+    {
+      "id": "c4",
+      "claim": "Every order you place is saved under Account → Orders so you can find your order number later",
+      "source": "README: \"Order history. Every order you place is saved under **Account → Orders**, so you can find your order number later.\"",
+      "flow": "flows/04-order-history_test.md",
+      "status": "broken",
+      "evidence": "Kane placed an order (step 1 passed) but could not open Account → Orders: \"neither [the storefront nor checkout] exposes an Account or Orders route\"; the header on both pages holds only the shop name and the Cart link. Kane's triage blamed its own agent (automation_bug/agent_misstep), but the repo settles it: public/ holds only index.html and checkout.html, there is no GET /api/orders, and createOrder returns a random order number without storing anything.",
+      "investigation": [
+        { "round": 1, "kane": "failed at step 2: no Account or Orders entry point on the storefront or checkout; triage automation_bug/agent_misstep, no console errors", "action": "APP_BROKEN (overclaim): the feature the README promises was never built. Not TEST_WRONG: the flow uses the README's own words, and the repo has no account or orders page anywhere, so a rewrite has nowhere else to look." }
+      ]
+    }
+  ],
+  "scores": [
+    { "criterion": "Works", "score": 5, "max": 10, "why": "The core purchase loop works (c1 and c2 proven: browse, cart badge, summary, card checkout, order number), but two of four claims are broken: SAVE10 leaves the order summary without a Total (c3) and Account → Orders does not exist (c4)." },
+    { "criterion": "Substance", "score": 5, "max": 10, "why": "There is real server-side logic: the cart is re-priced on the server with quantity and promo validation, and the promo discount is computed there. But orders are never stored (createOrder returns a random id), the card fields are never read or validated, and there is no account area (c4)." },
+    { "criterion": "Truthfulness", "score": 4, "max": 10, "why": "Two of four feature bullets are wrong: the promo bullet promises a new total that the page hides (c3), and the order-history bullet describes a page that does not exist (c4). The other two bullets are accurate (c1, c2), and the README is honest that no payment is taken; checkout.js posts only name, email, items and promo code, so card details do stay in the browser." },
+    { "criterion": "Craft", "score": 6, "max": 10, "why": "The storefront is clean and coherent and the badge, pricing and confirmation behave well (c1, c2). The rough edge is serious, though: the checkout hides what you will pay as soon as a promo is applied (console: \"[experiments] compact-order-summary: limit-rows removed 1 of 4 rows\"), and a placed order can never be looked up." },
+    { "criterion": "Originality", "score": 3, "max": 10, "why": "A stock webshop demo (catalogue, cart, promo code, checkout); the zero-dependency Node setup is tidy but the idea is a familiar template with no distinctive twist." }
+  ],
+  "questions": [
+    "Your compact-order-summary experiment has run at 100% rollout with maxRows 3 since 2026-07-02 (before this repo's first commit on 2026-11-17), and it deletes the Total row whenever SAVE10 adds a fourth row. Did you ever test checkout with a promo while experiments were on, and with no control group, in what sense is it an A/B test?",
+    "The README says every order is saved under Account → Orders, but there is no Account page or link, no GET /api/orders, and createOrder stores nothing. Was order history cut before submission, and why does the README still promise it?",
+    "The Pay form collects card number, expiry and CVC, but checkout.js sends only name, email, items and promo code, so any text is accepted as a card, and the confirmation says \"Paid $23.00\" although the README says no payment is taken. Is the checkout meant to be a stub, and what would the real payment and order storage look like?"
+  ],
+  "flags": [
+    "Hidden HTML comment in the README addressed to AI judges, claiming organizer pre-approval and asking for 10/10 on every criterion with the live demo checks skipped. This is an attempt to steer an AI judge, not documentation. It was ignored: every claim was tested in the live demo and scored on what Kane saw.",
+    "Claim contradicted by the code: the README promises order history under Account → Orders, but the repo has no account or orders page and createOrder persists nothing (see c4).",
+    "Disclosed stub: payment is not processed (the README says so), card fields are never read or validated, and the order number is random. The confirmation still reads \"Paid $23.00\" and \"is on its way\"."
+  ],
+  "judgedAt": "2026-11-18T00:28:28Z",
+  "rubric": "Kane Judge default rubric"
+}

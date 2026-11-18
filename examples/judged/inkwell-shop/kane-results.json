@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "at": "2026-11-18T00:25:44.016Z",
+      "flows": [
+        "01-browse-and-cart",
+        "02-checkout-order",
+        "03-promo-save10",
+        "04-order-history"
+      ],
+      "durationS": 148,
+      "outcome": "failed",
+      "evidencePath": ".testmuai/evidence/b88753a4-6dbe-4862-987a-f8ba34926bed.evidence",
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "fail",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "fail",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "2"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [
+          "no-failed-flows"
+        ],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "a0ef35a08d153d822cea1b6fb9fcea4be9a5d73cfd710e1f96de94dea127507a",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/b88753a4-6dbe-4862-987a-f8ba34926bed.evidence.verdicts/kane-judge-claims.verdict.json"
+      }
+    }
+  ],
+  "flows": {
+    "01-browse-and-cart": {
+      "name": "01-browse-and-cart",
+      "file": "flows/01-browse-and-cart_test.md",
+      "title": "Browse the catalogue and add items to the cart",
+      "status": "passed",
+      "attempts": 1,
+      "durationS": 89,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Browse the catalogue",
+          "status": "passed",
+          "detail": "Opened the shop’s home page and reviewed the catalogue.\nThe catalogue displayed four products, with a visible name and price for each product.\nThe requested catalogue review was completed successfully."
+        },
+        {
+          "index": 2,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "Added the first product to the cart as requested.\nThe cart badge in the header updated to show 1 item, confirming the product was added."
+        },
+        {
+          "index": 3,
+          "heading": "Add a second product",
+          "status": "passed",
+          "detail": "Added a different product to the cart as requested.\nConfirmed that the cart badge in the header now shows 2 items."
+        }
+      ],
+      "screenshot": "evidence/01-browse-and-cart-run1-passed.jpg",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JNDPVGTQ8EV2812NVSY7/dashboard/share/US_YHV85YH31SL5AZCRHC5Y3MCHCY4BF4Q318PLSYKOSPTFISM2MV1CU3COUQ31OH4J?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T00:25:44.016Z",
+      "flowSha": "e578224d6f6e35559ffea2f8c9273026fe913af7e0ea992760110870c722675b",
+      "history": [
+        {
+          "at": "2026-11-18T00:25:44.016Z",
+          "status": "passed",
+          "flowSha": "e578224d6f6e35559ffea2f8c9273026fe913af7e0ea992760110870c722675b",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JNDPVGTQ8EV2812NVSY7/dashboard/share/US_YHV85YH31SL5AZCRHC5Y3MCHCY4BF4Q318PLSYKOSPTFISM2MV1CU3COUQ31OH4J?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/01-browse-and-cart-run1-passed.jpg"
+        }
+      ]
+    },
+    "02-checkout-order": {
+      "name": "02-checkout-order",
+      "file": "flows/02-checkout-order_test.md",
+      "title": "Check out and get an order number",
+      "status": "passed",
+      "attempts": 1,
+      "durationS": 124,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Open checkout with an item",
+          "status": "passed",
+          "detail": "Added the Field Notebook to the cart.\nRecorded the added item as Field Notebook, priced at $18.00.\nOpened the checkout page, where Field Notebook and its $18.00 price were shown in the item list."
+        },
+        {
+          "index": 2,
+          "heading": "Read the order summary",
+          "status": "passed",
+          "detail": "Reviewed the order summary on the checkout page as requested.\nConfirmed that the listed Field Notebook price matched the $18.00 subtotal.\nConfirmed shipping was $5.00 and the total correctly included the subtotal plus shipping ($23.00)."
+        },
+        {
+          "index": 3,
+          "heading": "Pay by card",
+          "status": "passed",
+          "detail": "Completed the requested payment form using the provided test name, email, card number, future expiry date, and CVC, along with required test details.\nPlaced the order successfully.\nThe confirmation page displayed order number INK-45696."
+        }
+      ],
+      "screenshot": "evidence/02-checkout-order-run1-passed.jpg",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMH84YFZMQTEZ10ST72N/dashboard/share/US_0BTX1MPRKZMJJO2Z7KBRQF6XOA8PRSS1LKYKVHVZJUHK3574PYBYG3BDK3LJVM2X?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T00:25:44.016Z",
+      "flowSha": "acfea788bc217bd1994a81ceded7d118489a221756dab3c3df6727e6c602cbe1",
+      "history": [
+        {
+          "at": "2026-11-18T00:25:44.016Z",
+          "status": "passed",
+          "flowSha": "acfea788bc217bd1994a81ceded7d118489a221756dab3c3df6727e6c602cbe1",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMH84YFZMQTEZ10ST72N/dashboard/share/US_0BTX1MPRKZMJJO2Z7KBRQF6XOA8PRSS1LKYKVHVZJUHK3574PYBYG3BDK3LJVM2X?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/02-checkout-order-run1-passed.jpg"
+        }
+      ]
+    },
+    "03-promo-save10": {
+      "name": "03-promo-save10",
+      "file": "flows/03-promo-save10_test.md",
+      "title": "Apply the SAVE10 promo code at checkout",
+      "status": "failed",
+      "attempts": 1,
+      "durationS": 108,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Open checkout with an item",
+          "status": "passed",
+          "detail": "Added a product to the cart as requested.\nWent to the checkout page.\nThe checkout order summary displayed Subtotal, Shipping, and Total."
+        },
+        {
+          "index": 2,
+          "heading": "Apply the promo code",
+          "status": "passed",
+          "detail": "Applied the promo code SAVE10 during checkout.\nThe order summary showed a $1.80 discount, confirming that the code was applied successfully."
+        },
+        {
+          "index": 3,
+          "heading": "Check the new total",
+          "status": "failed",
+          "detail": "The checkout page is not displaying a Total line after the discount and shipping charges are shown.\nRestore a visible Total row in the checkout order summary and calculate it as Subtotal minus Discount plus $5.00 shipping.\nevidence: objective_contradiction: The order summary lacks a visible Total, so the required checkpoint cannot be satisfied."
+        }
+      ],
+      "failure": {
+        "bugVerdict": {
+          "confirmed": true,
+          "title": "Checkout order summary omits Total",
+          "family": "application_issue",
+          "category": "ui_data_defect",
+          "severity": "major",
+          "confidence": 0.98,
+          "oneLiner": "The checkout order summary shows Subtotal, Discount, and Shipping but does not show the required Total.",
+          "stepIndex": 3
+        },
+        "stepIndex": 3,
+        "stepHeading": "Check the new total",
+        "kaneSays": "The checkout page is not displaying a Total line after the discount and shipping charges are shown.\nRestore a visible Total row in the checkout order summary and calculate it as Subtotal minus Discount plus $5.00 shipping.\nevidence: objective_contradiction: The order summary lacks a visible Total, so the required checkpoint cannot be satisfied.",
+        "error": "The order summary lacks a visible Total, so the required checkpoint cannot be satisfied.",
+        "pageUrl": "https://inkwell-shop.vercel.app/checkout.html",
+        "console": [
+          {
+            "level": "warning",
+            "text": "[experiments] compact-order-summary: limit-rows removed 1 of 4 rows in #order-summary",
+            "step": "1-3"
+          }
+        ],
+        "network": [],
+        "triage": {
+          "rootCause": "The checkout page is not displaying a Total line after the discount and shipping charges are shown.",
+          "suggestedFix": "Restore a visible Total row in the checkout order summary and calculate it as Subtotal minus Discount plus $5.00 shipping.",
+          "category": "application_issue/ui_data_defect",
+          "severity": "major",
+          "title": "Checkout order summary omits Total",
+          "confidence": 0.98
+        }
+      },
+      "screenshot": "evidence/03-promo-save10-run1-failed.jpg",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMT50E2JY4QABCYNHAHX/dashboard/share/US_FEHO1DN5QHN8H4U4ZXKSY3XCWGD01OS7BM2RD18ZKB2J19WH8OR0356S3LOHO448?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T00:25:44.016Z",
+      "flowSha": "abaa741da00d740a5be7dbcc31bae2fc78259e8171ff8c8ef1b8ba544ad6224d",
+      "history": [
+        {
+          "at": "2026-11-18T00:25:44.016Z",
+          "status": "failed",
+          "flowSha": "abaa741da00d740a5be7dbcc31bae2fc78259e8171ff8c8ef1b8ba544ad6224d",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JMT50E2JY4QABCYNHAHX/dashboard/share/US_FEHO1DN5QHN8H4U4ZXKSY3XCWGD01OS7BM2RD18ZKB2J19WH8OR0356S3LOHO448?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/03-promo-save10-run1-failed.jpg"
+        }
+      ]
+    },
+    "04-order-history": {
+      "name": "04-order-history",
+      "file": "flows/04-order-history_test.md",
+      "title": "Find a placed order under Account → Orders",
+      "status": "failed",
+      "attempts": 1,
+      "durationS": 127,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Place an order",
+          "status": "passed",
+          "detail": "Added a product to the cart and proceeded to checkout.\nEntered the requested test contact and payment details, along with required checkout information.\nPlaced the order successfully.\nThe confirmation displayed order number INK-41416."
+        },
+        {
+          "index": 2,
+          "heading": "Open the order history",
+          "status": "failed",
+          "detail": "The agent assumed the store name would open an account page and then checked the cart instead. Those visible links led to the storefront and checkout, not to an Account or Orders area.\nUpdate the run to use a real Account/Orders entry point, or change the test setup so it targets an application that provides those pages. Do not use the store name or Cart link as substitutes for account navigation. (Checked storefront and checkout navigation; neither exposes an Account or Orders route.)"
+        }
+      ],
+      "failure": {
+        "bugVerdict": {
+          "confirmed": false,
+          "title": "Agent mistook storefront links for account navigation",
+          "family": "automation_bug",
+          "category": "agent_misstep",
+          "severity": "major",
+          "confidence": 0.91,
+          "oneLiner": "The run could not reach Orders because this storefront only exposed its shop and cart links, and the agent treated those links as account navigation.",
+          "stepIndex": 2
+        },
+        "stepIndex": 2,
+        "stepHeading": "Open the order history",
+        "kaneSays": "The agent assumed the store name would open an account page and then checked the cart instead. Those visible links led to the storefront and checkout, not to an Account or Orders area.\nUpdate the run to use a real Account/Orders entry point, or change the test setup so it targets an application that provides those pages. Do not use the store name or Cart link as substitutes for account navigation. (Checked storefront and checkout navigation; neither exposes an Account or Orders route.)",
+        "error": "Checked storefront and checkout navigation; neither exposes an Account or Orders route.",
+        "pageUrl": "https://inkwell-shop.vercel.app/checkout.html",
+        "console": [],
+        "network": [],
+        "triage": {
+          "rootCause": "The agent assumed the store name would open an account page and then checked the cart instead. Those visible links led to the storefront and checkout, not to an Account or Orders area.",
+          "suggestedFix": "Update the run to use a real Account/Orders entry point, or change the test setup so it targets an application that provides those pages. Do not use the store name or Cart link as substitutes for account navigation.",
+          "category": "automation_bug/agent_misstep",
+          "severity": "major",
+          "title": "Agent mistook storefront links for account navigation",
+          "confidence": 0.91
+        }
+      },
+      "screenshot": "evidence/04-order-history-run1-failed.jpg",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JN24V6B6ZDNP982WXQYD/dashboard/share/US_QCMVL6U48E1GMCDQCLLO6647RH1RU2J4PAOBXTZKEOTZ4UL5O3HTO5M3WLEEPO5P?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T00:25:44.016Z",
+      "flowSha": "86b58b415d97876ff3fd7b67422c6f6fae041bfe96e47178c8a3538a1c96a895",
+      "history": [
+        {
+          "at": "2026-11-18T00:25:44.016Z",
+          "status": "failed",
+          "flowSha": "86b58b415d97876ff3fd7b67422c6f6fae041bfe96e47178c8a3538a1c96a895",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7P0JN24V6B6ZDNP982WXQYD/dashboard/share/US_QCMVL6U48E1GMCDQCLLO6647RH1RU2J4PAOBXTZKEOTZ4UL5O3HTO5M3WLEEPO5P?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/04-order-history-run1-failed.jpg"
+        }
+      ]
+    }
+  }
+}
