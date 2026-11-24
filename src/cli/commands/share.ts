@@ -1,14 +1,16 @@
 import { createHash } from "node:crypto";
 import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { homedir, userInfo } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import { leaksIn, scrubText, sharePack } from "../../evidence/share-pack.js";
 import { isKaneResults, type KaneResults, type RunRecord } from "../../judge/results.js";
 import { CLAIMS_POLICY } from "../../kane/policy.js";
 import { projectPaths, type ProjectPaths } from "../../judge/workspace.js";
+import { discoverFlows } from "../../flows/discover.js";
 import { displayPath, readJsonFile, relativeInside, writeJsonAtomic } from "../../shared/fs.js";
 import { out } from "../../shared/logger.js";
 import { reportCommand } from "./report.js";
+import { isLocalDir, readLocalReadme } from "../../scan/local.js";
 
 export interface ShareArgs {
   dir: string;
@@ -66,7 +68,7 @@ async function sharePacks(paths: ProjectPaths, outDir: string, results: KaneResu
       runs.push(run);
       continue;
     }
-    if (run.packSha256 && sha256(sealed) !== run.packSha256) {
+    if (run.packSha256 && sha256(sealed) !== run.packSha256 && sha256(sealed) !== run.sharedPackSha256) {
       problems.push(`the evidence pack of the run at ${run.at} is not the file Kane sealed (its hash changed)`);
       continue;
     }
@@ -106,8 +108,14 @@ async function copyText(from: string, to: string, scrub: Scrub): Promise<void> {
 }
 
 async function copyFolderText(paths: ProjectPaths, outDir: string, folder: string, scrub: Scrub): Promise<void> {
-  const names = await readdir(join(paths.dir, folder)).catch(() => []);
-  for (const name of names.filter((n) => n.endsWith(".md"))) await copyText(join(paths.dir, folder, name), join(outDir, folder, name), scrub);
+  for (const flow of await discoverFlows(paths.dir, folder)) {
+    await copyText(join(paths.dir, flow.file), join(outDir, flow.file), scrub);
+  }
+  // Keep top-level Markdown notes that accompany the flow files.
+  const entries = await readdir(join(paths.dir, folder), { withFileTypes: true }).catch(() => []);
+  for (const entry of entries.filter(e => e.isFile() && e.name.endsWith(".md") && !e.name.endsWith("_test.md"))) {
+    await copyText(join(paths.dir, folder, entry.name), join(outDir, folder, entry.name), scrub);
+  }
 }
 
 /** Local folders a project's files may name: the project, its workspace, and a builder's own checkout. Each gets a short label. */
@@ -139,6 +147,12 @@ async function copyProject(paths: ProjectPaths, outDir: string, results: KaneRes
   await copyText(paths.submission, join(outDir, "submission.md"), scrub);
   await copyText(paths.verdict, join(outDir, "verdict.json"), scrub);
   await copyScan(paths, outDir, scrub);
+  const scan = (await readJsonFile(paths.scan)) as { mode?: string; repos?: Array<{ url?: string }> } | undefined;
+  if (scan?.mode === "preflight") {
+    const folder = scan.repos?.map(r => r.url).find((url): url is string => !!url && isAbsolute(url) && isLocalDir(url));
+    const current = folder ? await readLocalReadme(folder) : await readFile(join(paths.dir, "README.after.md"), "utf8").catch(() => undefined);
+    if (current !== undefined) await writeFile(join(outDir, "README.after.md"), clean(current, scrub), "utf8");
+  }
   for (const image of referencedImages(results)) {
     const rel = relativeInside(paths.dir, image);
     if (!rel) continue;

@@ -55,7 +55,7 @@ describe("fix proof: the same test must fail, then pass", () => {
   const proofOf = (results: KaneResults) => fixProof(results, must(results.flows["01-promo"]));
 
   it("accepts a flow that failed and then passed with identical text", () => {
-    expect(proofOf(history(["failed", "aaa"], ["passed", "aaa"]))).toEqual({ failedAt: "2026-11-18T10:00:00Z", passedAt: "2026-11-18T10:01:00Z" });
+    expect(proofOf(history(["failed", "aaa"], ["passed", "aaa"]))).toEqual({ anchorAt: "2026-11-18T10:00:00Z", anchorFlow: "01-promo", failedFlow: "01-promo", failedAt: "2026-11-18T10:00:00Z", passedAt: "2026-11-18T10:01:00Z" });
   });
 
   it("refuses a flow that was edited between the failing and the passing run", () => {
@@ -167,6 +167,7 @@ describe("Kane's own verdict on the sealed evidence pack", () => {
 
   it("returns nothing for output that holds no verdict", () => {
     expect(parsePolicyVerdict("")).toBeUndefined();
+    expect(parsePolicyVerdict('{"verdicts":[{"policy":{"id":"unrelated-policy"},"result":"pass"}]}')).toBeUndefined();
     expect(parsePolicyVerdict('{"error":"usage"}\nnot json')).toBeUndefined();
   });
 

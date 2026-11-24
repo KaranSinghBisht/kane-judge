@@ -180,7 +180,13 @@ export async function classifyRun(
   }
   const memberLogs = await readMemberLogs(summary);
   const failures = collectFailures(summary, memberLogs, opts.flows, opts.projectDir);
-  if (result.exitCode === 0 && failures.length === 0) return { kind: "passed", summary, evidencePath, memberLogs, durationMs };
+  if (result.exitCode === 0 && failures.length === 0) {
+    const missing = opts.flows.filter(f => !summary.members.some(m => sameFile(m.path, f.file, opts.projectDir) && m.status !== "running"));
+    if (summary.status !== "passed" || summary.errors.length > 0 || missing.length > 0 || summary.members.length === 0) {
+      return { kind: "error", exitCode: 0, reason: "Kane exited 0 without a complete successful run", detail: missing.length ? `No completed result for: ${missing.map(f => f.name).join(", ")}` : describeErrors(summary), durationMs };
+    }
+    return { kind: "passed", summary, evidencePath, memberLogs, durationMs };
+  }
   if (result.exitCode === 0 || result.exitCode === 1) {
     const detail = failures.length === 0 ? describeErrors(summary) ?? (stderrTail(result.stderr) || undefined) : undefined;
     return { kind: "failed", summary, failures, evidencePath, memberLogs, durationMs, detail };

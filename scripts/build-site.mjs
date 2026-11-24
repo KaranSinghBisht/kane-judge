@@ -2,9 +2,17 @@
 // checks, compiled for the browser) and index.html with the committed run's
 // verdict, results and scan embedded.
 import { build } from "esbuild";
+import { execFileSync } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 
 const EXAMPLE = "examples/judged/inkwell-shop";
+const PREFLIGHT = "examples/preflight/inkwell-shop";
+
+// Keep the published scorecards on the current checker and renderer, rather
+// than copying an old screenshot/report that happened to be committed.
+for (const project of [EXAMPLE, PREFLIGHT, "examples/negative/deployed-promo"]) {
+  execFileSync(process.execPath, ["dist/kane-judge.mjs", "report", project], { stdio: "inherit" });
+}
 
 // The checks never touch the file system; these stand in for the Node modules their neighbours import.
 const SHIMS = {
@@ -56,4 +64,7 @@ const page = template
   .replace("{{RESULTS}}", () => embed(results))
   .replace("{{SCAN}}", () => embed(scan));
 await writeFile("docs/index.html", page, "utf8");
+for (const [from, to] of [[`${EXAMPLE}/scorecard.html`, "docs/sample-scorecard.html"], [`${EXAMPLE}/report.md`, "docs/sample-report.md"], [`${PREFLIGHT}/scorecard.html`, "docs/sample-preflight-scorecard.html"], [`${PREFLIGHT}/report.md`, "docs/sample-preflight-report.md"]]) {
+  await writeFile(to, await readFile(from));
+}
 process.stdout.write("built docs/index.html and docs/playground.js\n");

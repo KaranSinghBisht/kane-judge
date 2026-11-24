@@ -1,0 +1,79 @@
+{
+  "scope": "Eight deliberate evidence-contract mutations; not a whole-project mutation score",
+  "results": [
+    {
+      "name": "failed flow may prove a claim",
+      "file": "src/judge/evidence-check.ts",
+      "killed": true,
+      "failedTests": [
+        "kane-judge demo replays the committed run and sees every cheat refused, with no Kane account",
+        "evidence or it didn't happen (enforced in code) rejects a proven claim whose Kane flow failed, or that has no flow or no Kane result"
+      ]
+    },
+    {
+      "name": "zero assertions may prove a claim",
+      "file": "src/judge/evidence-check.ts",
+      "killed": true,
+      "failedTests": [
+        "lie 3: a pass that asserted nothing can't prove a claim when Kane's evidence holds no passed assert step"
+      ]
+    },
+    {
+      "name": "claim may borrow another claim's flow",
+      "file": "src/judge/evidence-check.ts",
+      "killed": true,
+      "failedTests": [
+        "lie 2: a claim borrows another claim's passing flow is refused when the flow was run for a different claim"
+      ]
+    },
+    {
+      "name": "changed test may prove a fix",
+      "file": "src/judge/results.ts",
+      "killed": true,
+      "failedTests": [
+        "lie 5: renaming a flow to reset its history can't present a weakened test as a fix",
+        "fix proof: the same test must fail, then pass refuses a flow that was edited between the failing and the passing run",
+        "fix proof: the same test must fail, then pass anchors to the first failing run: a test weakened after it failed can't prove a fix, however it gets to green",
+        "pre-flight verdict rules rejects a recorded fix unless Kane saw the same test fail and then pass",
+        "additional record tampering keeps the original failure anchor after more than thirty retries"
+      ]
+    },
+    {
+      "name": "pack hash mismatch is ignored",
+      "file": "src/judge/pack-verify.ts",
+      "killed": true,
+      "failedTests": [
+        "lie 9: a results file that says more than Kane's sealed pack is refused when the pack is not the file Kane sealed"
+      ]
+    },
+    {
+      "name": "current status is not compared to sealed evidence",
+      "file": "src/judge/pack-verify.ts",
+      "killed": true,
+      "failedTests": [
+        "report boundary against a real recorded Kane pack refuses a failed flow relabelled passed only in the current result"
+      ]
+    },
+    {
+      "name": "missing packs are accepted",
+      "file": "src/judge/pack-verify.ts",
+      "killed": true,
+      "failedTests": [
+        "lie 9: a results file that says more than Kane's sealed pack passes when results and pack agree, and refuses a pack that isn't there to read",
+        "report boundary against a real recorded Kane pack refuses deleting the pack instead of answering its contradictory evidence"
+      ]
+    },
+    {
+      "name": "skipped tests may label a product broken",
+      "file": "src/judge/evidence-check.ts",
+      "killed": true,
+      "failedTests": [
+        "claim semantics skipped is not evidence of a broken product",
+        "claim semantics interrupted is not evidence of a broken product",
+        "claim semantics broken is not evidence of a broken product",
+        "claim semantics no-steps is not evidence of a broken product",
+        "claim semantics unknown is not evidence of a broken product"
+      ]
+    }
+  ]
+}

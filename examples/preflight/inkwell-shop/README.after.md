@@ -1,0 +1,17 @@
+# Inkwell Supply Co.
+
+Small-batch stationery, shipped flat. Built in a weekend for the Paper & Pixels hackathon.
+
+**Live demo:** https://inkwell-shop.vercel.app (or run it locally with `npm start` and open http://localhost:4173)
+
+## Features
+
+- **Browse the catalogue.** Four hand-picked products with prices. Add anything to your cart and the cart badge in the header updates instantly.
+- **Fast checkout.** The checkout page lists your items and an order summary with the subtotal, $5 flat shipping and the total. Pay by card and get an order number right away.
+- **Promo codes.** Apply `SAVE10` at checkout and the summary updates with your discount and the new total.
+
+## How it's built
+
+Node 20 with zero dependencies. The storefront is static (`public/`) and the JSON API (`/api/products`, `/api/quote`, `/api/orders`) lives in `lib/shop.js`, served by `server.js` locally and by Vercel functions in `api/` in production. The growth team runs client-side A/B experiments from `data/experiments.json`.
+
+Card details never leave the browser; this is a demo, so no payment is taken.

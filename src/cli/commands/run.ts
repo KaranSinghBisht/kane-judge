@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { basename, join, relative } from "node:path";
 import { locatePack } from "../../evidence/pack.js";
 import { discoverFlows, type Flow } from "../../flows/discover.js";
 import { describeFlowProblems, flowProblems, sharedClaims } from "../../flows/validate.js";
@@ -34,7 +34,9 @@ type Gated = Pick<FlowResult, "name" | "status" | "steps" | "asserts">;
  */
 export function gateProblems(run: RunRecord, results: Gated[]): string[] {
   const problems: string[] = [];
+  if (run.outcome !== "passed") problems.push(`Kane's run ${run.outcome}`);
   if (results.length === 0) problems.push("Kane reported no flows");
+  for (const name of run.flows) if (!results.some(f => f.name === name)) problems.push(`Kane reported no completed result for ${name}`);
   for (const flow of results) {
     if (flow.status !== "passed") problems.push(`${flow.name} ${flow.status}`);
     else if (flow.steps.length === 0) problems.push(`${flow.name} ran no steps`);
@@ -42,6 +44,7 @@ export function gateProblems(run: RunRecord, results: Gated[]): string[] {
   }
   if (!run.kaneVerdict) problems.push("Kane's verdict on the evidence pack is missing");
   else if (run.kaneVerdict.result !== "pass") problems.push(`Kane's verdict on the evidence pack is ${run.kaneVerdict.result}`);
+  else if (run.kaneVerdict.policy !== "kane-judge-claims" || !["no-failed-flows", "no-unjudged-flows", "no-skipped-flows", "every-passed-flow-has-checks"].every(id => run.kaneVerdict?.gates.some(g => g.id === id && g.status === "pass"))) problems.push("Kane's verdict does not pass every required claims gate");
   return problems;
 }
 
@@ -57,8 +60,12 @@ function progress(event: KaneEvent): void {
 }
 
 async function loadResults(paths: ProjectPaths): Promise<KaneResults> {
-  const raw = await readJsonFile(paths.results).catch(() => undefined);
-  return isKaneResults(raw) ? raw : emptyResults();
+  let raw: unknown;
+  try { raw = await readJsonFile(paths.results); }
+  catch { throw new Error("kane-results.json is not readable JSON. Restore it before running again; run history must not be silently reset."); }
+  if (raw === undefined) return emptyResults();
+  if (!isKaneResults(raw)) throw new Error("kane-results.json has an invalid shape. Restore it before running again; run history must not be silently reset.");
+  return raw;
 }
 
 function selectFlows(all: Flow[], only: string[]): { flows: Flow[]; missing: string[] } {
@@ -91,7 +98,12 @@ export async function fileSha256(path: string): Promise<string | undefined> {
 async function whileMarked<T>(paths: ProjectPaths, work: () => Promise<T>): Promise<T> {
   const marker = join(paths.dir, RUN_MARKER);
   await mkdir(join(paths.dir, ".kane-judge"), { recursive: true });
-  await writeFile(marker, JSON.stringify({ pid: process.pid, startedAt: Date.now() }), "utf8");
+  try {
+    await writeFile(marker, JSON.stringify({ pid: process.pid, startedAt: Date.now() }), { encoding: "utf8", flag: "wx" });
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "EEXIST") throw new Error(`Another run owns ${marker}. Wait for it to finish. If it was killed, remove this marker only after confirming no run is active.`);
+    throw err;
+  }
   try {
     return await work();
   } finally {
@@ -112,8 +124,20 @@ export async function runFlowsCommand(args: RunArgs): Promise<number> {
   const paths = projectPaths(args.dir);
   configureLogger({ file: join(paths.dir, ".kane-judge.log"), stderr: false });
   const all = await discoverFlows(paths.dir, "flows");
+  const names = all.map(f => basename(f.file));
+  if (new Set(names).size !== names.length) {
+    out("Flow file names must be unique, including across subfolders: Kane identifies members by file name. Rename the duplicate *_test.md files before running.");
+    return 2;
+  }
   const { flows, missing } = selectFlows(all, args.only);
-  if (missing.length) out(`No flow named ${missing.join(", ")} in ${paths.flowsDir}.`);
+  if (missing.length) {
+    out(`No flow named ${missing.join(", ")} in ${paths.flowsDir}. Nothing was run.`);
+    return 2;
+  }
+  if (args.gate && flows.length !== all.length) {
+    out("A gate must run every active flow. Remove --only; use a normal run to investigate one flow.");
+    return 2;
+  }
   if (flows.length === 0) {
     out(`No flows to run. Write one *_test.md per claim in ${paths.flowsDir}.`);
     return 2;
@@ -128,31 +152,33 @@ export async function runFlowsCommand(args: RunArgs): Promise<number> {
     out(describeFlowProblems(invalid));
     return 2;
   }
-  const config = { ...DEFAULT_RUN_CONFIG, ...args.config, ...(args.gate && !args.heal ? { adaptiveHeal: false } : {}) };
-  process.stderr.write(`Kane Judge: running ${flows.length} flow(s) in real Chrome${config.startUrl ? ` against ${config.startUrl}` : ""}: ${flows.map((f) => f.name).join(", ")}\n`);
-  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+$/, "");
-  const rawLogPrefix = join(paths.dir, ".kane-judge", `run-${stamp}`);
-  const outcome = await whileMarked(paths, () => runKane({ projectDir: paths.dir, config, flows, label: `kane-judge-${flows[0]?.name ?? "run"}`, onEvent: progress, rawLogPrefix }));
-  const startedMs = Date.now() - outcome.durationMs;
-  const prev = await loadResults(paths);
-  if (outcome.kind === "error" || outcome.kind === "timeout") {
-    const run = record(outcome, flows, paths, undefined, config.startUrl);
-    await writeJsonAtomic(paths.results, mergeRun(prev, run, []));
-    out(formatRunProblem(run));
-    return 2;
-  }
-  const evidencePath = outcome.evidencePath ?? (await locatePack(paths.dir, { executionId: outcome.summary.executionId, sinceMs: startedMs - 5_000 }));
-  const ran = { ...outcome, evidencePath };
-  const kaneVerdict = evidencePath ? await judgePack({ kaneBin: config.kaneBin, projectDir: paths.dir, packPath: evidencePath }) : undefined;
-  const run: RunRecord = { ...record(ran, flows, paths, evidencePath, config.startUrl), ...(config.adaptiveHeal === false ? { heal: false } : {}), kaneVerdict, packSha256: evidencePath ? await fileSha256(evidencePath) : undefined };
-  const earlierRuns = Object.fromEntries(Object.values(prev.flows).map((f) => [f.name, f.attempts]));
-  const results = await collectFlowResults(ran, flows, paths, run.at, earlierRuns, config.startUrl);
-  await writeJsonAtomic(paths.results, mergeRun(prev, run, results));
-  out(formatRunSummary(run, results, displayPath(paths.dir)));
-  if (!args.gate) return 0;
-  const problems = gateProblems(run, results);
-  const healed = config.adaptiveHeal === false ? " Self-healing was off: every flow replayed as recorded." : "";
-  const hint = config.adaptiveHeal === false ? " If a flow only missed a recorded step, run it once without --gate so Kane can re-author it, then run the gate again." : "";
-  out(problems.length === 0 ? `Gate: PASS. Kane proved every flow.${healed}` : `Gate: FAIL. Kane has not signed off (exit 1): ${problems.join("; ")}.${hint}`);
-  return problems.length === 0 ? 0 : 1;
+  const config = { ...DEFAULT_RUN_CONFIG, ...(args.gate ? { parallel: 1 } : {}), ...args.config, ...(args.gate && !args.heal ? { adaptiveHeal: false } : {}) };
+  return whileMarked(paths, async () => {
+    const prev = await loadResults(paths);
+    process.stderr.write(`Kane Judge: running ${flows.length} flow(s) in real Chrome${config.startUrl ? ` against ${config.startUrl}` : ""}: ${flows.map((f) => f.name).join(", ")}\n`);
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+$/, "");
+    const rawLogPrefix = join(paths.dir, ".kane-judge", `run-${stamp}`);
+    const outcome = await runKane({ projectDir: paths.dir, config, flows, label: `kane-judge-${flows[0]?.name ?? "run"}`, onEvent: progress, rawLogPrefix });
+    const startedMs = Date.now() - outcome.durationMs;
+    if (outcome.kind === "error" || outcome.kind === "timeout") {
+      const run = record(outcome, flows, paths, undefined, config.startUrl);
+      await writeJsonAtomic(paths.results, mergeRun(prev, run, []));
+      out(formatRunProblem(run));
+      return 2;
+    }
+    const evidencePath = outcome.evidencePath ?? (await locatePack(paths.dir, { executionId: outcome.summary.executionId, sinceMs: startedMs - 5_000 }));
+    const ran = { ...outcome, evidencePath };
+    const kaneVerdict = evidencePath ? await judgePack({ kaneBin: config.kaneBin, projectDir: paths.dir, packPath: evidencePath }) : undefined;
+    const run: RunRecord = { ...record(ran, flows, paths, evidencePath, config.startUrl), ...(config.adaptiveHeal === false ? { heal: false } : {}), kaneVerdict, packSha256: evidencePath ? await fileSha256(evidencePath) : undefined };
+    const earlierRuns = Object.fromEntries(Object.values(prev.flows).map((f) => [f.name, f.attempts]));
+    const results = await collectFlowResults(ran, flows, paths, run.at, earlierRuns, config.startUrl);
+    await writeJsonAtomic(paths.results, mergeRun(prev, run, results));
+    out(formatRunSummary(run, results, displayPath(paths.dir)));
+    if (!args.gate) return 0;
+    const problems = gateProblems(run, results);
+    const healed = config.adaptiveHeal === false ? " Self-healing was off: every flow replayed as recorded." : "";
+    const hint = config.adaptiveHeal === false ? " If a flow only missed a recorded step, run it once without --gate so Kane can re-author it, then run the gate again." : "";
+    out(problems.length === 0 ? `Gate: PASS. Kane proved every flow.${healed}` : `Gate: FAIL. Kane has not signed off (exit 1): ${problems.join("; ")}.${hint}`);
+    return problems.length === 0 ? 0 : 1;
+  });
 }

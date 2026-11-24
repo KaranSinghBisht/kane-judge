@@ -141,8 +141,8 @@ describe("scorecard details", () => {
 });
 
 describe("run --gate", () => {
-  const run: RunRecord = { at: "t", flows: ["a"], outcome: "passed", durationS: 1 };
-  const pass = { policy: "kane-judge-claims", result: "pass", gates: [], failedGates: [], warnings: [], erroredGates: [] };
+  const run: RunRecord = { at: "t", flows: ["01-promo"], outcome: "passed", durationS: 1 };
+  const pass = { policy: "kane-judge-claims", result: "pass", gates: ["no-failed-flows", "no-unjudged-flows", "no-skipped-flows", "every-passed-flow-has-checks"].map(id => ({ id, status: "pass" })), failedGates: [], warnings: [], erroredGates: [] };
 
   const ok = { name: "01-promo", status: "passed", steps: [{ index: 1 }], asserts: { total: 2, passed: 2 } };
 
@@ -165,6 +165,14 @@ describe("run --gate", () => {
 });
 
 describe("Kane's bug verdict", () => {
+  it("reports runner crashes as blocked, not as failed product checks", () => {
+    const crashed = flow("broken", "a", "2026-11-24T10:00:00Z", { failure: { kaneSays: "v16-runner exited before ready: SIGBUS", console: [], network: [] } });
+    const text = formatRunSummary({ at: crashed.lastRunAt, flows: [crashed.name], outcome: "failed", durationS: 3 }, [crashed], "projects/shop");
+    expect(text).toContain("0 passed, 0 failed, 1 blocked");
+    expect(text).toContain("unverifiable (Kane reported broken)");
+    expect(text).not.toContain("every flow passed");
+  });
+
   // The event exactly as kane-cli 0.10.5 wrote it for the sample's missing Total.
   const EVENT = '{"type":"test_md_bug_verdict","step_index":3,"confirmed":true,"bug_title":"Checkout order summary omits Total row","family":"application_issue","category":"ui_data_defect","category_proposal":null,"severity":"major","confidence":0.98,"one_liner":"The checkout Order summary shows subtotal, discount, and shipping but does not show the required Total.","v":1,"ts":"2026-11-17T23:54:23.436Z"}';
 

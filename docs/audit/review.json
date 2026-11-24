@@ -1,0 +1,402 @@
+{
+  "date": "2026-11-24",
+  "scope": "Historical audit of the development checkout before its promotion to main. Scores and release blockers describe that checkout at audit time.",
+  "baselineTests": 494,
+  "testQualityVerdict": "Useful unit-level checks, insufficient evidence for end-to-end or release readiness. The original complete suite missed reproducible dishonest scorecards.",
+  "findings": [
+    {
+      "id": "F01",
+      "severity": "high",
+      "title": "A failed test could become proven by editing only its current status",
+      "reproduction": "Re-read the real committed pack through checkProject after changing c3 to proven and the current result to passed; original code accepted it.",
+      "fix": "Compare current and historical statuses with sealed results.",
+      "files": [
+        "src/judge/pack-verify.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F02",
+      "severity": "high",
+      "title": "Missing or unreferenced evidence could still yield a verified scorecard",
+      "reproduction": "Delete the committed pack or remove its run record while leaving green claims; original report accepted it.",
+      "fix": "Require an in-project pack, hash and matching run provenance.",
+      "files": [
+        "src/judge/pack-verify.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F03",
+      "severity": "high",
+      "title": "Assertion counts were trusted from JSON",
+      "reproduction": "Set a real passing flow to 999 assertions; original checker accepted it.",
+      "fix": "Recount assertions from result.yaml and compare current/history counts.",
+      "files": [
+        "src/judge/pack-verify.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F04",
+      "severity": "high",
+      "title": "An old green result survived a newer failed-to-start attempt",
+      "reproduction": "Append a newer infrastructure-error attempt for a proven flow; original checker accepted the stale claim.",
+      "fix": "Latest attempted run must support the claimed status.",
+      "files": [
+        "src/judge/evidence-check.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F05",
+      "severity": "high",
+      "title": "Skipped, interrupted and runner-broken results could condemn the product",
+      "reproduction": "Mark a broken claim with a skipped/interrupted/no-steps/unknown result; original checker accepted it.",
+      "fix": "Only an actual failed test can support a broken-product claim; label runner failures blocked.",
+      "files": [
+        "src/judge/evidence-check.ts",
+        "src/judge/summary.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F06",
+      "severity": "high",
+      "title": "A partial runner response could pass the gate",
+      "reproduction": "Launch the bundled CLI against a child process that completes only one of two requested flows.",
+      "fix": "Require completed results for every requested member and a completed successful stream.",
+      "files": [
+        "src/kane/runner.ts",
+        "src/cli/commands/run.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F07",
+      "severity": "high",
+      "title": "A typo or --only subset could silently narrow a gate",
+      "reproduction": "Select a valid flow plus a typo, or select one flow with --gate.",
+      "fix": "Reject missing selections before running; a gate covers every active flow.",
+      "files": [
+        "src/cli/commands/run.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F08",
+      "severity": "high",
+      "title": "Malformed scan/results could erase coverage or crash the checker",
+      "reproduction": "Feed null flow data or a version-only scan; original accepted it or threw.",
+      "fix": "Validate data shape and return actionable invalid-input errors.",
+      "files": [
+        "src/judge/results.ts",
+        "src/scan/types.ts",
+        "src/cli/commands/report.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F09",
+      "severity": "high",
+      "title": "Corrupt results silently reset run history",
+      "reproduction": "Existing loadResults caught parse errors and returned an empty history.",
+      "fix": "Stop before invoking Kane; preserve the file and require restoration.",
+      "files": [
+        "src/cli/commands/run.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F10",
+      "severity": "high",
+      "title": "Concurrent runs could overwrite ownership and lose history",
+      "reproduction": "The old marker was overwritten and released before policy/evidence persistence.",
+      "fix": "Exclusive marker creation around the complete read-run-evaluate-write transaction.",
+      "files": [
+        "src/cli/commands/run.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F11",
+      "severity": "high",
+      "title": "A rolling history could forget the original failure",
+      "reproduction": "After more than 30 retries, the original strict failure anchor was discarded.",
+      "fix": "Retain the full history; a native runner crash cannot anchor a product fix.",
+      "files": [
+        "src/judge/results.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F12",
+      "severity": "high",
+      "title": "The advertised invariant on unchanged checks was not enforced",
+      "reproduction": "checksSha was recorded and displayed but a weakened latest check could still be proven.",
+      "fix": "Compare latest checks to the original checks; require restoration or an unverifiable verdict.",
+      "files": [
+        "src/judge/evidence-check.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F13",
+      "severity": "high",
+      "title": "Sharing left URL credentials and response bodies in HAR logs",
+      "reproduction": "Add credentials to URL userinfo, token query metadata, a response body and redirect URL.",
+      "fix": "Scrub those fields while retaining endpoint/status evidence; explicitly require screenshot review.",
+      "files": [
+        "src/evidence/share-pack.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F14",
+      "severity": "medium",
+      "title": "Unrelated policy output could be mistaken for the claims verdict",
+      "reproduction": "The policy parser fell back to the first policy; gate checks accepted empty gate lists.",
+      "fix": "Require the intended policy and every required blocking gate.",
+      "files": [
+        "src/kane/policy.ts",
+        "src/cli/commands/run.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F15",
+      "severity": "medium",
+      "title": "A judge could withdraw a failed claim",
+      "reproduction": "withdraw did not check the scan mode despite being documented as pre-flight only.",
+      "fix": "Refuse unless a valid scan records preflight mode.",
+      "files": [
+        "src/cli/commands/withdraw.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F16",
+      "severity": "medium",
+      "title": "Shared withdrawals had no after-README to verify",
+      "reproduction": "The original share copy omitted the builder README; an offline reader could not check withdrawal.",
+      "fix": "Include and check a scrubbed README.after.md snapshot; preserve it when re-sharing.",
+      "files": [
+        "src/cli/commands/share.ts",
+        "src/cli/commands/report.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F17",
+      "severity": "medium",
+      "title": "Duplicate claim ids and nested flow names were mishandled",
+      "reproduction": "Case-duplicate ids were accepted; report lookup dropped subfolders; Kane merges duplicate basenames.",
+      "fix": "Reject duplicate ids/basenames and preserve nested flow paths.",
+      "files": [
+        "src/judge/verdict-check.ts",
+        "src/judge/scorecard.ts",
+        "src/cli/commands/run.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F18",
+      "severity": "medium",
+      "title": "The mobile demo and scorecard overflowed the viewport",
+      "reproduction": "Real Chrome at 390px measured widths greater than the viewport.",
+      "fix": "Constrain grid minimums and scroll coverage/run tables within their containers.",
+      "files": [
+        "site/index.template.html",
+        "src/judge/html.ts",
+        "src/judge/scorecard.ts",
+        "src/judge/board.ts"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F19",
+      "severity": "medium",
+      "title": "Release claims and submission notes were stale",
+      "reproduction": "README advertised an undeployed Pages site; template said 2/4 for a 3/5 run; deadline still said Nov 19.",
+      "fix": "Use local v0.3 instructions, refresh report assets/counts and correct the extended Nov 26 deadline.",
+      "files": [
+        "README.md",
+        "DEMO.md",
+        "site/index.template.html",
+        "../SUBMISSION.md"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F20",
+      "severity": "medium",
+      "title": "The video did not compile or register its demo",
+      "reproduction": "Missing data module and every Kane image; composition not registered; panel height calculation 100x too large.",
+      "fix": "Generate data/crops from real evidence, register the composition, fix dimensions/image loading, render and inspect an H.264/AAC film.",
+      "files": [
+        "../video/scripts/prepare-kane-demo.mjs",
+        "../video/src/videos/kane-judge-demo.ts",
+        "../video/src/render/remotion/BlockView.tsx"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F21",
+      "severity": "medium",
+      "title": "There was no packaged-install or CLI process verification",
+      "reproduction": "The original suite never launched the CLI/Kane process boundary.",
+      "fix": "Add clean npm-tarball execution, CLI subprocess contracts, targeted mutations and a CI definition.",
+      "files": [
+        "test/cli-process.test.ts",
+        "scripts/smoke-package.mjs",
+        "scripts/audit-mutations.mjs",
+        ".github/workflows/check.yml"
+      ],
+      "status": "fixed locally"
+    },
+    {
+      "id": "F22",
+      "severity": "medium",
+      "title": "Absent README extraction was not disclosed in the headline",
+      "reproduction": "Without a use-case list, listed-claim counts could be read as full README coverage.",
+      "fix": "Show an explicit coverage warning in HTML and Markdown.",
+      "files": [
+        "src/judge/scorecard.ts",
+        "src/judge/report-md.ts"
+      ],
+      "status": "fixed locally"
+    }
+  ],
+  "remaining": [
+    {
+      "severity": "submission blocker",
+      "title": "Repository remains private and default branch remains v0.2",
+      "action": "Review and publish the v0.3 changes, then make the submission repository public. No publication was performed by this audit."
+    },
+    {
+      "severity": "submission blocker",
+      "title": "YouTube and two public-post URLs remain unconfirmed",
+      "action": "Upload the finished film, publish the two posts, and replace the submission placeholders with real links."
+    },
+    {
+      "severity": "submission blocker",
+      "title": "Registration, credit-claim email and final form status are not repository facts",
+      "action": "Verify these in the organizer account; submit before November 26, 11:59 PM IST."
+    },
+    {
+      "severity": "technical limitation",
+      "title": "Kane 0.10.8 had two native-worker SIGBUS crashes with four workers",
+      "action": "Use --parallel 1 if this recurs. Serial replay passed; the underlying native crash is not established or fixed here."
+    },
+    {
+      "severity": "technical limitation",
+      "title": "A real passing assertion may still test the wrong meaning",
+      "action": "Keep the human/agent review of each claim, flow and screenshot. This is assisted verification, not an autonomous semantic oracle."
+    },
+    {
+      "severity": "validation limit",
+      "title": "Cross-platform, fresh OAuth and marketplace installation were not executed",
+      "action": "CI for Node 22/24 is prepared but has not run on GitHub. Windows, mobile devices and fresh-account onboarding remain untested."
+    },
+    {
+      "severity": "optional polish",
+      "title": "Claude plugin validation passes with a missing-listing-icon warning",
+      "action": "Add a listing icon before submitting to a plugin directory; direct local plugin use is valid."
+    }
+  ],
+  "assessment": [
+    {
+      "criterion": "Ships",
+      "score": 8,
+      "max": 10,
+      "why": "Clean package runs on Node 20/22 and real browser flows pass; public release is pending."
+    },
+    {
+      "criterion": "Verified",
+      "score": 8.5,
+      "max": 10,
+      "why": "Same flow hash passes on the fixed local build and fails on the broken deployment; eight deliberate evidence mutations are caught."
+    },
+    {
+      "criterion": "Closed loop",
+      "score": 8,
+      "max": 10,
+      "why": "Recorded agent repair, unchanged-flow proof, policy gate and stop/guard hooks; semantic interpretation still needs review."
+    },
+    {
+      "criterion": "Craft",
+      "score": 5,
+      "max": 10,
+      "why": "Working three-minute film and mobile demo, but private/default-branch release and submission links block the first-user experience."
+    }
+  ],
+  "weightedTechnicalAssessment": 73.75,
+  "eligibility": "Not ready to place until the submission blockers are completed.",
+  "liveControls": {
+    "samePromoFlowHash": true,
+    "fixedLocal": {
+      "flows": 4,
+      "status": "passed",
+      "policy": "pass",
+      "healing": false,
+      "kaneVersionsTested": [
+        "0.10.5",
+        "0.10.8"
+      ],
+      "latestRun": "2026-11-24T16:54:13.702Z",
+      "latestDurationSeconds": 73,
+      "pack": "packs/622e6348-7301-4141-9df3-431a40ba3743.evidence",
+      "latestParallelism": 1
+    },
+    "brokenDeployment": {
+      "flows": 1,
+      "status": "failed",
+      "policy": "fail",
+      "gateExit": 1,
+      "url": "https://inkwell-shop.vercel.app",
+      "run": "2026-11-24T10:24:47.596Z",
+      "pack": "packs/865a6553-4a43-4984-96a5-8d137fde3a9d.evidence"
+    },
+    "upstreamFailure": {
+      "version": "0.10.8",
+      "workers": 4,
+      "symptom": "Two native v16-runner workers exited before ready with SIGBUS",
+      "outcome": "Gate failed; serial retry passed",
+      "cause": "Not established; do not label a product defect"
+    }
+  },
+  "sources": [
+    {
+      "title": "Official KaneCLI hackathon rules and extended deadline",
+      "url": "https://www.kaneclihack.sh/"
+    },
+    {
+      "title": "Remotion image loading behavior",
+      "url": "https://www.remotion.dev/docs/img"
+    }
+  ],
+  "verification": {
+    "automatedCases": 528,
+    "testFiles": 24,
+    "targetedMutationsDetected": 8,
+    "targetedMutationsAttempted": 8,
+    "headlessBrowserChecks": 10,
+    "cleanPackageNodeVersions": [
+      20,
+      22
+    ],
+    "knownNpmLockfileVulnerabilities": 0,
+    "claudeManifest": "validation passed, optional listing-icon warning",
+    "video": {
+      "path": "../video/out/kane-judge-demo.mp4",
+      "durationSeconds": 180.394667,
+      "width": 1280,
+      "height": 720,
+      "videoCodec": "H.264",
+      "audioCodec": "AAC",
+      "presentation": "Edited reconstruction of recorded evidence, explicitly labelled"
+    },
+    "githubActions": "configured, not executed on GitHub",
+    "publication": "not performed"
+  }
+}

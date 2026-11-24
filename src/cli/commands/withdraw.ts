@@ -1,6 +1,8 @@
 import { mkdir, rename } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { discoverFlows } from "../../flows/discover.js";
+import { isScanResult } from "../../scan/types.js";
+import { readJsonFile } from "../../shared/fs.js";
 import { safeMessage } from "../../shared/errors.js";
 import { out } from "../../shared/logger.js";
 import { projectPaths } from "../../judge/workspace.js";
@@ -19,6 +21,11 @@ export async function withdrawCommand(dir: string | undefined, flowName: string 
     return 2;
   }
   const paths = projectPaths(dir);
+  const scan = await readJsonFile(paths.scan).catch(() => undefined);
+  if (!isScanResult(scan) || scan.mode !== "preflight") {
+    out("Only the builder's pre-flight may withdraw a flow. Scan your own project with --preflight first; a judge keeps failed claims on record.");
+    return 2;
+  }
   const wanted = flowName.replace(/_test\.md$/, "").replace(/^flows\//, "");
   const flow = (await discoverFlows(paths.dir, "flows")).find((f) => f.name === wanted);
   if (!flow) {

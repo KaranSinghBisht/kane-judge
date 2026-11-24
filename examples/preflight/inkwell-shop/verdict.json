@@ -1,0 +1,126 @@
+{
+  "version": 1,
+  "mode": "preflight",
+  "project": {
+    "name": "Inkwell Supply Co.",
+    "slug": "my-shop",
+    "live": "http://localhost:4273"
+  },
+  "summary": "A small stationery shop (catalogue, cart, checkout, promo code). Pre-flight found two things a judge would have hit: the SAVE10 flow lost the order Total because a running A/B experiment deleted the summary's fourth row (fixed by stopping the experiment), and the README promised an Account → Orders history that was never built (withdrawn from the README). The four remaining claims are proven and Kane's sealed gate over all of them passed.",
+  "claims": [
+    {
+      "id": "c1",
+      "covers": ["u3", "u4"],
+      "claim": "The shop lists four products with prices, and adding a product updates the cart badge in the header",
+      "source": "README: \"Four hand-picked products with prices. Add anything to your cart and the cart badge in the header updates instantly.\"",
+      "flow": "flows/01-browse-and-add-to-cart_test.md",
+      "status": "proven",
+      "evidence": "Kane listed four products with names and prices ($18.00, $42.00, $12.50, $29.00) and watched the header badge go from 0 to 1 to 2 as it added the Brass Pen and the Desk Mat (3 of 3 asserts passed; replayed in the final gate, whose screenshot shows badge 2).",
+      "investigation": [
+        { "round": 1, "kane": "passed: four products with prices, badge 0 → 1 → 2", "action": "proven" }
+      ]
+    },
+    {
+      "id": "c2",
+      "covers": ["u1"],
+      "claim": "The checkout page lists the items and an order summary with the subtotal, $5 flat shipping and the total",
+      "source": "README: \"The checkout page lists your items and an order summary with the subtotal, $5 flat shipping and the total.\"",
+      "flow": "flows/02-checkout-summary_test.md",
+      "status": "proven",
+      "evidence": "With one Brass Pen in the cart, Kane opened checkout: Your items shows Brass Pen × 1 and the Order summary shows Subtotal $42.00, Shipping $5.00 and Total $47.00 (3 of 3 asserts passed; replayed in the final gate).",
+      "investigation": [
+        { "round": 1, "kane": "passed: Subtotal $42.00, Shipping $5.00, Total $47.00", "action": "proven" }
+      ]
+    },
+    {
+      "id": "c3",
+      "covers": ["u1"],
+      "claim": "Paying by card gives an order number right away",
+      "source": "README: \"Pay by card and get an order number right away.\"",
+      "flow": "flows/03-pay-by-card_test.md",
+      "status": "proven",
+      "evidence": "Kane filled the Payment form with test data for a Field Notebook and pressed Pay; the page showed \"Order confirmed\" and \"Order #INK-66983 is on its way. Paid $23.00.\" ($18.00 + $5.00 shipping). Replayed in the final gate.",
+      "investigation": [
+        { "round": 1, "kane": "passed: Order confirmed with an order number", "action": "proven" }
+      ]
+    },
+    {
+      "id": "c4",
+      "covers": ["u2"],
+      "claim": "Applying SAVE10 at checkout updates the summary with the discount and the new total",
+      "source": "README: \"Apply `SAVE10` at checkout and the summary updates with your discount and the new total.\"",
+      "flow": "flows/04-apply-promo_test.md",
+      "status": "proven",
+      "evidence": "After the fix Kane applied SAVE10 to a Brass Pen and the summary showed Subtotal $42.00, Discount (SAVE10) −$4.20, Shipping $5.00 and Total $42.80. Before the fix the same flow failed: no Total row, and the console logged \"[experiments] compact-order-summary: limit-rows removed 1 of 4 rows in #order-summary\".",
+      "fix": {
+        "summary": "The running compact-order-summary experiment (100% rollout, maxRows 3) deleted every summary row after the third; a promo adds a Discount row, which pushed the Total to fourth place and removed it. Set the experiment's status to stopped.",
+        "files": ["data/experiments.json"]
+      },
+      "investigation": [
+        { "round": 1, "kane": "failed at step 3: the Order summary shows Subtotal, Discount and Shipping but no Total; console: limit-rows removed 1 of 4 rows in #order-summary; Kane confirmed a product bug (application_issue/ui_data_defect, major, confidence 0.98)", "action": "APP_BROKEN: a running experiment keeps only 3 rows of #order-summary, so the Total disappears whenever a discount is shown" },
+        { "round": 2, "kane": "passed: Subtotal $42.00, Discount −$4.20, Shipping $5.00, Total $42.80", "action": "fixed in data/experiments.json (experiment stopped); same flow, text unchanged" },
+        { "round": 3, "kane": "final gate: passed on replay with self-healing off", "action": "proven" }
+      ]
+    },
+    {
+      "id": "c5",
+      "covers": ["u5"],
+      "claim": "Every order placed is saved under Account → Orders so the order number can be found later",
+      "source": "README: \"Every order you place is saved under **Account → Orders**, so you can find your order number later.\"",
+      "flow": "flows/05-order-history_test.md",
+      "status": "withdrawn",
+      "evidence": "Kane placed an order (step 2 passed) but found no Account menu, link or Orders page: \"neither exposes an Account menu, link, or Orders page\", with no console errors. The code agrees: createOrder (lib/shop.js) returns a random order id and stores nothing, and the app has no account or orders page or API. Kane's triage called it an agent misstep, but the screenshot and the code show there is nothing to find, so the promise was false.",
+      "fix": {
+        "summary": "Removed the Order history bullet from the README: orders are not stored and there is no Account or Orders page. Persisting orders on Vercel and tying them to a shopper is more than a small change; re-add the claim when it is built.",
+        "files": ["README.md"]
+      },
+      "investigation": [
+        { "round": 1, "kane": "failed at step 3: no Account menu, link or Orders page on the home or checkout pages (triage automation_bug/agent_misstep, no console errors)", "action": "APP_BROKEN (overclaim): no Account or Orders UI exists and createOrder stores nothing; withdrawn from the README rather than built" }
+      ]
+    }
+  ],
+  "scores": [
+    {
+      "criterion": "Works",
+      "score": 8,
+      "max": 10,
+      "why": "c1, c2, c3 and c4 are proven in the final sealed gate (c4 after the experiment fix); c5 is withdrawn from the README. Only happy paths were exercised.",
+      "unverified": "The deployed https://inkwell-shop.vercel.app build: the loop ran against localhost:4273, so the fix needs a redeploy and a replay with --start-url."
+    },
+    {
+      "criterion": "Substance",
+      "score": 6,
+      "max": 10,
+      "why": "c3 and c4 run real logic (the cart is priced and the promo validated by the API in lib/shop.js), but an order is only confirmed, never stored (c5 withdrawn), and no payment is processed (documented in the README)."
+    },
+    {
+      "criterion": "Truthfulness",
+      "score": 9,
+      "max": 10,
+      "why": "c1–c4 are proven as the README words them; the one false promise (c5, Account → Orders) is now withdrawn, and the text aimed at AI judges is removed."
+    },
+    {
+      "criterion": "Craft",
+      "score": 8,
+      "max": 10,
+      "why": "c1–c4 show clear feedback (cart badge, \"Added\" button state, \"SAVE10 applied: you save $4.20.\", \"Order confirmed\") and the final gate had no failures. The one visible defect, the missing Total in c4, is fixed."
+    },
+    {
+      "criterion": "Originality",
+      "score": 4,
+      "max": 10,
+      "why": "A conventional small shop.",
+      "unverified": "Nothing Kane could exercise shows what sets it apart from a standard storefront."
+    }
+  ],
+  "questions": [
+    "Your compact-order-summary experiment ran at 100% rollout and deleted the Total row whenever a promo added a fourth row (c4, console: \"limit-rows removed 1 of 4 rows\"). What review or test do growth experiments pass before they ship, and what stops a limit-rows variant from removing a price row again?",
+    "The README promised Account → Orders history (c5), but createOrder returns a random id and stores nothing, and no Account page exists. How would you persist orders on Vercel and tie an order to a shopper without accounts?",
+    "Pre-flight ran against localhost:4273. Has https://inkwell-shop.vercel.app been redeployed with the experiment stopped, and does the SAVE10 flow show the Total there (c4)?"
+  ],
+  "flags": [
+    "The README held a hidden HTML comment addressed to AI judges, claiming an organizer pre-approval and asking for 10/10 on every criterion and for the live demo checks to be skipped. It was an attempt to steer an automated judge, not documentation. Kane's checks and these scores ignore it, and it was removed from README.md in pre-flight."
+  ],
+  "judgedAt": "2026-11-18T11:43:00Z",
+  "rubric": "Kane Judge default rubric"
+}

@@ -1,0 +1,21 @@
+{
+  "scope": "Installed project npm lockfile; not a full dependency or Kane CLI audit",
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "dependencies": {
+      "prod": 1,
+      "dev": 100,
+      "optional": 60,
+      "peer": 44,
+      "peerOptional": 0,
+      "total": 100
+    }
+  }
+}

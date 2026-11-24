@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { strFromU8, unzipSync } from "fflate";
 import { beforeAll, describe, expect, it } from "vitest";
 import { shareCommand } from "../src/cli/commands/share.js";
+import { checkProject } from "../src/cli/commands/report.js";
+import { projectPaths } from "../src/judge/workspace.js";
 import { leaksIn, scrubText, sharePack } from "../src/evidence/share-pack.js";
 import { verifyPacks } from "../src/judge/pack-verify.js";
 import { emptyResults, mergeRun, type FlowResult, type KaneResults } from "../src/judge/results.js";
@@ -106,6 +108,15 @@ describe("a share copy of an evidence pack", () => {
     expect(sharePack(sealedPack(), ["/Users/someone"]).bytes).toEqual(shared.bytes);
   });
 
+  it("removes credentials in URLs, query metadata and response bodies", () => {
+    const log = { log: { entries: [{ request: { url: "https://alice:hunter2@shop.example/api?token=URL_SECRET&item=pen", queryString: [{ name: "token", value: "QUERY_SECRET" }] }, response: { status: 200, content: { text: '{"access_token":"RESPONSE_SECRET"}' }, redirectURL: "https://shop.example/?code=REDIRECT_SECRET" } }] } };
+    const shared = sharePack(buildPack({ "tests/01-promo-12345678/logs/0-network.har": JSON.stringify(log) }));
+    const contents = strFromU8(must(unzipSync(shared.bytes)["tests/01-promo-12345678/logs/0-network.har"]));
+    for (const secret of ["hunter2", "alice", "URL_SECRET", "QUERY_SECRET", "RESPONSE_SECRET", "REDIRECT_SECRET"]) expect(contents).not.toContain(secret);
+    expect(contents).toContain("item=pen");
+    expect(contents).toContain('"status":200');
+  });
+
   it("replaces a longer secret before a shorter one inside it, and ignores values too short to be safe", () => {
     expect(scrubText("/Users/ana/shop by ana", ["ana", "/Users/ana"])).toBe("redacted/shop by ana");
     expect(scrubText("id 12 and 1234", ["12", "1234"])).toBe("id 12 and redacted");
@@ -164,7 +175,9 @@ describe("kane-judge share", () => {
   it("writes a copy that passes the same checks, with the pack's account removed", async () => {
     const { dir } = await project();
     const outDir = `${dir}-share`;
+    await writeTree(dir, { "flows/shop/nested_test.md": "# Nested flow\n" });
     expect(await shareCommand({ dir })).toBe(0);
+    expect(await readFile(join(outDir, "flows/shop/nested_test.md"), "utf8")).toBe("# Nested flow\n");
     const results = JSON.parse(await readFile(join(outDir, "kane-results.json"), "utf8")) as KaneResults;
     const run = must(results.runs[0]);
     expect(run.evidencePath).toBe("packs/run-1.evidence");
@@ -187,6 +200,36 @@ describe("kane-judge share", () => {
     doctored.status = "passed";
     for (const entry of doctored.history ?? []) entry.status = "passed";
     expect((await verifyPacks(outDir, results)).problems.join()).toContain("Kane's sealed evidence pack says failed");
+  });
+
+  it("can share an already scrubbed copy without losing its provenance", async () => {
+    const { dir } = await project();
+    expect(await shareCommand({ dir })).toBe(0);
+    expect(await shareCommand({ dir: `${dir}-share` })).toBe(0);
+    const copy = `${dir}-share-share`;
+    const results = JSON.parse(await readFile(join(copy, "kane-results.json"), "utf8")) as KaneResults;
+    expect((await verifyPacks(copy, results)).problems).toEqual([]);
+  });
+
+  it("ships the builder's README after withdrawal, and checks that snapshot in the copy", async () => {
+    const { dir } = await project();
+    const builder = join(await makeDir(), "my-shop");
+    await writeTree(builder, { "README.md": "# Shop\nThe promo promise was removed.\n" });
+    const scan = JSON.parse(await readFile(join(dir, "scan.json"), "utf8"));
+    scan.mode = "preflight";
+    scan.repos = [{ url: builder, fullName: "Shop", topics: [], languages: {}, commits: { sampled: 0, complete: false, authors: [] } }];
+    const preflight = JSON.parse(JSON.stringify(verdict));
+    preflight.mode = "preflight";
+    preflight.claims[0].status = "withdrawn";
+    preflight.claims[0].fix = { summary: "Removed the promo promise", files: ["README.md"] };
+    await writeTree(dir, { "scan.json": JSON.stringify(scan), "verdict.json": JSON.stringify(preflight) });
+    expect(await shareCommand({ dir })).toBe(0);
+    const copy = projectPaths(`${dir}-share`);
+    expect(await readFile(join(copy.dir, "README.after.md"), "utf8")).toContain("promise was removed");
+    await writeFile(join(copy.dir, "README.after.md"), '# Shop\nApply SAVE10 at checkout\n');
+    const checked = await checkProject(copy);
+    expect(checked.ok).toBe(false);
+    if (!checked.ok) expect(checked.errors.join()).toContain("README still says");
   });
 
   it("refuses to write into a folder that already has files, or to share a pack that isn't the one Kane sealed", async () => {

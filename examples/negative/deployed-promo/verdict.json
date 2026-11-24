@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "mode": "judge",
+  "project": {
+    "name": "Deployed shop: promo negative control",
+    "slug": "promo",
+    "live": "https://inkwell-shop.vercel.app"
+  },
+  "summary": "A deliberately narrow negative control: only the SAVE10 claim was tested. This is not a full submission score. The exact same flow text passed on the repaired local build and failed on the deployed sample, which intentionally keeps the bug.",
+  "claims": [
+    {
+      "id": "c4",
+      "claim": "SAVE10 visibly updates the checkout discount and Total",
+      "source": "README: \"Apply SAVE10 at checkout and the summary updates with your discount and the new total.\"",
+      "status": "broken",
+      "flow": "flows/04-apply-promo_test.md",
+      "evidence": "Kane applied SAVE10 and found Subtotal, Discount and Shipping but no Total. Its console named compact-order-summary; its bug verdict confirmed a major product defect."
+    }
+  ],
+  "scores": [
+    {
+      "criterion": "This single check",
+      "score": 0,
+      "max": 10,
+      "why": "c4 failed on the deployed build; all other claims are outside this control."
+    }
+  ],
+  "flags": [],
+  "questions": []
+}

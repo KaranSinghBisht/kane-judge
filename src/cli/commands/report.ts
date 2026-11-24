@@ -1,7 +1,7 @@
-import { readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join, relative, resolve, isAbsolute } from "node:path";
 import { isLocalDir, readLocalReadme } from "../../scan/local.js";
-import type { ScanResult } from "../../scan/types.js";
+import { isScanResult, type ScanResult } from "../../scan/types.js";
 import { readJsonFile, writeTextAtomic } from "../../shared/fs.js";
 import { out } from "../../shared/logger.js";
 import { boardRows, renderBoardHtml, renderBoardMarkdown, type BoardEntry } from "../../judge/board.js";
@@ -18,10 +18,11 @@ import { PROJECTS_DIR, projectPaths, type ProjectPaths } from "../../judge/works
 export type Loaded = { ok: true; verdict: Verdict; results?: KaneResults; scan?: ScanResult; packs: PackCheck } | { ok: false; errors: string[] };
 
 /** The builder's README as it is now, for a pre-flight: a withdrawn claim must be gone from it. */
-async function builderReadme(scan: ScanResult | undefined): Promise<string | undefined> {
+async function builderReadme(scan: ScanResult | undefined, paths: ProjectPaths): Promise<string | undefined> {
   // A local scan records the folder's full path as the repo's URL; `inputs` may hold a relative one.
-  const folder = scan?.mode === "preflight" ? scan.repos.map((r) => r.url).find((url) => !/^https?:\/\//i.test(url) && isLocalDir(url)) : undefined;
-  return folder ? readLocalReadme(folder) : undefined;
+  const folder = scan?.mode === "preflight" ? scan.repos.map((r) => r.url).find((url) => isAbsolute(url) && isLocalDir(url)) : undefined;
+  if (folder) return readLocalReadme(folder);
+  return scan?.mode === "preflight" ? readFile(join(paths.dir, "README.after.md"), "utf8").catch(() => undefined) : undefined;
 }
 
 async function readOptional(path: string, what: string, valid: (v: unknown) => boolean): Promise<unknown> {
@@ -29,13 +30,11 @@ async function readOptional(path: string, what: string, valid: (v: unknown) => b
   try {
     raw = await readJsonFile(path);
   } catch {
-    out(`warning: ${what} is not valid JSON; the scorecard is built without it`);
-    return undefined;
+    throw new Error(`${what} is not readable JSON. Restore it or scan/run the project again.`);
   }
   if (raw === undefined) return undefined;
   if (!valid(raw)) {
-    out(`warning: ${what} has an unexpected shape; the scorecard is built without it`);
-    return undefined;
+    throw new Error(`${what} has an invalid shape. Restore it or scan/run the project again.`);
   }
   return raw;
 }
@@ -51,13 +50,20 @@ export async function checkProject(paths: ProjectPaths): Promise<Loaded> {
   if (raw === undefined) return { ok: false, errors: [`no verdict.json in ${paths.dir} yet`] };
   const checked = checkVerdict(raw);
   if (!checked.ok) return checked;
-  const results = (await readOptional(paths.results, "kane-results.json", isKaneResults)) as KaneResults | undefined;
-  const scan = (await readOptional(paths.scan, "scan.json", (v) => (v as ScanResult)?.version === 1)) as ScanResult | undefined;
-  const packs = await verifyPacks(paths.dir, results);
+  let results: KaneResults | undefined;
+  let scan: ScanResult | undefined;
+  try {
+    results = (await readOptional(paths.results, "kane-results.json", isKaneResults)) as KaneResults | undefined;
+    scan = (await readOptional(paths.scan, "scan.json", isScanResult)) as ScanResult | undefined;
+  } catch (err) {
+    return { ok: false, errors: [err instanceof Error ? err.message : "invalid project data"] };
+  }
+  if (!scan) return { ok: false, errors: ["scan.json is missing. Scan the project first so mode and README coverage can be checked."] };
+  const packs = await verifyPacks(paths.dir, results, checked.verdict);
   const errors = [
     ...checkMode(checked.verdict, scan),
     ...checkAgainstKane(checked.verdict, results),
-    ...checkWithdrawn(checked.verdict, await builderReadme(scan)),
+    ...checkWithdrawn(checked.verdict, await builderReadme(scan, paths)),
     ...checkCoverage(checked.verdict, scan),
     ...checkScoreEvidence(checked.verdict),
     ...packs.problems,

@@ -236,9 +236,9 @@ describe("lie 7: withdrawing a claim the README still makes", () => {
     expect(checkWithdrawn(withdrawn, "# Shop\n\n- Apply **SAVE10** at checkout and the\n  summary updates with your discount.\n").join()).toContain("the README still says");
   });
 
-  it("is accepted once the words are gone, and skipped when there is no README to read", () => {
+  it("is accepted once the words are gone, and refused when the README cannot be checked", () => {
     expect(checkWithdrawn(withdrawn, "# Shop\n\n- Browse the catalogue.\n")).toEqual([]);
-    expect(checkWithdrawn(withdrawn, undefined)).toEqual([]);
+    expect(checkWithdrawn(withdrawn, undefined).join()).toContain("current README is missing");
   });
 });
 
@@ -263,7 +263,7 @@ describe("lie 8: a score with nothing under it", () => {
 });
 
 describe("lie 9: a results file that says more than Kane's sealed pack", () => {
-  const packOf = (status: string) => buildPack({ "tests/01-promo-0a1b2c3d/result.yaml": `status: ${status}\nsteps: []\n`, "run.yaml": "status: finalized\n" });
+  const packOf = (status: string) => buildPack({ "tests/01-promo-0a1b2c3d/result.yaml": `status: ${status}\nsteps:\n  - {kind: assert, status: ${status}}\n`, "run.yaml": "status: finalized\n" });
   const sha = (bytes: Uint8Array) => createHash("sha256").update(bytes).digest("hex");
 
   async function project(recorded: string, sealed: string, packSha?: string) {
@@ -281,15 +281,36 @@ describe("lie 9: a results file that says more than Kane's sealed pack", () => {
     expect(check.problems.join()).toContain("kane-results.json says 01-promo passed in the run at 2026-11-18 10:01 UTC, but Kane's sealed evidence pack says failed");
   });
 
+  it("checks the failed and passing test text in the packs when a product fix is claimed", async () => {
+    const dir = await makeDir();
+    let results = emptyResults();
+    for (const [minute, status, source] of [[1, "failed", "Verify the total is $42.80."], [2, "passed", "Verify checkout opens."]] as const) {
+      const pack = buildPack({
+        "tests/01-promo-0a1b2c3d/test.md": source,
+        "tests/01-promo-0a1b2c3d/result.yaml": `status: ${status}\nsteps: [{kind: assert, status: ${status}}]\n`,
+      });
+      const path = `run-${minute}.evidence`;
+      await writeFile(join(dir, path), pack);
+      const record = run(minute, ["01-promo"], { outcome: status, evidencePath: path, packSha256: sha(pack) });
+      results = mergeRun(results, record, [flow("01-promo", status, minute)]);
+    }
+    const fixed = verdict({ mode: "preflight", claims: [claim({ fix: { summary: "Restored Total", files: ["app.js"] } })] });
+    const checked = await verifyPacks(dir, results, fixed);
+    expect(checked.problems.join()).toContain("same test.md");
+  });
+
   it("is refused when the pack is not the file Kane sealed", async () => {
     const { dir, results } = await project("passed", "passed", "0".repeat(64));
     expect((await verifyPacks(dir, results)).problems.join()).toContain("is not the file Kane sealed");
   });
 
-  it("passes when results and pack agree, and says so when a pack isn't there to read", async () => {
+  it("passes when results and pack agree, and refuses a pack that isn't there to read", async () => {
     const { dir, results } = await project("failed", "failed");
     expect(await verifyPacks(dir, results)).toEqual({ verified: 1, shared: 0, missing: 0, problems: [] });
-    expect(await verifyPacks(await makeDir(), results)).toEqual({ verified: 0, shared: 0, missing: 1, problems: [] });
+    const absent = await verifyPacks(await makeDir(), results);
+    expect(absent.missing).toBe(1);
+    expect(absent.verified).toBe(0);
+    expect(absent.problems.join()).toContain("is missing");
     const html = renderScorecard({ verdict: verdict({ claims: [claim({ status: "broken" })] }), results, images: new Map(), packs: { verified: 0, shared: 0, missing: 1, problems: [] } });
     expect(html).toContain("1 pack(s) were not on this machine");
   });
@@ -297,7 +318,9 @@ describe("lie 9: a results file that says more than Kane's sealed pack", () => {
   it("never reads a pack outside the project", async () => {
     const { dir, results } = await project("passed", "failed");
     const outside = { ...results, runs: results.runs.map((r) => ({ ...r, evidencePath: "../../etc/x.evidence" })) };
-    expect(await verifyPacks(dir, outside)).toEqual({ verified: 0, shared: 0, missing: 0, problems: [] });
+    const checked = await verifyPacks(dir, outside);
+    expect(checked.verified).toBe(0);
+    expect(checked.problems.join()).toContain("no evidence pack inside the project");
   });
 });
 

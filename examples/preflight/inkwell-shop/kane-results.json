@@ -1,0 +1,2951 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "at": "2026-11-18T11:36:06.845Z",
+      "flows": [
+        "01-browse-and-add-to-cart",
+        "02-checkout-summary",
+        "03-pay-by-card",
+        "04-apply-promo",
+        "05-order-history"
+      ],
+      "durationS": 256,
+      "outcome": "failed",
+      "evidencePath": "packs/9aeb0afc-8125-4e88-b1e2-defe59ca3e08.evidence",
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "fail",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "fail",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "2"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [
+          "no-failed-flows"
+        ],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "5063ccaa6fb562911fdedffdc81861cee7782695e5711c2b6c32a8b3aed808d7",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/9aeb0afc-8125-4e88-b1e2-defe59ca3e08.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "5063ccaa6fb562911fdedffdc81861cee7782695e5711c2b6c32a8b3aed808d7",
+      "sharedPackSha256": "4112c22d9aebd5a548cc3316891d31817a344fade9a285aae041b7b876db36cd"
+    },
+    {
+      "at": "2026-11-18T11:38:32.473Z",
+      "flows": [
+        "04-apply-promo"
+      ],
+      "durationS": 56,
+      "outcome": "passed",
+      "evidencePath": "packs/bfc113c7-83a6-4de4-a449-8d3597589da4.evidence",
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "pass",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "d75beeb80d57c1f3b8d9cca2d2fe60c3fbfafde327650650a2262a8648d210b2",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/bfc113c7-83a6-4de4-a449-8d3597589da4.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "d75beeb80d57c1f3b8d9cca2d2fe60c3fbfafde327650650a2262a8648d210b2",
+      "sharedPackSha256": "b87aafd0b90e07a399c54d076eb68d9532fdd4118d703917657b246c2a61dab7"
+    },
+    {
+      "at": "2026-11-18T11:39:21.062Z",
+      "flows": [
+        "01-browse-and-add-to-cart",
+        "02-checkout-summary",
+        "03-pay-by-card",
+        "04-apply-promo"
+      ],
+      "durationS": 31,
+      "outcome": "passed",
+      "evidencePath": "packs/5e0b052d-450d-41a9-90ab-25eb7df15832.evidence",
+      "heal": false,
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "pass",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "654474660e3d94a2ff9155822e014f68c4b0d21e9b0b780743deabb854e13179",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/5e0b052d-450d-41a9-90ab-25eb7df15832.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "654474660e3d94a2ff9155822e014f68c4b0d21e9b0b780743deabb854e13179",
+      "sharedPackSha256": "b4832b58a900ff2956a236effe04349dccd7781dc6219e68050ecd211e8c3113"
+    },
+    {
+      "at": "2026-11-24T10:18:33.359Z",
+      "flows": [
+        "01-browse-and-add-to-cart",
+        "02-checkout-summary",
+        "03-pay-by-card",
+        "04-apply-promo"
+      ],
+      "durationS": 46,
+      "outcome": "passed",
+      "evidencePath": "packs/c0a8d88b-7988-4f32-b913-07738b272d49.evidence",
+      "heal": false,
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "pass",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "6753a2c4f4eaeb2b4291584657e133e5e1ea674890f72841bd458aca71eec112",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/c0a8d88b-7988-4f32-b913-07738b272d49.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "6753a2c4f4eaeb2b4291584657e133e5e1ea674890f72841bd458aca71eec112",
+      "sharedPackSha256": "d7b79160f409a86d39f70b6711b5842ead3c7a1500f2f54cc762c2e94e941326"
+    },
+    {
+      "at": "2026-11-24T16:52:07.101Z",
+      "flows": [
+        "01-browse-and-add-to-cart",
+        "02-checkout-summary",
+        "03-pay-by-card",
+        "04-apply-promo"
+      ],
+      "durationS": 68,
+      "outcome": "failed",
+      "evidencePath": "packs/f92f52e2-aafc-47d6-82b2-fce4c8e4274f.evidence",
+      "heal": false,
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "fail",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "fail",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "2"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [
+          "no-unjudged-flows"
+        ],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "cf66a3b7bfb382f819e2c77294b68c25e15ed5a6f7fb6cf52db74226bd2f09d1",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/f92f52e2-aafc-47d6-82b2-fce4c8e4274f.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "cf66a3b7bfb382f819e2c77294b68c25e15ed5a6f7fb6cf52db74226bd2f09d1",
+      "sharedPackSha256": "58a1108da65d901814a1158266e36858950060902a86f24d6413d9f7568359a6"
+    },
+    {
+      "at": "2026-11-24T16:54:13.702Z",
+      "flows": [
+        "01-browse-and-add-to-cart",
+        "02-checkout-summary",
+        "03-pay-by-card",
+        "04-apply-promo"
+      ],
+      "durationS": 73,
+      "outcome": "passed",
+      "evidencePath": "packs/622e6348-7301-4141-9df3-431a40ba3743.evidence",
+      "heal": false,
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "pass",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "b17eb3cef1e47793852a17cfdf6aafa5ea8e7f7e4057a5a0b225a10aa57e44b0",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/622e6348-7301-4141-9df3-431a40ba3743.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "b17eb3cef1e47793852a17cfdf6aafa5ea8e7f7e4057a5a0b225a10aa57e44b0",
+      "sharedPackSha256": "1b1a9c0f92cb2aa84c24a1ba4a1150754b03554bb81ba2869817f4432ea70669"
+    }
+  ],
+  "flows": {
+    "01-browse-and-add-to-cart": {
+      "name": "01-browse-and-add-to-cart",
+      "file": "flows/01-browse-and-add-to-cart_test.md",
+      "title": "Browse the catalogue and add products to the cart",
+      "status": "passed",
+      "attempts": 5,
+      "durationS": 7,
+      "authored": false,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Browse the catalogue",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 2,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 3,
+          "heading": "Add a second product",
+          "status": "passed",
+          "detail": "replay completed"
+        }
+      ],
+      "screenshot": "evidence/01-browse-and-add-to-cart-run5-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to http://localhost:4273/"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/02.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: Waiting for the product list to load"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Counting products in the Products region"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/04.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Checking product names and dollar prices"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/05.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the cart badge count from the header"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/06.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the page visibly lists four products, each shown with a name and a price in doll"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/07.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for the Brass Pen"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/08.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the cart badge count from the header"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/09.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/10.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for the Desk Mat product"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/11.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the cart badge count from the header"
+        },
+        {
+          "file": "evidence/01-browse-and-add-to-cart-run5-steps/12.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 2."
+        }
+      ],
+      "asserts": {
+        "total": 3,
+        "passed": 3
+      },
+      "claim": "c1",
+      "url": "http://localhost:4273/",
+      "lastRunAt": "2026-11-24T16:54:13.702Z",
+      "flowSha": "830b50f9512999755695e46e707a63dc43585b71c63fa7dfdef61a1053a16192",
+      "checksSha": "058de31fda2e043e489a6eee5e29c92cc0fbc64130a0c3c0b6dd74ff022461e5",
+      "history": [
+        {
+          "at": "2026-11-18T11:36:06.845Z",
+          "status": "passed",
+          "flowSha": "830b50f9512999755695e46e707a63dc43585b71c63fa7dfdef61a1053a16192",
+          "checksSha": "058de31fda2e043e489a6eee5e29c92cc0fbc64130a0c3c0b6dd74ff022461e5",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6TVPXPHAW6Q09GMWH2S85/dashboard/share/US_VVYPU7I9WQI8A91RH5FUUWPTDA3FSX5I9763I7P51BPJMRNGFMYH6QGQW6IJ0AY8?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/01-browse-and-add-to-cart-run1-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/02.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Open the shop's home page and look at the product list; role=region; te"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: The cart badge in the header visibly shows 0."
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly lists four products, each shown with a name and a price in doll"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/06.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/07.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/08.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Desk Mat product"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/09.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 2."
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run1-steps/10.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 2."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-18T11:39:21.062Z",
+          "status": "passed",
+          "flowSha": "830b50f9512999755695e46e707a63dc43585b71c63fa7dfdef61a1053a16192",
+          "checksSha": "058de31fda2e043e489a6eee5e29c92cc0fbc64130a0c3c0b6dd74ff022461e5",
+          "screenshot": "evidence/01-browse-and-add-to-cart-run2-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/02.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the product list to load"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Counting products in the Products region"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/04.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking product names and dollar prices"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/05.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/06.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly lists four products, each shown with a name and a price in doll"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/07.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/10.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Desk Mat product"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run2-steps/12.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 2."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T10:18:33.359Z",
+          "status": "passed",
+          "flowSha": "830b50f9512999755695e46e707a63dc43585b71c63fa7dfdef61a1053a16192",
+          "checksSha": "058de31fda2e043e489a6eee5e29c92cc0fbc64130a0c3c0b6dd74ff022461e5",
+          "screenshot": "evidence/01-browse-and-add-to-cart-run3-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/02.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the product list to load"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Counting products in the Products region"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/04.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking product names and dollar prices"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/05.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/06.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly lists four products, each shown with a name and a price in doll"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/07.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/10.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Desk Mat product"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run3-steps/12.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 2."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T16:52:07.101Z",
+          "status": "broken",
+          "flowSha": "830b50f9512999755695e46e707a63dc43585b71c63fa7dfdef61a1053a16192",
+          "checksSha": "058de31fda2e043e489a6eee5e29c92cc0fbc64130a0c3c0b6dd74ff022461e5",
+          "steps": 0,
+          "asserts": 0
+        },
+        {
+          "at": "2026-11-24T16:54:13.702Z",
+          "status": "passed",
+          "flowSha": "830b50f9512999755695e46e707a63dc43585b71c63fa7dfdef61a1053a16192",
+          "checksSha": "058de31fda2e043e489a6eee5e29c92cc0fbc64130a0c3c0b6dd74ff022461e5",
+          "screenshot": "evidence/01-browse-and-add-to-cart-run5-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/02.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the product list to load"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Counting products in the Products region"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/04.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking product names and dollar prices"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/05.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/06.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly lists four products, each shown with a name and a price in doll"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/07.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/10.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Desk Mat product"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/01-browse-and-add-to-cart-run5-steps/12.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 2."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        }
+      ]
+    },
+    "02-checkout-summary": {
+      "name": "02-checkout-summary",
+      "file": "flows/02-checkout-summary_test.md",
+      "title": "Checkout lists the items and an order summary",
+      "status": "passed",
+      "attempts": 5,
+      "durationS": 15,
+      "authored": false,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 2,
+          "heading": "Open the checkout page",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 3,
+          "heading": "Read the order summary",
+          "status": "passed",
+          "detail": "replay completed"
+        }
+      ],
+      "screenshot": "evidence/02-checkout-summary-run5-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to http://localhost:4273/"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for the Brass Pen"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the cart badge count from the header"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking the cart in the header to open the checkout page"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/06.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: Waiting for the checkout page to load with Your items visible"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/07.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Checking whether the Your items list is visible"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/08.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Checking whether Brass Pen appears in the Your items list"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/09.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: The page visibly shows a \"Your items\" list containing the Brass Pen."
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/10.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: Waiting while looking at the Order summary on the checkout page"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/11.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the subtotal from the order summary"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/12.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the shipping amount from the order summary"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/13.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the total from the order summary"
+        },
+        {
+          "file": "evidence/02-checkout-summary-run5-steps/14.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: It visibly shows a Subtotal of $42.00, Shipping of $5.00 and a Total of $47.00."
+        }
+      ],
+      "asserts": {
+        "total": 3,
+        "passed": 3
+      },
+      "claim": "c2",
+      "url": "http://localhost:4273/",
+      "lastRunAt": "2026-11-24T16:54:13.702Z",
+      "flowSha": "f74b39184de51f7f7e53c114e691b132a08c4d3e09ebdb2fef97e93374bb142c",
+      "checksSha": "37c14df119e7e9dc62932b7e2d7e13d10563e7f1a1e3c76de02bb1818ed5f0bb",
+      "history": [
+        {
+          "at": "2026-11-18T11:36:06.845Z",
+          "status": "passed",
+          "flowSha": "f74b39184de51f7f7e53c114e691b132a08c4d3e09ebdb2fef97e93374bb142c",
+          "checksSha": "37c14df119e7e9dc62932b7e2d7e13d10563e7f1a1e3c76de02bb1818ed5f0bb",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6TVY72ZPEQQJDYTFF6GJG/dashboard/share/US_LI053FWE570KH5970E6GMF1MVOCUD84XZ722KEER0ZOF956EQ07VCG9U3Q7I8SFV?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/02-checkout-summary-run1-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait for the checkout page to load with the heading \"Your items\" visibl"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: The \"Your items\" list contains the Brass Pen."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The page visibly shows a \"Your items\" list containing the Brass Pen."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/09.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Look at the \"Order summary\" on the checkout page; role=heading; text=\"O"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/10.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: The \"Order summary\" visibly shows a Total of $47.00."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run1-steps/11.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: It visibly shows a Subtotal of $42.00, Shipping of $5.00 and a Total of $47.00."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-18T11:39:21.062Z",
+          "status": "passed",
+          "flowSha": "f74b39184de51f7f7e53c114e691b132a08c4d3e09ebdb2fef97e93374bb142c",
+          "checksSha": "37c14df119e7e9dc62932b7e2d7e13d10563e7f1a1e3c76de02bb1818ed5f0bb",
+          "screenshot": "evidence/02-checkout-summary-run2-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load with Your items visible"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Your items list is visible"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether Brass Pen appears in the Your items list"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The page visibly shows a \"Your items\" list containing the Brass Pen."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/10.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting while looking at the Order summary on the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the shipping amount from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the total from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run2-steps/14.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: It visibly shows a Subtotal of $42.00, Shipping of $5.00 and a Total of $47.00."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T10:18:33.359Z",
+          "status": "passed",
+          "flowSha": "f74b39184de51f7f7e53c114e691b132a08c4d3e09ebdb2fef97e93374bb142c",
+          "checksSha": "37c14df119e7e9dc62932b7e2d7e13d10563e7f1a1e3c76de02bb1818ed5f0bb",
+          "screenshot": "evidence/02-checkout-summary-run3-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load with Your items visible"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Your items list is visible"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether Brass Pen appears in the Your items list"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The page visibly shows a \"Your items\" list containing the Brass Pen."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/10.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting while looking at the Order summary on the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the shipping amount from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the total from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run3-steps/14.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: It visibly shows a Subtotal of $42.00, Shipping of $5.00 and a Total of $47.00."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T16:52:07.101Z",
+          "status": "broken",
+          "flowSha": "f74b39184de51f7f7e53c114e691b132a08c4d3e09ebdb2fef97e93374bb142c",
+          "checksSha": "37c14df119e7e9dc62932b7e2d7e13d10563e7f1a1e3c76de02bb1818ed5f0bb",
+          "steps": 0,
+          "asserts": 0
+        },
+        {
+          "at": "2026-11-24T16:54:13.702Z",
+          "status": "passed",
+          "flowSha": "f74b39184de51f7f7e53c114e691b132a08c4d3e09ebdb2fef97e93374bb142c",
+          "checksSha": "37c14df119e7e9dc62932b7e2d7e13d10563e7f1a1e3c76de02bb1818ed5f0bb",
+          "screenshot": "evidence/02-checkout-summary-run5-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load with Your items visible"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Your items list is visible"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether Brass Pen appears in the Your items list"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: The page visibly shows a \"Your items\" list containing the Brass Pen."
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/10.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting while looking at the Order summary on the checkout page"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/11.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the shipping amount from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the total from the order summary"
+            },
+            {
+              "file": "evidence/02-checkout-summary-run5-steps/14.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: It visibly shows a Subtotal of $42.00, Shipping of $5.00 and a Total of $47.00."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        }
+      ]
+    },
+    "03-pay-by-card": {
+      "name": "03-pay-by-card",
+      "file": "flows/03-pay-by-card_test.md",
+      "title": "Pay by card and get an order number",
+      "status": "passed",
+      "attempts": 5,
+      "durationS": 18,
+      "authored": false,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 2,
+          "heading": "Open the checkout page",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 3,
+          "heading": "Pay by card",
+          "status": "passed",
+          "detail": "replay completed"
+        }
+      ],
+      "screenshot": "evidence/03-pay-by-card-run5-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to http://localhost:4273/"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for Field Notebook"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the cart badge count from the header"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking the cart link in the header to open the checkout page"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/08.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Checking whether the Payment form is present"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/09.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the page visibly shows the Field Notebook in \"Your items\" and a Payment form."
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/11.jpg",
+          "kind": "fill",
+          "status": "passed",
+          "summary": "fill: Type \"Kane Judge test\" into \"Full name\""
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/12.jpg",
+          "kind": "fill",
+          "status": "passed",
+          "summary": "fill: Type \"test+kanejudge@example.com\" into \"Email\""
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/14.jpg",
+          "kind": "fill",
+          "status": "passed",
+          "summary": "fill: Type \"12/34\" into \"Expiry (MM/YY)\""
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/15.jpg",
+          "kind": "fill",
+          "status": "passed",
+          "summary": "fill: Type \"123\" into \"CVC\""
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/16.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Click \"Pay\""
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/18.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Checking whether the order confirmation message is visible"
+        },
+        {
+          "file": "evidence/03-pay-by-card-run5-steps/20.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: an \"Order confirmed\" message is visibly shown together with an order number."
+        }
+      ],
+      "asserts": {
+        "total": 3,
+        "passed": 3
+      },
+      "claim": "c3",
+      "url": "http://localhost:4273/",
+      "lastRunAt": "2026-11-24T16:54:13.702Z",
+      "flowSha": "5e6649376beafc4c39d3e6e257c6d3da13ebbee29bb2f7f18feed864b8672ee7",
+      "checksSha": "74ee9f8fbbacd67ee683c3e5e8626b3fb651aff4651aa6ca7cb5edff7c57bd78",
+      "history": [
+        {
+          "at": "2026-11-18T11:36:06.845Z",
+          "status": "passed",
+          "flowSha": "5e6649376beafc4c39d3e6e257c6d3da13ebbee29bb2f7f18feed864b8672ee7",
+          "checksSha": "74ee9f8fbbacd67ee683c3e5e8626b3fb651aff4651aa6ca7cb5edff7c57bd78",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6TW4Y2KM03WCVBQZVE26D/dashboard/share/US_LTRDGSNEZEWC06T2P86CGI2RM4ZDSJU67OGC0BPPSN6ZQQK77LQFFXVWPX794BQ8?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/03-pay-by-card-run1-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Field Notebook"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart link in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the page visibly shows a Payment form."
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows the Field Notebook in \"Your items\" and a Payment form."
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/10.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/11.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/12.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"4242 4242 4242 4242\" into \"Card number\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/13.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"12/34\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/14.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/15.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Pay\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run1-steps/18.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: an \"Order confirmed\" message is visibly shown together with an order number."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-18T11:39:21.062Z",
+          "status": "passed",
+          "flowSha": "5e6649376beafc4c39d3e6e257c6d3da13ebbee29bb2f7f18feed864b8672ee7",
+          "checksSha": "74ee9f8fbbacd67ee683c3e5e8626b3fb651aff4651aa6ca7cb5edff7c57bd78",
+          "screenshot": "evidence/03-pay-by-card-run2-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Field Notebook"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart link in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Payment form is present"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows the Field Notebook in \"Your items\" and a Payment form."
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/11.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/12.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/14.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"12/34\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/15.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/16.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Pay\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/18.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the order confirmation message is visible"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run2-steps/20.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: an \"Order confirmed\" message is visibly shown together with an order number."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T10:18:33.359Z",
+          "status": "passed",
+          "flowSha": "5e6649376beafc4c39d3e6e257c6d3da13ebbee29bb2f7f18feed864b8672ee7",
+          "checksSha": "74ee9f8fbbacd67ee683c3e5e8626b3fb651aff4651aa6ca7cb5edff7c57bd78",
+          "screenshot": "evidence/03-pay-by-card-run3-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Field Notebook"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart link in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Payment form is present"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows the Field Notebook in \"Your items\" and a Payment form."
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/11.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/12.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/14.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"12/34\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/15.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/16.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Pay\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/18.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the order confirmation message is visible"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run3-steps/20.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: an \"Order confirmed\" message is visibly shown together with an order number."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T16:52:07.101Z",
+          "status": "passed",
+          "flowSha": "5e6649376beafc4c39d3e6e257c6d3da13ebbee29bb2f7f18feed864b8672ee7",
+          "checksSha": "74ee9f8fbbacd67ee683c3e5e8626b3fb651aff4651aa6ca7cb5edff7c57bd78",
+          "screenshot": "evidence/03-pay-by-card-run4-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Field Notebook"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart link in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Payment form is present"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows the Field Notebook in \"Your items\" and a Payment form."
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/11.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/12.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/14.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"12/34\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/15.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/16.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Pay\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/18.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the order confirmation message is visible"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run4-steps/20.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: an \"Order confirmed\" message is visibly shown together with an order number."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T16:54:13.702Z",
+          "status": "passed",
+          "flowSha": "5e6649376beafc4c39d3e6e257c6d3da13ebbee29bb2f7f18feed864b8672ee7",
+          "checksSha": "74ee9f8fbbacd67ee683c3e5e8626b3fb651aff4651aa6ca7cb5edff7c57bd78",
+          "screenshot": "evidence/03-pay-by-card-run5-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Field Notebook"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart link in the header to open the checkout page"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/08.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Payment form is present"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/09.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the page visibly shows the Field Notebook in \"Your items\" and a Payment form."
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/11.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/12.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/14.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"12/34\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/15.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/16.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Pay\""
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/18.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the order confirmation message is visible"
+            },
+            {
+              "file": "evidence/03-pay-by-card-run5-steps/20.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: an \"Order confirmed\" message is visibly shown together with an order number."
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        }
+      ]
+    },
+    "04-apply-promo": {
+      "name": "04-apply-promo",
+      "file": "flows/04-apply-promo_test.md",
+      "title": "Apply the SAVE10 promo code",
+      "status": "passed",
+      "attempts": 6,
+      "durationS": 10,
+      "authored": false,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 2,
+          "heading": "Open the checkout page",
+          "status": "passed",
+          "detail": "replay completed"
+        },
+        {
+          "index": 3,
+          "heading": "Apply the promo code",
+          "status": "passed",
+          "detail": "replay completed"
+        }
+      ],
+      "screenshot": "evidence/04-apply-promo-run6-passed.jpg",
+      "frames": [
+        {
+          "file": "evidence/04-apply-promo-run6-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to http://localhost:4273/"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for the Brass Pen"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the cart badge count from the header"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking the cart in the header to open cart items"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/06.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: Waiting for the checkout page to load"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/07.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the subtotal from the order summary"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/08.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/10.jpg",
+          "kind": "fill",
+          "status": "passed",
+          "summary": "fill: Type \"SAVE10\" into \"Promo code\""
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/11.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Click \"Apply\""
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/12.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Checking whether the Order summary discount line is present"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/13.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Reading the discount amount from the Order summary"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/14.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: Calculating the Order summary total difference"
+        },
+        {
+          "file": "evidence/04-apply-promo-run6-steps/15.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the \"Order summary\" visibly shows a Discount line with an amount above $0.00, an"
+        }
+      ],
+      "asserts": {
+        "total": 3,
+        "passed": 3
+      },
+      "claim": "c4",
+      "url": "http://localhost:4273/",
+      "lastRunAt": "2026-11-24T16:54:13.702Z",
+      "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+      "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+      "history": [
+        {
+          "at": "2026-11-18T11:36:06.845Z",
+          "status": "failed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6TWA5M4HD7B628AX99FX3/dashboard/share/US_9A19788CELY7OXBT8D11NFH1RH361LSG6NNMK3W8MFMZGM2AK2XT19N13EPEQCSR?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/04-apply-promo-run1-failed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open cart items"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait for the checkout page to load"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/09.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: queued plan (2 steps): type \"Promo code\"; click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/10.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/12.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait briefly after pressing Apply"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(unknown, 'the \"Order summary\" Total is equal to the Subtotal minus the D"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/14.jpg",
+              "status": "failed",
+              "summary": "wait: Waiting after failed Order summary verification"
+            }
+          ],
+          "bug": true,
+          "steps": 3,
+          "asserts": 2
+        },
+        {
+          "at": "2026-11-18T11:38:32.473Z",
+          "status": "passed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6TWA5M4HD7B628AX99FX3/dashboard/share/US_S2AGBBA774TCFBKUI31AXKMD22S6K5DZBUI6UMSLFDKK9P1OGMVKAJOAMY2IK6KB?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/04-apply-promo-run2-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run2-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open cart items"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/09.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: queued plan (2 steps): type \"Promo code\"; click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/10.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'the Total is equal to the Subtotal minus the Discount p"
+            },
+            {
+              "file": "evidence/04-apply-promo-run2-steps/13.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Discount line with an amount above $0.00, an"
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-18T11:39:21.062Z",
+          "status": "passed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "screenshot": "evidence/04-apply-promo-run3-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run3-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open cart items"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/10.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Order summary discount line is present"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the discount amount from the Order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/14.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Calculating the Order summary total difference"
+            },
+            {
+              "file": "evidence/04-apply-promo-run3-steps/15.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Discount line with an amount above $0.00, an"
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T10:18:33.359Z",
+          "status": "passed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "screenshot": "evidence/04-apply-promo-run4-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run4-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open cart items"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/10.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Order summary discount line is present"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the discount amount from the Order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/14.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Calculating the Order summary total difference"
+            },
+            {
+              "file": "evidence/04-apply-promo-run4-steps/15.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Discount line with an amount above $0.00, an"
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T16:52:07.101Z",
+          "status": "passed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "screenshot": "evidence/04-apply-promo-run5-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run5-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open cart items"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/10.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Order summary discount line is present"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the discount amount from the Order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/14.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Calculating the Order summary total difference"
+            },
+            {
+              "file": "evidence/04-apply-promo-run5-steps/15.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Discount line with an amount above $0.00, an"
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        },
+        {
+          "at": "2026-11-24T16:54:13.702Z",
+          "status": "passed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "screenshot": "evidence/04-apply-promo-run6-passed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run6-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for the Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the cart badge count from the header"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart in the header to open cart items"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: Waiting for the checkout page to load"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the subtotal from the order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/10.jpg",
+              "kind": "fill",
+              "status": "passed",
+              "summary": "fill: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/12.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Checking whether the Order summary discount line is present"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Reading the discount amount from the Order summary"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/14.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: Calculating the Order summary total difference"
+            },
+            {
+              "file": "evidence/04-apply-promo-run6-steps/15.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Discount line with an amount above $0.00, an"
+            }
+          ],
+          "steps": 3,
+          "asserts": 3
+        }
+      ]
+    },
+    "05-order-history": {
+      "name": "05-order-history",
+      "file": "flows/05-order-history_test.md",
+      "title": "Find a placed order under Account → Orders",
+      "status": "failed",
+      "attempts": 1,
+      "durationS": 120,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "Added the \"Ink Sampler\" to the cart as requested.\nConfirmed that the cart badge in the header shows 1 item.\nThe task was completed successfully."
+        },
+        {
+          "index": 2,
+          "heading": "Place an order",
+          "status": "passed",
+          "detail": "Opened the cart and proceeded to the checkout page.\nEntered the requested payment and contact details, then submitted the payment.\nThe order was confirmed successfully with order number INK-47133."
+        },
+        {
+          "index": 3,
+          "heading": "Find the order under Account → Orders",
+          "status": "failed",
+          "detail": "The agent clicked the Inkwell Supply Co. store-name link as though it were an Account menu. That link returned it to the home page, and the later Cart action returned it to checkout. Neither action could open an Orders page.\nUpdate the test to require a known account-enabled fixture and a real Account/Orders locator. If this storefront is intended to provide order history, document that requirement separately and test the feature directly. (Checked home and checkout pages; neither exposes an Account menu, link, or Orders page.)"
+        }
+      ],
+      "failure": {
+        "bugVerdict": {
+          "confirmed": false,
+          "title": "Brand link mistaken for Account menu",
+          "family": "automation_bug",
+          "category": "agent_misstep",
+          "severity": "minor",
+          "confidence": 0.93,
+          "oneLiner": "The run failed because it treated the store name as an Account menu even though the visible header only offered the store link and Cart.",
+          "stepIndex": 3
+        },
+        "stepIndex": 3,
+        "stepHeading": "Find the order under Account → Orders",
+        "kaneSays": "The agent clicked the Inkwell Supply Co. store-name link as though it were an Account menu. That link returned it to the home page, and the later Cart action returned it to checkout. Neither action could open an Orders page.\nUpdate the test to require a known account-enabled fixture and a real Account/Orders locator. If this storefront is intended to provide order history, document that requirement separately and test the feature directly. (Checked home and checkout pages; neither exposes an Account menu, link, or Orders page.)",
+        "error": "Checked home and checkout pages; neither exposes an Account menu, link, or Orders page.",
+        "pageUrl": "http://localhost:4273/checkout.html",
+        "console": [],
+        "network": [],
+        "triage": {
+          "rootCause": "The agent clicked the Inkwell Supply Co. store-name link as though it were an Account menu. That link returned it to the home page, and the later Cart action returned it to checkout. Neither action could open an Orders page.",
+          "suggestedFix": "Update the test to require a known account-enabled fixture and a real Account/Orders locator. If this storefront is intended to provide order history, document that requirement separately and test the feature directly.",
+          "category": "automation_bug/agent_misstep",
+          "severity": "minor",
+          "title": "Brand link mistaken for Account menu",
+          "confidence": 0.93
+        }
+      },
+      "screenshot": "evidence/05-order-history-run1-failed.jpg",
+      "frames": [
+        {
+          "file": "evidence/05-order-history-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to http://localhost:4273/"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for Ink Sampler"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Opening the cart from the top right header"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/07.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/08.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/10.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"12/34\" into \"Expiry (MM/YY)\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/11.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"123\" into \"CVC\""
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/12.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Filling in the payment form with the provided details and clicking Pay"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/13.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: The order number shown is stored as {{order_number}}"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/14.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: An \"Order confirmed\" message is visibly shown together with an order number."
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/15.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Inkwell Supply Co. account menu"
+        },
+        {
+          "file": "evidence/05-order-history-run1-steps/17.jpg",
+          "status": "failed",
+          "summary": "wait: Waiting after checking navigation controls"
+        }
+      ],
+      "asserts": {
+        "total": 2,
+        "passed": 2
+      },
+      "claim": "c5",
+      "url": "http://localhost:4273/",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6Y0HBJP2Z0SKHB59FQZ78/dashboard/share/US_LW7RCG0FMMRZBYCVAY0PPAM0QG81WTZXFO5ANOA5UFXUAOQHAFIV89D4W1B61QD8?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-18T11:36:06.845Z",
+      "flowSha": "148fe246d9c1be032fcf078b74edaa6373b850af1f0d68f14c627ead505906a1",
+      "checksSha": "7a08e45efa29cf8e277bb7b068ca721b1420afa7f67dbe008b21ee120c5ef03f",
+      "history": [
+        {
+          "at": "2026-11-18T11:36:06.845Z",
+          "status": "failed",
+          "flowSha": "148fe246d9c1be032fcf078b74edaa6373b850af1f0d68f14c627ead505906a1",
+          "checksSha": "7a08e45efa29cf8e277bb7b068ca721b1420afa7f67dbe008b21ee120c5ef03f",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M7Q6Y0HBJP2Z0SKHB59FQZ78/dashboard/share/US_LW7RCG0FMMRZBYCVAY0PPAM0QG81WTZXFO5ANOA5UFXUAOQHAFIV89D4W1B61QD8?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/05-order-history-run1-failed.jpg",
+          "frames": [
+            {
+              "file": "evidence/05-order-history-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to http://localhost:4273/"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Ink Sampler"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Opening the cart from the top right header"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/07.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"Kane Judge test\" into \"Full name\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/08.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"test+kanejudge@example.com\" into \"Email\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/10.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"12/34\" into \"Expiry (MM/YY)\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/11.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"123\" into \"CVC\""
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/12.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Filling in the payment form with the provided details and clicking Pay"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: The order number shown is stored as {{order_number}}"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/14.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: An \"Order confirmed\" message is visibly shown together with an order number."
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/15.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Inkwell Supply Co. account menu"
+            },
+            {
+              "file": "evidence/05-order-history-run1-steps/17.jpg",
+              "status": "failed",
+              "summary": "wait: Waiting after checking navigation controls"
+            }
+          ],
+          "bug": false,
+          "steps": 3,
+          "asserts": 2
+        }
+      ]
+    }
+  }
+}

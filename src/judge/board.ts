@@ -82,7 +82,7 @@ export function renderBoardHtml(rows: BoardRow[]): string {
 <td>${r.broken}</td><td>${r.unverifiable}</td><td>${r.pct}%</td><td>${r.flags}</td><td>${r.live ? link(r.live, "demo") : "—"}</td></tr>`,
     )
     .join("");
-  const table = `<table><thead><tr><th>#</th><th>Project</th><th>Proven by Kane</th><th>Broken</th><th>Unverifiable</th><th>Rubric</th><th>Flags</th><th>Live</th></tr></thead><tbody>${body}</tbody></table>`;
+  const table = `<div class="table-scroll"><table><thead><tr><th>#</th><th>Project</th><th>Proven by Kane</th><th>Broken</th><th>Unverifiable</th><th>Rubric</th><th>Flags</th><th>Live</th></tr></thead><tbody>${body}</tbody></table></div>`;
   return page("Scoreboard · Kane Judge", `<h1>Scoreboard</h1><p class="muted">${rows.length} project(s), each judged by using its live demo through Kane CLI. ${RANKING_NOTE}</p>${table}
 <footer>Judged by Kane Judge · evidence from Kane CLI (TestMu AI) · first-round triage for human judges.</footer>`);
 }

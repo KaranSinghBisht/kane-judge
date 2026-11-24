@@ -1,0 +1,341 @@
+{
+  "version": 1,
+  "runs": [
+    {
+      "at": "2026-11-24T10:24:47.596Z",
+      "flows": [
+        "04-apply-promo"
+      ],
+      "durationS": 136,
+      "startUrl": "https://inkwell-shop.vercel.app",
+      "outcome": "failed",
+      "evidencePath": "packs/865a6553-4a43-4984-96a5-8d137fde3a9d.evidence",
+      "heal": false,
+      "kaneVerdict": {
+        "policy": "kane-judge-claims",
+        "result": "fail",
+        "gates": [
+          {
+            "id": "no-failed-flows",
+            "metric": "totals.failed",
+            "status": "fail",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "1"
+          },
+          {
+            "id": "no-unjudged-flows",
+            "metric": "totals.broken",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-skipped-flows",
+            "metric": "totals.skipped",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "every-passed-flow-has-checks",
+            "metric": "metrics.tests_without_checks",
+            "status": "pass",
+            "severity": "blocking",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "nothing-flaky",
+            "metric": "metrics.flaky_rate",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          },
+          {
+            "id": "no-exhausted-heals",
+            "metric": "metrics.heal.exhausted_tests",
+            "status": "pass",
+            "severity": "warning",
+            "expected": "0",
+            "actual": "0"
+          }
+        ],
+        "failedGates": [
+          "no-failed-flows"
+        ],
+        "warnings": [],
+        "erroredGates": [],
+        "packSha256": "e9fd1779273b0bf8039c6ae787e797b6026ef401881c1031a1861d61e0708cf5",
+        "policySha256": "8303a76886de945bc8f3f3522e00a0981ebb5d5e6e9a33dddb60c7706dd5189f",
+        "evaluator": "evidence-cli 0.2.0",
+        "file": ".testmuai/evidence/865a6553-4a43-4984-96a5-8d137fde3a9d.evidence.verdicts/kane-judge-claims.verdict.json"
+      },
+      "packSha256": "e9fd1779273b0bf8039c6ae787e797b6026ef401881c1031a1861d61e0708cf5",
+      "sharedPackSha256": "cccd9c30e7d7a9f49ebeb41fbcef91fb7232271d06e0f20e3bc1d216aa401a13"
+    }
+  ],
+  "flows": {
+    "04-apply-promo": {
+      "name": "04-apply-promo",
+      "file": "flows/04-apply-promo_test.md",
+      "title": "Apply the SAVE10 promo code",
+      "status": "failed",
+      "attempts": 1,
+      "durationS": 114,
+      "authored": true,
+      "steps": [
+        {
+          "index": 1,
+          "heading": "Add a product to the cart",
+          "status": "passed",
+          "detail": "You asked to add the Brass Pen to the cart.\nThe Brass Pen was added successfully.\nThe cart badge in the header shows 1 item."
+        },
+        {
+          "index": 2,
+          "heading": "Open the checkout page",
+          "status": "passed",
+          "detail": "Opened the cart from the site header to proceed to checkout.\nReached the checkout page, where the Order summary shows a subtotal of $42.00.\nThe requested checkout navigation was completed successfully."
+        },
+        {
+          "index": 3,
+          "heading": "Apply the promo code",
+          "status": "failed",
+          "detail": "A compact order-summary display removed one of the price rows after the promo was applied. The missing row is the Total, even though the summary still shows the subtotal, discount, and shipping.\nKeep the Total line visible whenever a promo is applied, including in the compact order summary. Add a checkout test that verifies subtotal, discount, shipping, and total remain visible together.\nevidence: console_error: [experiments] compact-order-summary: limit-rows removed 1 of 4 rows in #order-summary\nevidence: objective_contradiction: Order summary has no Total line, so the required total calculation cannot be verified."
+        }
+      ],
+      "failure": {
+        "bugVerdict": {
+          "confirmed": true,
+          "title": "Promo application hides checkout Total line",
+          "family": "application_issue",
+          "category": "ui_state_mismatch",
+          "severity": "major",
+          "confidence": 0.98,
+          "oneLiner": "After SAVE10 is applied, the checkout shows the discount but hides the Total, so shoppers cannot see the final amount.",
+          "stepIndex": 3
+        },
+        "stepIndex": 3,
+        "stepHeading": "Apply the promo code",
+        "kaneSays": "A compact order-summary display removed one of the price rows after the promo was applied. The missing row is the Total, even though the summary still shows the subtotal, discount, and shipping.\nKeep the Total line visible whenever a promo is applied, including in the compact order summary. Add a checkout test that verifies subtotal, discount, shipping, and total remain visible together.\nevidence: console_error: [experiments] compact-order-summary: limit-rows removed 1 of 4 rows in #order-summary\nevidence: objective_contradiction: Order summary has no Total line, so the required total calculation cannot be verified.",
+        "error": "Order summary has no Total line, so the required total calculation cannot be verified.",
+        "pageUrl": "https://inkwell-shop.vercel.app/checkout.html",
+        "console": [
+          {
+            "level": "warning",
+            "text": "[experiments] compact-order-summary: limit-rows removed 1 of 4 rows in #order-summary",
+            "step": "2-3"
+          }
+        ],
+        "network": [],
+        "triage": {
+          "rootCause": "A compact order-summary display removed one of the price rows after the promo was applied. The missing row is the Total, even though the summary still shows the subtotal, discount, and shipping.",
+          "suggestedFix": "Keep the Total line visible whenever a promo is applied, including in the compact order summary. Add a checkout test that verifies subtotal, discount, shipping, and total remain visible together.",
+          "category": "application_issue/ui_state_mismatch",
+          "severity": "major",
+          "title": "Promo application hides checkout Total line",
+          "confidence": 0.98
+        }
+      },
+      "screenshot": "evidence/04-apply-promo-run1-failed.jpg",
+      "frames": [
+        {
+          "file": "evidence/04-apply-promo-run1-steps/01.jpg",
+          "kind": "navigate",
+          "status": "passed",
+          "summary": "navigate: Navigate to https://inkwell-shop.vercel.app"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/02.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking Add to cart for Brass Pen"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/03.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/04.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the cart badge in the header visibly shows 1"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/05.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Clicking the cart link in the header top-right"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/06.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: wait for the Order summary heading to be visible"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/07.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(textual_visual, 'the \"Order summary\" visibly shows a Subtotal of $42.00."
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/08.jpg",
+          "kind": "assert",
+          "status": "passed",
+          "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00."
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/09.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: queued plan (2 steps): type \"Promo code\"; click \"Apply\""
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/10.jpg",
+          "kind": "type",
+          "status": "passed",
+          "summary": "type: Type \"SAVE10\" into \"Promo code\""
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/11.jpg",
+          "kind": "click",
+          "status": "passed",
+          "summary": "click: Click \"Apply\""
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/12.jpg",
+          "kind": "wait",
+          "status": "passed",
+          "summary": "wait: confirm the applied promo code state"
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/13.jpg",
+          "kind": "analyze",
+          "status": "passed",
+          "summary": "analyze: ANALYZE(unknown, 'the Total is equal to the Subtotal minus the Discount plus $5."
+        },
+        {
+          "file": "evidence/04-apply-promo-run1-steps/14.jpg",
+          "status": "failed",
+          "summary": "wait: Waiting after the checkpoint failure"
+        }
+      ],
+      "asserts": {
+        "total": 2,
+        "passed": 2
+      },
+      "claim": "c4",
+      "url": "http://localhost:4273/",
+      "startUrl": "https://inkwell-shop.vercel.app",
+      "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M86H889KT24JGJWKCSV78HKP/dashboard/share/US_3EISLFTW6UWXMHKRKH5DANZAT8GJ174UHATR290VCVE8WWNQ3SELCOZBY8HQ06JF?type=summary&agentView=true&fqdn=summary-page",
+      "lastRunAt": "2026-11-24T10:24:47.596Z",
+      "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+      "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+      "history": [
+        {
+          "at": "2026-11-24T10:24:47.596Z",
+          "status": "failed",
+          "flowSha": "46e34444d2cdd383c1c7bcc371b0ea0d579db3f01fabde08e7f451b86c9df2d9",
+          "checksSha": "69fcc35f118243dd2afb03b67d86a4ce9b3d4b9c7fae8feb931121741e6edb6b",
+          "shareUrl": "https://test-manager.lambdatest.com/projects/01M7N9RJ1E69X9FGMH47KHRS40/test-cases/01M86H889KT24JGJWKCSV78HKP/dashboard/share/US_3EISLFTW6UWXMHKRKH5DANZAT8GJ174UHATR290VCVE8WWNQ3SELCOZBY8HQ06JF?type=summary&agentView=true&fqdn=summary-page",
+          "screenshot": "evidence/04-apply-promo-run1-failed.jpg",
+          "frames": [
+            {
+              "file": "evidence/04-apply-promo-run1-steps/01.jpg",
+              "kind": "navigate",
+              "status": "passed",
+              "summary": "navigate: Navigate to https://inkwell-shop.vercel.app"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/02.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking Add to cart for Brass Pen"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/03.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/04.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the cart badge in the header visibly shows 1"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/05.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Clicking the cart link in the header top-right"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/06.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: wait for the Order summary heading to be visible"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/07.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(textual_visual, 'the \"Order summary\" visibly shows a Subtotal of $42.00."
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/08.jpg",
+              "kind": "assert",
+              "status": "passed",
+              "summary": "assert: the \"Order summary\" visibly shows a Subtotal of $42.00."
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/09.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: queued plan (2 steps): type \"Promo code\"; click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/10.jpg",
+              "kind": "type",
+              "status": "passed",
+              "summary": "type: Type \"SAVE10\" into \"Promo code\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/11.jpg",
+              "kind": "click",
+              "status": "passed",
+              "summary": "click: Click \"Apply\""
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/12.jpg",
+              "kind": "wait",
+              "status": "passed",
+              "summary": "wait: confirm the applied promo code state"
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/13.jpg",
+              "kind": "analyze",
+              "status": "passed",
+              "summary": "analyze: ANALYZE(unknown, 'the Total is equal to the Subtotal minus the Discount plus $5."
+            },
+            {
+              "file": "evidence/04-apply-promo-run1-steps/14.jpg",
+              "status": "failed",
+              "summary": "wait: Waiting after the checkpoint failure"
+            }
+          ],
+          "bug": true,
+          "startUrl": "https://inkwell-shop.vercel.app",
+          "steps": 3,
+          "asserts": 2
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "results": [
+    {
+      "check": "The honest verdict",
+      "passed": true
+    },
+    {
+      "check": "Call a broken claim proven",
+      "passed": true
+    },
+    {
+      "check": "Borrow another claim's passing test",
+      "passed": true
+    },
+    {
+      "check": "Leave the broken claims out",
+      "passed": true
+    },
+    {
+      "check": "Call it a pre-flight and withdraw them",
+      "passed": true
+    },
+    {
+      "check": "Skip a use-case Kane found",
+      "passed": true
+    },
+    {
+      "check": "Score it without evidence",
+      "passed": true
+    },
+    {
+      "check": "Give it 1000 out of 1000",
+      "passed": true
+    },
+    {
+      "check": "390px playground has no horizontal overflow",
+      "passed": true
+    },
+    {
+      "check": "Mobile scorecard slider displays a decoded evidence frame",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

@@ -165,6 +165,12 @@ export function checkVerdict(raw: unknown): VerdictCheck {
     judgedAt: text(raw.judgedAt),
     rubric: text(raw.rubric),
   };
+  const ids = new Set<string>();
+  for (const [i, claim] of verdict.claims.entries()) {
+    const id = claim.id.toLowerCase();
+    if (ids.has(id)) p.add(`claims[${i}]`, `duplicate claim id "${claim.id}"`);
+    ids.add(id);
+  }
   if (Array.isArray(raw.claims) && verdict.claims.length === 0) p.add("claims", "a verdict needs at least one claim");
   return p.list.length ? { ok: false, errors: p.list } : { ok: true, verdict };
 }

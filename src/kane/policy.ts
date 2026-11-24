@@ -85,9 +85,9 @@ function firstJsonObject(stdout: string): Json | undefined {
 export function parsePolicyVerdict(stdout: string, policyId: string = CLAIMS_POLICY_ID): KanePolicyVerdict | undefined {
   const doc = firstJsonObject(stdout);
   const verdicts = (Array.isArray(doc?.verdicts) ? doc.verdicts : []).map(asObject).filter((v): v is Json => v !== undefined);
-  const verdict = verdicts.find((v) => str(asObject(v.policy)?.id) === policyId) ?? verdicts[0];
+  const verdict = verdicts.find((v) => str(asObject(v.policy)?.id) === policyId);
   const result = str(verdict?.result);
-  if (!verdict || !result) return undefined;
+  if (!verdict || !result || !["pass", "fail", "error"].includes(result)) return undefined;
   const listed = (Array.isArray(doc?.policies) ? doc.policies : []).map(asObject).find((p) => str(p?.id) === policyId);
   return {
     policy: str(asObject(verdict.policy)?.id) ?? policyId,

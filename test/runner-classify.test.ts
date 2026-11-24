@@ -79,7 +79,7 @@ describe("classifyRun: process-level problems", () => {
 describe("classifyRun: exit codes", () => {
   it("passes when kane exits 0 and no member failed", async () => {
     const summary = makeSummary({ status: "passed", members: [makeMember(CHECKOUT, "passed")] });
-    const outcome = narrow(await classifyRun(makeResult({ exitCode: 0 }), summary, opts(), "/ev/p.evidence"), "passed");
+    const outcome = narrow(await classifyRun(makeResult({ exitCode: 0 }), summary, opts({ flows: [FLOWS[0]!] }), "/ev/p.evidence"), "passed");
     expect(outcome.summary).toBe(summary);
     expect(outcome.evidencePath).toBe("/ev/p.evidence");
   });

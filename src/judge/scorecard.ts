@@ -62,7 +62,7 @@ export function headline(verdict: Verdict): string {
   return [`Kane proved ${c.proven} of ${verdict.claims.length} claims`, ...rest].join(" · ");
 }
 
-const stemOf = (flowPath: string) => flowPath.split("/").pop()?.replace(/_test\.md$/, "") ?? "";
+const stemOf = (flowPath: string) => flowPath.replace(/^flows\//, "").replace(/_test\.md$/, "");
 
 /** The Kane result behind a claim (flows/02-promo_test.md -> results.flows["02-promo"]). */
 export function flowFor(claim: VerdictClaim, results?: KaneResults): FlowResult | undefined {
@@ -209,7 +209,7 @@ function claimCard(claim: VerdictClaim, input: ScorecardInput): string {
   const share = flow ? shareLink(flow) : undefined;
   const trail = flow ? runTrail(flow, input.results) : "";
   const meta = flow ? flowMeta(flow, share, trail) : "";
-  return `<section class="card">${badge(claimLabel(claim))}<span class="claim${claim.status === "withdrawn" ? " struck" : ""}">${escapeHtml(claim.claim)}</span>
+  return `<section class="card" id="claim-${escapeHtml(claim.id)}">${badge(claimLabel(claim))}<span class="claim${claim.status === "withdrawn" ? " struck" : ""}">${escapeHtml(claim.claim)}</span>
 <div class="source">${escapeHtml(claim.source)}</div><div>${escapeHtml(claim.evidence)}</div>${bugLine(flow)}${fixBlock(claim, flow, input.results)}${meta}${steps}${shotsBlock(claim, flow, input)}</section>`;
 }
 
@@ -223,7 +223,13 @@ function signOffLine(input: ScorecardInput): string {
 /** The denominator, in the header: how many promises Kane found in the README and how many were tested. */
 function coverageNote(input: ScorecardInput): string {
   const line = coverageLine(input.verdict, input.scan);
-  return line ? `<p class="muted" style="margin:4px 0 0;font-size:14px">${escapeHtml(line)}.</p>` : "";
+  const warning = coverageWarning(input.scan);
+  return `<p class="muted" style="margin:4px 0 0;font-size:14px">${escapeHtml(line ? `${line}.` : warning ?? "")}</p>`;
+}
+
+export function coverageWarning(scan?: ScanResult): string | undefined {
+  if (!scan || scan.useCases?.length) return undefined;
+  return `README coverage was not established. Counts cover only the listed claims.${scan.useCasesNote ? ` ${scan.useCasesNote}` : ""}`;
 }
 
 function header(input: ScorecardInput): string {
@@ -308,7 +314,7 @@ function coverageSection(input: ScorecardInput): string {
     })
     .join("");
   return `<h2>Coverage: everything the README promises</h2><p class="muted">${escapeHtml(line)}. The list is Kane's own reading of the README (<code>kane-cli context ingest</code>), so the agent can't pick only the promises that hold: a verdict that leaves one out is refused.</p>
-<table><thead><tr><th>#</th><th>Use-case Kane found</th><th>Risk</th><th>README</th><th>Claim</th></tr></thead><tbody>${body}</tbody></table>`;
+<div class="table-scroll"><table><thead><tr><th>#</th><th>Use-case Kane found</th><th>Risk</th><th>README</th><th>Claim</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 function runsSection(results?: KaneResults, packs?: PackCheck): string {
@@ -325,7 +331,7 @@ function runsSection(results?: KaneResults, packs?: PackCheck): string {
   const judged = results.runs.filter((r) => r.kaneVerdict).length;
   const verdicts = judged ? ` Kane's own verdict engine (<code>kane-cli evidence verdict</code>) judged ${judged} of them against the <code>kane-judge-claims</code> policy.` : "";
   return `<h2>Kane runs</h2><p class="muted">${results.runs.length} run(s) of ${flows.length} flow(s) in real Chrome via <code>kane-cli testrun</code>. ${sealed} sealed an evidence pack.${verdicts}${packNote(packs)}</p>
-<table><thead><tr><th>#</th><th>When (UTC)</th><th>Flows</th><th>Outcome</th><th>Time</th><th>Kane's verdict</th><th>Evidence pack</th></tr></thead><tbody>${rows}</tbody></table>`;
+<div class="table-scroll"><table><thead><tr><th>#</th><th>When (UTC)</th><th>Flows</th><th>Outcome</th><th>Time</th><th>Kane's verdict</th><th>Evidence pack</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 function footer(verdict: Verdict): string {

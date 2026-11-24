@@ -1,46 +1,33 @@
 # Kane Judge
 
-**Your README makes promises. Kane Judge turns each one into a Kane CLI browser test, runs it against your running app, fixes what fails, and has Kane prove the fix with the same test.**
+Kane Judge is a Claude Code plugin for checking the promises in a project's README. Kane CLI drives Chrome, captures what a user sees, and gives the agent the failed step. In pre-flight mode the agent can repair your app. A repair counts when the same flow passes.
 
-It is a Claude Code plugin built on [Kane CLI](https://github.com/LambdaTest/kane-cli). One command, the night before you ship:
+## See what Kane caught
+
+A shop promised that applying **SAVE10** would update the order total. Its API calculated the right price. In the browser, a layout experiment deleted the Total row as soon as the discount appeared.
+
+| Before the repair | After the repair |
+| --- | --- |
+| ![Kane screenshot of the discounted order with no Total row](docs/checkout-before.png) | ![Kane screenshot of the same order with Total $42.80](docs/checkout-after.png) |
+| The experiment kept only three rows. Shipping was the last row a shopper could see. | The agent stopped that experiment. The unchanged flow showed a $4.20 discount and a $42.80 total. |
+
+Read the [agent session](examples/preflight/inkwell-shop/agent-session.md), [single-line repair](examples/preflight/inkwell-shop/checkout-repair.patch), [exact Kane test](examples/preflight/inkwell-shop/flows/04-apply-promo_test.md), and [verified pre-flight report](docs/sample-preflight-report.md). The deployed sample still exhibited the original defect in the [recorded negative control](examples/negative/deployed-promo/report.md).
+
+## Try it in 30 seconds
+
+From a clone, run this with Node 20 or later. It needs no install, account, or credits.
+
+```bash
+node dist/kane-judge.mjs demo
+```
+
+The demo re-reads the recorded evidence pack, tries eight ways to falsify a verdict, and opens the scorecard. If Kane CLI is installed it also evaluates the pack with Kane's own policy engine. To explore in a browser directly, open `docs/index.html` from the clone. It includes the repair replay and an editable scorecard.
+
+To repeat the checkout interaction on your machine, run the [independent browser check](TESTING.md#reproduce-the-checkout-repair). To judge your own running app, start Claude Code with the plugin installed and run:
 
 ```text
 /kane-judge:preflight . --live http://localhost:3000
 ```
-
-1. Kane itself lists the use-cases your README promises (`kane-cli context ingest`). Every one has to be accounted for, so the agent can't test only the promises that hold.
-2. Each claim becomes a plain-English Kane flow, and Kane runs them in **real Chrome**.
-3. For every failure the agent works out which it is: your product is broken, its own test was wrong, or it is blocked.
-4. It fixes the product (or takes a promise you never built out of the README), and Kane re-runs **the same test, unchanged**. Only that turns a claim green.
-5. Kane's own verdict engine signs the final run, replayed with self-healing off, and the flows stay in your repo as a pre-push and CI gate.
-
-Point the same judge at someone else's project and it does steps 1 to 3 and stops: it may fix its own tests, never their product. That is the hackathon judge this started as.
-
-<p>
-  <a href="docs/sample-report.md"><img src="docs/scorecard.png" width="49%" alt="Judge mode: a scorecard for the sample submission. Kane proved 3 of 5 claims, Kane's verdict on the sealed evidence pack is FAIL, and the first broken claim shows Kane's bug verdict and its screenshot of an order summary with no Total."></a>
-  <a href="docs/sample-preflight-report.md"><img src="docs/preflight.png" width="49%" alt="Pre-flight mode: the same project after the agent fixed it. Kane's verdict is PASS, and the fixed claim shows the change and Kane's replay of the same test before and after."></a>
-</p>
-
-*Two real scorecards for the sample project. Left, **judge**: Kane proved 3 of 5 claims and caught an order Total that disappears ([report](docs/sample-report.md)). Right, **pre-flight**: the agent fixed the bug, and Kane passed the same test ([report](docs/sample-preflight-report.md)). Each claim carries Kane's step-by-step replay.*
-
-## For judges: see it in 30 seconds
-
-**In the browser, nothing to install:** [karansinghbisht.github.io/kane-judge](https://karansinghbisht.github.io/kane-judge/) has both scorecards with Kane's step-by-step replays, and a playground where you can try to cheat the checker yourself.
-
-**On your machine,** with no Kane account, no credits and no Claude Code. Node 20 or later:
-
-```bash
-npx -y github:KaranSinghBisht/kane-judge demo
-```
-
-It replays a real judged run on your machine:
-
-- re-reads Kane's evidence pack and checks it against the recorded results;
-- if you have Kane CLI installed, has **Kane's own verdict engine** re-judge the pack (`kane-cli evidence verdict`, which needs no sign-in);
-- then tries to cheat the scorecard eight ways (call a broken claim proven, borrow another claim's passing test, skip a use-case, edit the results file, swap the evidence pack…) and shows each one refused;
-- and opens the scorecard.
-
-The run it replays is committed in [`examples/judged/inkwell-shop`](examples/judged/inkwell-shop), evidence pack included.
 
 ## Try it for real
 
@@ -106,7 +93,7 @@ Run it from your project folder with your app running. The agent judges your pro
 
 1. **Fix.** For each claim Kane showed broken, it fixes the code. If the feature was never built, it takes the promise out of the README instead and withdraws the claim.
 2. **Prove.** Kane re-runs the same flow, unchanged. The fix counts only if that run passes.
-3. **Sign.** A final run replays every flow as one sealed evidence pack, and Kane's verdict engine judges it: `Gate: PASS`.
+3. **Gate.** A final run replays every flow as one sealed evidence pack, and Kane's verdict engine judges it: `Gate: PASS`.
 
 Write `check only` after the command to get the findings without any changes.
 
@@ -122,7 +109,7 @@ Replays take about half a minute and a few credits. [`examples/gate`](examples/g
 ## Judge: the same loop, without the fixing
 
 ```text
-/kane-judge:judge https://github.com/team/repo --since 2026-11-12 --until 2026-11-19
+/kane-judge:judge https://github.com/team/repo --since 2026-11-12 --until 2026-11-26T23:59:00+05:30
 /kane-judge:judge https://devpost.com/software/some-project https://github.com/team/repo --live https://their-demo.vercel.app
 /kane-judge:board
 ```
@@ -154,7 +141,7 @@ That is why every ✓ is audited against Kane's own screenshot, why flows are ch
 
 An agent that grades its own work will be tempted to round up. So the scorecard is not written by the agent: `kane-judge report` builds it, and refuses when a verdict says more than Kane saw. Each rule below is code with a test in [`test/integrity.test.ts`](test/integrity.test.ts), and `kane-judge demo` shows eight of them refusing.
 
-- **Nothing the README promises is skipped.** The use-case list comes from Kane's own reading of the README, not from the agent. A verdict that leaves one out is refused; an untested promise has to say why.
+- **Every extracted use-case is accounted for.** The use-case list comes from Kane's own reading of the README, not from the agent. A verdict that leaves one out is refused; an untested promise has to say why.
 - **A claim stands on its own test.** Every flow is tagged with the one claim it tests. A claim can't borrow another claim's passing flow, two flows can't share a claim, and a claim Kane tested can't be left out of the verdict.
 - **Proven needs a real pass.** The claim's latest Kane run passed, ran steps, and holds at least one passed assert step in Kane's evidence pack. Flows are checked before Kane runs them: a start URL, `## ` steps, and in every step a check of what is *visibly* shown (the word is required, because of [what we measured](#what-it-has-found) in Kane).
 - **Broken needs a failure.** A flow the agent got wrong is rewritten, not counted against the project.
@@ -163,9 +150,9 @@ An agent that grades its own work will be tempted to round up. So the scorecard 
 - **A judge can't fix, and a verdict can't call itself a pre-flight.** Fixes and withdrawn claims are accepted only when the project was scanned from your own folder with `--preflight`. A withdrawn claim's words have to be gone from the README.
 - **A judge proves claims on the demo that was submitted,** not on another build.
 - **Kane's evidence is read again.** At report time each sealed pack is re-hashed, and every flow's status in the pack has to match the results file.
-- **The agent can't edit Kane's record.** A hook blocks its file tools and shell from changing `kane-results.json`, `scan.json` or the packs. A second hook keeps it from ending its turn while Kane's latest results aren't in a checked scorecard; it reminds once per run.
+- **The agent can't edit Kane's record.** A hook blocks its file tools and shell from changing `kane-results.json`, `scan.json` or the packs. A second hook blocks a stop once per run to remind it to produce a checked scorecard. It is a reminder, not a permanent stop lock.
 - **The number at the top is Kane's.** The scorecard leads with the count of claims Kane proved. Scores are suggestions: each has to cite the claims it rests on or say what couldn't be verified, each criterion is capped at 10, and the board ranks by what Kane proved.
-- **The gate needs Kane's signature, with healing off.** `run --gate` replays every flow with `--no-adaptive-heal`, so a pass is the recorded test and not a re-authored one. It exits 1 unless every flow passed with asserts and Kane's verdict engine says pass. No verdict is a failure.
+- **The gate needs Kane's policy pass, with healing off.** `run --gate` replays every flow with `--no-adaptive-heal`, so a pass is the recorded test and not a re-authored one. Gates default to one browser worker. Use `--parallel N` for a larger run. A completed gate fails if any flow lacks a passing assertion or the claims policy fails. No verdict is a failure.
 
 And by the agent's instructions, in [`skills/judging/SKILL.md`](skills/judging/SKILL.md):
 
@@ -182,7 +169,7 @@ Kane writes the signed-in account into every evidence pack, so packs can't simpl
 kane-judge share projects/my-app
 ```
 
-writes a copy of the project you can commit or send: flows, results, verdict, scorecard and the evidence packs, with the Kane account and your machine's paths removed. Kane's own tools accept the copy: `kane-cli evidence validate` reports the pack valid, and anyone can have Kane's verdict engine judge it again without an account or credits. `kane-judge demo <folder>` re-checks a copy someone sent you.
+writes a copy of the project you can commit or send: flows, results, verdict, scorecard and the evidence packs, with the Kane account and your machine's paths removed, and credentials and request/response bodies removed from HAR logs. Review screenshots and application-specific text for sensitive data before publishing. Kane's own tools accept the copy: `kane-cli evidence validate` reports the pack valid, and anyone can have Kane's verdict engine judge it again without an account or credits. `kane-judge demo <folder>` re-checks a copy someone sent you.
 
 ## How it uses Kane CLI
 
@@ -217,6 +204,8 @@ The plugin puts a small bundled CLI on Claude Code's PATH. It also installs by i
 
 ## Limits
 
+- **Coverage depends on extraction.** Kane may miss a README promise. The checker accounts for the use-cases Kane extracted; it cannot prove the extraction was exhaustive. If extraction is unavailable or skipped, the report explicitly says README coverage was not established.
+
 - **The agent writes the tests.** Kane Judge can check that a claim stands on its own flow and that the flow asserted something. It can't check that the flow's checks mean what the claim says. That is why the flow's name, Kane's replay and its Test Manager link sit under every claim: a person can check in seconds.
 - **The hooks keep an agent honest; they are not a lock.** A person with a shell can still edit a JSON file. What a third party can verify is the share copy: its packs, re-judged by Kane's own verdict engine, and Kane's Test Manager links.
 - **The rubric scores are Claude's judgement** and can move a few points between runs. The claim verdicts are the part bound to Kane's evidence.
@@ -232,3 +221,7 @@ The idea of an AI hackathon judge as a Claude Code skill comes from Austin Griff
 ## License
 
 [Apache-2.0](LICENSE)
+
+## Verification and release status
+
+See [TESTING.md](TESTING.md) for what the automated tests cover and what they do not. A real Chrome replay on 24 Nov passed all four active pre-flight flows with healing off and all six policy gates. Its shareable evidence is in [`examples/preflight/inkwell-shop`](examples/preflight/inkwell-shop). The deployed sample intentionally retains the checkout bug so judge mode has a real failure to find.

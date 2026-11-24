@@ -25,6 +25,7 @@ const TEXT = /\.(?:ya?ml|json|ndjson|md|log|har|txt)$/i;
 const IDENTITY_LINE = /^(\s*(?:org_id|user_name|user_email|user_id|project_id|folder_id)\s*:\s*).*$/gim;
 const IDENTITY_FIELDS = ["user_email", "user_name", "org_id", "user_id"];
 const SECRET_HEADERS = new Set(["cookie", "set-cookie", "authorization", "proxy-authorization", "x-api-key", "x-auth-token"]);
+const SECRET_QUERY = /(?:token|secret|password|passwd|api[-_]?key|access[-_]?key|signature|credential|session|code)/i;
 const REMOVED = "[removed]";
 /** A fixed time for every entry, so the same sealed pack always gives the same share copy. */
 const ENTRY_TIME = new Date("2026-01-01T00:00:00Z");
@@ -49,7 +50,7 @@ function identityValues(files: Record<string, Uint8Array>): string[] {
     const ids = isObject(doc) && isObject(doc.external_id) ? doc.external_id : {};
     for (const field of IDENTITY_FIELDS) {
       const value = ids[field];
-      if (typeof value === "string" || typeof value === "number") found.add(String(value));
+      if ((typeof value === "string" || typeof value === "number") && value !== "redacted" && value !== REMOVED) found.add(String(value));
     }
   }
   return [...found];
@@ -76,8 +77,24 @@ function scrubHar(text: string): string {
     for (const side of [entry.request, entry.response]) {
       if (!isObject(side)) continue;
       scrubHeaders(side.headers);
+      if (typeof side.url === "string") {
+        try {
+          const url = new URL(side.url);
+          url.username = "";
+          url.password = "";
+          for (const key of [...url.searchParams.keys()]) if (SECRET_QUERY.test(key)) url.searchParams.set(key, REMOVED);
+          side.url = url.toString();
+        } catch {
+          side.url = REMOVED;
+        }
+      }
+      if (Array.isArray(side.queryString)) {
+        for (const param of side.queryString) if (isObject(param) && typeof param.name === "string" && SECRET_QUERY.test(param.name)) param.value = REMOVED;
+      }
       if (Array.isArray(side.cookies)) side.cookies = [];
       if (isObject(side.postData)) side.postData = { mimeType: side.postData.mimeType, text: REMOVED };
+      if (isObject(side.content) && side.content.text !== undefined) side.content.text = REMOVED;
+      if (typeof side.redirectURL === "string" && side.redirectURL) side.redirectURL = REMOVED;
     }
   }
   return JSON.stringify(doc);

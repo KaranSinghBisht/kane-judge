@@ -73,3 +73,15 @@ export interface ScanResult {
   injectionHints: string[];
   pages: PageFacts[];
 }
+
+/** Runtime validation before scan data controls mode, coverage, or report rendering. */
+export function isScanResult(value: unknown): value is ScanResult {
+  const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+  const strings = (v: unknown) => Array.isArray(v) && v.every(s => typeof s === "string");
+  if (!object(value) || value.version !== 1 || typeof value.scannedAt !== "string" || typeof value.slug !== "string" || typeof value.name !== "string") return false;
+  if (value.mode !== undefined && value.mode !== "judge" && value.mode !== "preflight") return false;
+  if (![value.inputs, value.demoCandidates, value.videos, value.injectionHints].every(strings)) return false;
+  if (!Array.isArray(value.repos) || !value.repos.every(r => object(r) && typeof r.url === "string" && object(r.commits) && strings(r.commits.authors) && Array.isArray(r.topics) && object(r.languages))) return false;
+  if (!Array.isArray(value.pages) || !value.pages.every(p => object(p) && typeof p.url === "string")) return false;
+  return value.useCases === undefined || (Array.isArray(value.useCases) && value.useCases.every(u => object(u) && typeof u.id === "string" && typeof u.title === "string"));
+}

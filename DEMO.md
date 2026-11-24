@@ -45,7 +45,7 @@ What happens:
    - **Order history:** there is no Account menu anywhere. Kane's own triage blames the test; Claude checks the code, finds no such page, and calls it what it is: a promise that was never built.
 6. **The fix.** Claude stops the experiment in `data/experiments.json`. Kane re-runs **the same flow, unchanged**, and it passes.
 7. **The honest README.** Order history was never built, so the bullet comes out of the README and `kane-judge withdraw` moves that claim's flow out of the run. The hidden comment goes too.
-8. **The gate.** Every remaining flow replays as one sealed evidence pack with Kane's self-healing off, and Kane's verdict engine signs it: `Gate: PASS`.
+8. **The gate.** Every remaining flow replays as one sealed evidence pack with Kane's self-healing off, and Kane's verdict engine passes it: `Gate: PASS`.
 9. Open `projects/my-shop/scorecard.html`. The repaired claim is marked **fixed**, with the change that was made, Kane's record of the same test failing and then passing, and its replay before and after. The coverage table shows what became of every use-case Kane found.
 
 `kane-judge report` would have refused that fix if the flow had been edited between the failing run and the passing one.
@@ -66,7 +66,7 @@ mkdir -p ~/kane-judge-demo && cd ~/kane-judge-demo && claude
 ```
 
 ```text
-/kane-judge:judge https://github.com/KaranSinghBisht/kane-judge/tree/main/examples/inkwell-shop --since 2026-11-12 --until 2026-11-19
+/kane-judge:judge https://github.com/KaranSinghBisht/kane-judge/tree/main/examples/inkwell-shop --since 2026-11-12 --until 2026-11-26T23:59:00+05:30
 ```
 
 Same scan, same flows, same investigation, against the deployed shop at https://inkwell-shop.vercel.app. This time nothing is fixed: the scorecard reports the promo code and the order history as broken, flags the hidden comment, and lists three questions for the team. Kane's own verdict on the sealed pack is `FAIL: no-failed-flows`.

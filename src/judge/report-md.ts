@@ -3,7 +3,7 @@ import { safeHref } from "./html.js";
 import { mdText as md } from "./markdown.js";
 import { fixProof } from "./results.js";
 import { describeBugVerdict } from "./summary.js";
-import { allFlags, claimCounts, claimLabel, claimsInReadingOrder, coverageLine, coverageRows, flowFor, headline, kaneSignOff, overall, runTrail, shareLink, type ScorecardInput } from "./scorecard.js";
+import { allFlags, claimCounts, claimLabel, claimsInReadingOrder, coverageLine, coverageRows, coverageWarning, flowFor, headline, kaneSignOff, overall, runTrail, shareLink, type ScorecardInput } from "./scorecard.js";
 import type { VerdictClaim } from "./verdict.js";
 
 /** A Markdown link only for http(s) URLs; local paths and other schemes never leave the machine in a report. */
@@ -57,6 +57,7 @@ export function renderReportMarkdown(input: ScorecardInput): string {
     `# ${md(v.project.name)} · Kane proved ${claimCounts(v).proven} of ${v.claims.length} claims`,
     "",
     `**${md(headline(v))}** · rubric ${o.pct}% (${o.score}/${o.max}, the agent's judgement)`,
+    ...(coverageWarning(input.scan) ? ["", `_${md(coverageWarning(input.scan) ?? "")}_`] : []),
     ...(v.mode === "preflight" ? ["", "_Pre-flight: checked and fixed by the builder before submitting._"] : []),
     ...(signed ? ["", `Kane's verdict on the sealed evidence pack (policy \`${md(signed.kane.policy)}\`): **${md(describePolicyVerdict(signed.kane))}**`] : []),
     "",

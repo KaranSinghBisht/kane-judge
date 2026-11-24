@@ -1,0 +1,11 @@
+--- a/data/experiments.json
++++ b/data/experiments.json
+@@ -11,7 +11,7 @@
+     {
+       "id": "compact-order-summary",
+       "owner": "growth",
+-      "status": "running",
++      "status": "stopped",
+       "rollout": 100,
+       "started": "2026-07-02",
+       "selector": "#order-summary",

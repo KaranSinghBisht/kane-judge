@@ -63,8 +63,6 @@ export interface FlowRunEntry {
   asserts?: number;
 }
 
-const MAX_HISTORY = 30;
-
 export interface FlowResult {
   /** File stem inside flows/, e.g. "02-apply-promo". */
   name: string;
@@ -151,7 +149,7 @@ export function mergeRun(prev: KaneResults, run: RunRecord, flows: FlowResult[])
       steps: flow.steps.length,
       asserts: flow.asserts?.passed,
     };
-    const history = [...(before?.history ?? []), entry].slice(-MAX_HISTORY);
+    const history = [...(before?.history ?? []), entry];
     next.flows[flow.name] = { ...flow, attempts: (before?.attempts ?? 0) + 1, history };
   }
   return next;
@@ -159,6 +157,9 @@ export function mergeRun(prev: KaneResults, run: RunRecord, flows: FlowResult[])
 
 /** The two Kane runs that show a fix worked: the same flow text failing, then passing. */
 export interface FixProof {
+  anchorAt: string;
+  anchorFlow: string;
+  failedFlow: string;
   failedAt: string;
   passedAt: string;
   failedShot?: string;
@@ -172,7 +173,7 @@ export interface ClaimRun extends FlowRunEntry {
   flow: string;
 }
 
-const failedRun = (run: FlowRunEntry) => run.status !== "passed" && run.status !== "skipped";
+const failedRun = (run: FlowRunEntry) => run.status === "failed";
 
 /**
  * Every Kane run of a flow and of any other flow that carries the same claim
@@ -204,12 +205,23 @@ export function fixProof(results: KaneResults, flow: FlowResult): FixProof | und
   const anchor = failures.find((run) => run.bug === true) ?? failures[0];
   if (!anchor?.flowSha || anchor.flowSha !== last.flowSha) return undefined;
   const lastFailure = [...failures].reverse().find((run) => run.flowSha === last.flowSha) ?? anchor;
-  return { failedAt: lastFailure.at, passedAt: last.at, failedShot: lastFailure.screenshot, passedShot: last.screenshot, failedFrames: lastFailure.frames };
+  return { anchorAt: anchor.at, anchorFlow: anchor.flow, failedFlow: lastFailure.flow, failedAt: lastFailure.at, passedAt: last.at, failedShot: lastFailure.screenshot, passedShot: last.screenshot, failedFrames: lastFailure.frames };
 }
 
 export function isKaneResults(value: unknown): value is KaneResults {
-  const v = value as KaneResults | undefined;
-  return !!v && v.version === 1 && Array.isArray(v.runs) && typeof v.flows === "object" && v.flows !== null;
+  const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+  const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(s => typeof s === "string");
+  const optionalString = (v: unknown) => v === undefined || typeof v === "string";
+  const textFields = (v: Record<string, unknown>, keys: string[]) => keys.every(k => optionalString(v[k]));
+  const counts = (v: unknown) => object(v) && Number.isInteger(v.total) && Number.isInteger(v.passed) && Number(v.passed) >= 0 && Number(v.total) >= Number(v.passed);
+  const frames = (v: unknown) => v === undefined || (Array.isArray(v) && v.every(f => object(f) && typeof f.file === "string" && textFields(f, ["kind", "status", "summary"])));
+  const history = (v: unknown) => v === undefined || (Array.isArray(v) && v.every(h => object(h) && typeof h.at === "string" && typeof h.status === "string" && textFields(h, ["flowSha", "checksSha", "screenshot", "shareUrl", "startUrl"]) && frames(h.frames)));
+  if (!object(value) || value.version !== 1 || !Array.isArray(value.runs) || !object(value.flows)) return false;
+  if (!value.runs.every(r => object(r) && typeof r.at === "string" && strings(r.flows) && ["passed", "failed", "error", "timeout"].includes(String(r.outcome)) && typeof r.durationS === "number" && optionalString(r.evidencePath) && optionalString(r.packSha256) && optionalString(r.sharedPackSha256) &&
+    (r.kaneVerdict === undefined || (object(r.kaneVerdict) && typeof r.kaneVerdict.result === "string" && typeof r.kaneVerdict.policy === "string" && Array.isArray(r.kaneVerdict.gates) && r.kaneVerdict.gates.every(object) && strings(r.kaneVerdict.failedGates) && strings(r.kaneVerdict.erroredGates) && strings(r.kaneVerdict.warnings))))) return false;
+  return Object.entries(value.flows).every(([name, f]) => object(f) && f.name === name && typeof f.file === "string" && typeof f.status === "string" && typeof f.lastRunAt === "string" && Array.isArray(f.steps) && f.steps.every(object) && optionalString(f.claim) && optionalString(f.flowSha) && optionalString(f.checksSha) && optionalString(f.startUrl) && optionalString(f.screenshot) && frames(f.frames) && (f.asserts === undefined || counts(f.asserts)) &&
+    history(f.history) &&
+    (f.failure === undefined || (object(f.failure) && Array.isArray(f.failure.console) && f.failure.console.every(object) && Array.isArray(f.failure.network) && f.failure.network.every(object))));
 }
 
 /**

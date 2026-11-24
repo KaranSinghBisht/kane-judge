@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describePolicyVerdict, judgePack } from "../../kane/policy.js";
-import { isKaneResults, type KaneResults } from "../../judge/results.js";
+import type { KaneResults } from "../../judge/results.js";
 import { claimLabel, claimsInReadingOrder, headline } from "../../judge/scorecard.js";
 import type { Verdict } from "../../judge/verdict.js";
 import { projectPaths, type ProjectPaths } from "../../judge/workspace.js";
@@ -212,12 +212,11 @@ export async function demoCommand(args: DemoArgs): Promise<number> {
   await cp(example, dir, { recursive: true });
   const paths = projectPaths(dir);
   const loaded = await checkProject(paths);
-  const results = JSON.parse(await readFile(paths.results, "utf8")) as unknown;
-  if (!loaded.ok || !isKaneResults(results)) {
-    out(`kane-judge demo: the example doesn't pass its own checks:\n${loaded.ok ? "  - kane-results.json is unreadable" : loaded.errors.map((e) => `  - ${e}`).join("\n")}`);
+  if (!loaded.ok || !loaded.results) {
+    out(`kane-judge demo: the example doesn't pass its own checks:\n${loaded.ok ? "  - kane-results.json is missing" : loaded.errors.map((e) => `  - ${e}`).join("\n")}`);
     return 1;
   }
-  const { verdict, packs } = loaded;
+  const { verdict, packs, results } = loaded;
   const flows = Object.keys(results.flows).length;
   out(
     [

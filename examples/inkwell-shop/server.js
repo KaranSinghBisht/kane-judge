@@ -9,7 +9,7 @@ import { createOrder, quote, readData } from "./lib/shop.js";
 const ROOT = fileURLToPath(new URL(".", import.meta.url));
 const PUBLIC_DIR = join(ROOT, "public");
 const DATA_DIR = join(ROOT, "data");
-const PORT = Number(process.env.PORT) || 4173;
+const PORT = Number(process.env.PORT ?? 4173);
 
 const TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -73,4 +73,4 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => process.stdout.write(`Inkwell shop on http://localhost:${PORT}\n`));
+server.listen(PORT, process.env.HOST, () => process.stdout.write(`Inkwell shop on http://localhost:${server.address().port}\n`));

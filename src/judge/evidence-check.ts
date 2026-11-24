@@ -71,6 +71,10 @@ function checkProven(claim: VerdictClaim, flow: FlowResult, results: KaneResults
   if (flowVersions(results, flow) > MAX_FLOW_VERSIONS) {
     return `${at}: the flow for this claim was rewritten ${flowVersions(results, flow) - 1} times before it passed; the limit is ${MAX_FLOW_VERSIONS - 1}. Mark the claim unverifiable and say what Kane saw.`;
   }
+  const originalChecks = claimRuns(results, flow).find(r => r.checksSha)?.checksSha;
+  if (originalChecks && flow.checksSha && originalChecks !== flow.checksSha) {
+    return `${at}: the claim's checks changed after its first Kane run. A test rewrite may change the route, not weaken what is asserted. Restore the original checks and re-run, or mark the claim unverifiable.`;
+  }
   if (claim.fix && !fixProof(results, flow)) {
     return `${at}: a fix is recorded, but Kane's history for this claim doesn't show the same test failing and then passing. A fix counts only when the flow that showed the claim broken passes unchanged: restore that flow's text and re-run it, or remove "fix" and report the claim as proven.`;
   }
@@ -100,9 +104,16 @@ export function checkAgainstKane(verdict: Verdict, results?: KaneResults): strin
       errors.push(`${at}: Kane has no result for ${claim.flow}; run it with \`kane-judge run\` first`);
       return;
     }
+    const attempted = [...results.runs].reverse().find(r => r.flows.includes(flow.name));
+    if (attempted?.outcome === "error" || attempted?.outcome === "timeout") {
+      errors.push(`${at}: the latest attempt of ${flow.name} ended with ${attempted.outcome}, so an earlier result cannot establish its current status. Re-run it or mark the claim unverifiable.`);
+      return;
+    }
     if (claim.status === "broken") {
       if (flow.status === "passed") {
         errors.push(`${at}: marked broken, but Kane's latest run of ${flow.name} passed. A claim is broken only when Kane shows it failing: tighten the flow's check and re-run it, or mark the claim proven.`);
+      } else if (flow.status !== "failed") {
+        errors.push(`${at}: marked broken, but Kane reported ${flow.status}, not a failed product check. Mark the claim unverifiable until a completed test shows it failing.`);
       }
       return;
     }
@@ -112,21 +123,21 @@ export function checkAgainstKane(verdict: Verdict, results?: KaneResults): strin
   return errors;
 }
 
-const QUOTED = /["“]([^"”]{20,})["”]/;
+const QUOTED = /["“]([^"”]+)["”]/;
 const plain = (text: string) => text.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
 
 /**
  * A withdrawn claim has to be gone from the builder's README: if the words the
- * claim quotes are still there, the promise still stands. Checked only for
- * claims that quote at least 20 characters.
+ * claim quotes are still there, the promise still stands.
  */
 export function checkWithdrawn(verdict: Verdict, readme: string | undefined): string[] {
-  if (readme === undefined) return [];
-  const text = plain(readme);
+  const text = readme === undefined ? undefined : plain(readme);
   return verdict.claims.flatMap((claim, i) => {
     if (claim.status !== "withdrawn") return [];
     const quote = QUOTED.exec(claim.source)?.[1];
-    if (!quote || !text.includes(plain(quote))) return [];
+    if (!quote || !plain(quote)) return [`${where(claim, i)}: quote the exact withdrawn promise in its source so it can be checked against the README.`];
+    if (text === undefined) return [`${where(claim, i)}: the current README is missing. Restore it or include README.after.md in the shared project to verify the withdrawal.`];
+    if (!text.includes(plain(quote))) return [];
     return [`${where(claim, i)}: marked withdrawn, but the README still says "${quote.slice(0, 80)}${quote.length > 80 ? "…" : ""}". Take the promise out of the README first.`];
   });
 }
