@@ -14,6 +14,9 @@ function run(bin, args, options = {}) {
 try {
   const packed = JSON.parse(run("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", dir]));
   const pack = packed[0];
+  const stateFolders = new Set([".omc", ".kane-judge", ".testmuai", ".vercel"]);
+  const localState = pack.files.find(file => file.path.split("/").some(part => stateFolders.has(part)));
+  if (localState) throw new Error(`Local tool state was included in the package: ${localState.path}`);
   const prefix = join(dir, "install");
   run("npm", ["install", "--offline", "--ignore-scripts", "--no-audit", "--no-fund", "--prefix", prefix, join(dir, pack.filename)]);
   const cli = join(prefix, "node_modules/.bin/kane-judge");
