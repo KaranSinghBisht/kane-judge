@@ -12,6 +12,7 @@ import { configureLogger, out } from "../../shared/logger.js";
 import { collectFlowResults } from "../../judge/collect.js";
 import { emptyResults, isKaneResults, mergeRun, type FlowResult, type KaneResults, type RunRecord } from "../../judge/results.js";
 import { formatRunProblem, formatRunSummary } from "../../judge/summary.js";
+import { verifyPacks } from "../../judge/pack-verify.js";
 import { RUN_MARKER } from "../../judge/pending.js";
 import { projectPaths, type ProjectPaths } from "../../judge/workspace.js";
 
@@ -176,6 +177,12 @@ export async function runFlowsCommand(args: RunArgs): Promise<number> {
     out(formatRunSummary(run, results, displayPath(paths.dir)));
     if (!args.gate) return 0;
     const problems = gateProblems(run, results);
+    if (problems.length === 0) {
+      const currentRun = mergeRun(emptyResults(), run, results);
+      const pack = await verifyPacks(paths.dir, currentRun);
+      problems.push(...pack.problems);
+      if (!run.kaneVerdict?.packSha256) problems.push("Kane's policy verdict does not identify the evaluated pack");
+    }
     const healed = config.adaptiveHeal === false ? " Self-healing was off: every flow replayed as recorded." : "";
     const hint = config.adaptiveHeal === false ? " If a flow only missed a recorded step, run it once without --gate so Kane can re-author it, then run the gate again." : "";
     out(problems.length === 0 ? `Gate: PASS. Kane proved every flow.${healed}` : `Gate: FAIL. Kane has not signed off (exit 1): ${problems.join("; ")}.${hint}`);

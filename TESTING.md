@@ -14,7 +14,9 @@ The original 494 passing tests were useful, mostly small parser, evidence-extrac
 | `npm run test:browser` | Fresh Chromium contexts exercise the bundled shop before and after its repair, the eight playground presets, the mobile layout and keyboard replay | Every browser, assistive technology or screen size |
 | Live Kane runs | Real Chrome, real flows, real sealed packs and policy evaluation | Every app, login flow, mobile device, or future Kane version |
 
-Development checks need Node 22.12+ or another version supported by Vitest 5. The bundled CLI needs Node 20+. Package execution was checked on Node 20 and 22; CI is configured for 22 and 24, but a configured workflow is not a completed GitHub Actions run.
+Development checks need Node 22.12+ or another version supported by Vitest 5. The bundled CLI needs Node 20+. The packaged executable was tested on Node 20 and 22. GitHub Actions runs the build and package checks on Linux with Node 22 and 24, and the checkout and scorecard replay on Node 22. [See runs for main](https://github.com/KaranSinghBisht/kane-judge/actions/workflows/check.yml?query=branch%3Amain).
+
+The v0.3 marketplace was also installed from the private GitHub repository into a fresh Claude Code config using an authorized Git identity. The installed plugin reported version 0.3.0 and its bundled demo verified the pack and refused all eight edits.
 
 ```bash
 npm ci

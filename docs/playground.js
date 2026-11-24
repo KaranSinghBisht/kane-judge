@@ -28,7 +28,7 @@ code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}figure{margin:0}figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 @media (max-width:640px){.pair{grid-template-columns:1fr}}
 .replay{margin:0}.rp-bar{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px}
-.rp-play{font:inherit;width:34px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.rp-bar[hidden]{display:none}.rp-play{font:inherit;width:34px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .rp-seek{flex:0 0 150px;accent-color:var(--accent)}.rp-cap{color:var(--muted);min-width:0}.rp-cap.bad{color:var(--bad)}
 .timeline{margin:12px 0 0;padding-left:20px;font-size:14px}.timeline li{margin:4px 0}
 .score{display:grid;grid-template-columns:150px 1fr 56px;gap:12px;align-items:center;margin:10px 0}
@@ -44,9 +44,9 @@ footer{margin-top:40px;font-size:13px;color:var(--muted)}
 @media (max-width:640px){.hero{grid-template-columns:1fr}.score{grid-template-columns:1fr 48px}.score .bar{grid-column:1/3;order:3}.why{grid-column:1/3}}
 @media print{body{background:#fff}.card,.hero{break-inside:avoid}}`,me=`document.querySelectorAll(".replay").forEach(function(el){var d;try{d=JSON.parse(el.querySelector(".rp-data").textContent)}catch(e){return}
 if(!Array.isArray(d)||d.length<2)return;var img=el.querySelector("img.shot"),bar=el.querySelector(".rp-bar"),seek=el.querySelector(".rp-seek"),cap=el.querySelector(".rp-cap"),play=el.querySelector(".rp-play"),t=null;
-function show(i){var f=d[i];if(!f||String(f.src).indexOf("data:image/")!==0)return;img.src=f.src;seek.value=i;cap.textContent="Step "+(i+1)+" of "+d.length+" \\u00b7 "+f.cap;cap.className="rp-cap"+(f.ok?"":" bad")}
-function stop(){clearInterval(t);t=null;play.textContent="\\u25b6"}
-play.addEventListener("click",function(){if(t)return stop();var i=+seek.value>=d.length-1?0:+seek.value;show(i);play.textContent="\\u275a\\u275a";t=setInterval(function(){i+=1;if(i>=d.length)return stop();show(i)},900)});
+function show(i){var f=d[i];if(!f||String(f.src).indexOf("data:image/")!==0)return;img.src=f.src;seek.value=i;cap.textContent="Step "+(i+1)+" of "+d.length+" \\u00b7 "+f.cap;seek.setAttribute("aria-valuetext",cap.textContent);cap.className="rp-cap"+(f.ok?"":" bad")}
+function stop(){play.setAttribute("aria-label","Play Kane's steps");clearInterval(t);t=null;play.textContent="\\u25b6"}
+play.addEventListener("click",function(){if(t)return stop();var i=+seek.value>=d.length-1?0:+seek.value;show(i);play.setAttribute("aria-label","Pause Kane's steps");play.textContent="\\u275a\\u275a";t=setInterval(function(){i+=1;if(i>=d.length)return stop();show(i)},900)});
 seek.addEventListener("input",function(){stop();show(+seek.value)});bar.hidden=false;show(d.length-1)});`;function he(e){return JSON.stringify(e).replace(/</g,"\\u003c").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029")}function w(e,t,n,r){let s=`<img class="shot" alt="${c(t)}" src="${c(e)}">`,i=n?`<figcaption>${c(n)}</figcaption>`:"";if(!r||r.length<2)return n?`<figure>${s}${i}</figure>`:s;let o=r.length-1;return`<figure class="replay">${s}<div class="rp-bar" hidden><button type="button" class="rp-play" aria-label="Play Kane's steps">&#9654;</button>
 <input type="range" class="rp-seek" min="0" max="${o}" value="${o}" aria-label="Kane's step"><span class="rp-cap"></span></div>
 <script type="application/json" class="rp-data">${he(r)}<\/script>${i}</figure>`}function N(e,t,n={}){let r=Object.entries(n).map(([i,o])=>`<meta name="${c(i)}" content="${c(o)}">`).join(""),s=t.includes('class="replay"')?`<script>${me}<\/script>`:"";return`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

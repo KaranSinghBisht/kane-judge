@@ -11,7 +11,7 @@ const cli = join(import.meta.dirname, "../dist/kane-judge.mjs");
 // A real subprocess at the Kane boundary, not vi.mock. This checks argv,
 // streams, evidence collection, policy invocation, persistence and exit codes.
 // It does NOT claim to test Chrome or Kane's AI; recorded/live tests cover those.
-async function harness(mode: "passed" | "failed" | "empty" | "partial" | "setup" = "passed") {
+async function harness(mode: "passed" | "failed" | "empty" | "partial" | "setup" | "another-pack" | "contradictory-pack" = "passed") {
   const dir = await makeDir();
   const files: Record<string, string | Uint8Array> = {};
   const packed: Record<string, string> = {};
@@ -19,7 +19,7 @@ async function harness(mode: "passed" | "failed" | "empty" | "partial" | "setup"
     const text = `---\nurl: https://shop.example.app/\ntags: [judge, ${claim}]\n---\n# ${name}\n\n## Check\nVerify the page visibly shows ${name}.\n`;
     files[`flows/${name}_test.md`] = text;
     packed[`tests/${name}-12345678/test.md`] = text;
-    packed[`tests/${name}-12345678/result.yaml`] = `status: ${mode === "failed" ? "failed" : "passed"}\nsteps:\n  - {kind: assert, status: ${mode === "failed" ? "failed" : "passed"}}\n`;
+    packed[`tests/${name}-12345678/result.yaml`] = `status: ${mode === "failed" || mode === "contradictory-pack" ? "failed" : "passed"}\nsteps:\n  - {kind: assert, status: ${mode === "failed" ? "failed" : "passed"}}\n`;
   }
   files["fixture.evidence"] = buildPack(packed);
   files["scan.json"] = JSON.stringify({ version: 1, mode: "judge", scannedAt: "2026-11-24T10:00:00Z", slug: "shop", name: "Shop", inputs: ["."], demoCandidates: [], repos: [], videos: [], injectionHints: [], pages: [] });
@@ -32,7 +32,7 @@ fs.appendFileSync('invocations.jsonl',JSON.stringify(args)+'\\n');
 const emit=v=>process.stdout.write(JSON.stringify(v)+'\\n');
 if(args[0]==='evidence') {
  const sha=createHash('sha256').update(fs.readFileSync(args[2])).digest('hex');
- emit({verdicts:[{policy:{id:'kane-judge-claims'},pack:{sha256:sha},result:mode==='failed'?'fail':'pass',gates:['no-failed-flows','no-unjudged-flows','no-skipped-flows','every-passed-flow-has-checks'].map(id=>({id,status:'pass'})),failed_gates:mode==='failed'?['no-failed-flows']:[],warnings:[],errored_gates:[]}]});
+ emit({verdicts:[{policy:{id:'kane-judge-claims'},pack:{sha256:mode==='another-pack'?'0'.repeat(64):sha},result:mode==='failed'?'fail':'pass',gates:['no-failed-flows','no-unjudged-flows','no-skipped-flows','every-passed-flow-has-checks'].map(id=>({id,status:'pass'})),failed_gates:mode==='failed'?['no-failed-flows']:[],warnings:[],errored_gates:[]}]});
  process.exit(mode==='failed'?1:0);
 }
 if(mode==='setup')process.exit(2);
@@ -68,6 +68,16 @@ describe("bundled CLI process contract", () => {
     expect(Object.keys(r.flows)).toEqual(["01-cart", "02-pay"]);
     expect(r.flows["01-cart"].asserts).toEqual({ total: 1, passed: 1 });
     expect(r.runs[0].packSha256).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it.each([
+    ["another-pack", "different evidence pack"],
+    ["contradictory-pack", "evidence pack contains a flow that did not pass"],
+  ] as const)("refuses %s before returning success to CI", async (mode, reason) => {
+    const h = await harness(mode);
+    const r = await h.call("run", h.dir, "--gate");
+    expect(r.exitCode).toBe(1);
+    expect(r.stdout).toContain(reason);
   });
 
   it("returns exit 1 on a completed failed gate", async () => {
