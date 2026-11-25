@@ -9,7 +9,7 @@ import { chromium } from "playwright-core";
 async function serveRelease() {
   const root = join(import.meta.dirname, "../public-demo");
   const files = new Set(await readdir(root, { recursive: true }));
-  const types = { ".html": "text/html", ".js": "text/javascript", ".png": "image/png", ".txt": "text/plain" };
+  const types = { ".html": "text/html", ".js": "text/javascript", ".png": "image/png", ".txt": "text/plain", ".woff2": "font/woff2" };
   const server = createServer(async (req, res) => {
     const name = new URL(req.url, "http://localhost").pathname.slice(1) || "index.html";
     if (!files.has(name)) return res.writeHead(404).end();
@@ -31,6 +31,15 @@ try {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(url);
+  const before = page.getByRole("radio", { name: "Before repair" });
+  const after = page.getByRole("radio", { name: "After repair" });
+  await before.focus();
+  await before.press("ArrowRight");
+  assert.ok(await after.isChecked(), "Keyboard should select the repaired capture");
+  await page.getByAltText(/repaired checkout capture/).evaluate(img => img.decode());
+  assert.ok(await page.getByText("Total visible at $42.80", { exact: false }).isVisible());
+  await after.press("ArrowLeft");
+  assert.ok(await before.isChecked());
   const button = page.getByRole("button", { name: "Verify both evidence packs" });
   const result = page.locator("#pack-result");
   if (server) {

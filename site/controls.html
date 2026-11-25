@@ -1,12 +1,10 @@
-<section class="proof" aria-labelledby="pack-heading" id="proof">
-  <h2 id="pack-heading">Verify the two recorded runs</h2>
-  <p>Your browser can open Kane’s evidence from the broken deployment and the repaired build, compare the exact checkout test, and read both outcomes. The two scrubbed packs download only when you press Verify.</p>
+<div class="proof" id="proof">
   <button class="btn primary" type="button" id="check-packs">Verify both evidence packs</button>
   <p id="pack-result" role="status"></p>
   <details><summary>Inspect the test and the agent’s repair</summary>
-    <p>Kane reported the missing row. The agent read the screenshot and experiment configuration, changed the experiment from running to stopped, and reran the promo flow. It then ran all four active flows with healing off.</p>
+    <p>Verify downloads both recorded packs, compares their checkout test and reads each outcome. You can also inspect the underlying files.</p>
     <a href="proof/checkout-test.txt">Exact checkout test</a> · <a href="proof/checkout-repair.txt">One-line repair</a> · <a href="deployed-promo-scorecard.html#claim-c4">Failed control report</a>
   </details>
-</section>
+</div>
 <script type="application/json" id="controls">{{CONTROLS}}</script>
 <script defer src="check-controls.js"></script>

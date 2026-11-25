@@ -5,7 +5,7 @@ import { build } from "esbuild";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
-import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 
 const EXAMPLE = "examples/judged/inkwell-shop";
 const PREFLIGHT = "examples/preflight/inkwell-shop";
@@ -61,11 +61,14 @@ const verdict = await readFile(`${EXAMPLE}/verdict.json`, "utf8");
 const template = await readFile("site/index.template.html", "utf8");
 const scan = await json("scan.json");
 // Function replacements: the JSON holds "$" amounts, which a replacement string would read as patterns.
+const css = await readFile("site/site.css", "utf8");
 const page = template
+  .replace("{{SITE_CSS}}", () => css)
   .replace("{{VERDICT}}", () => embed(verdict))
   .replace("{{RESULTS}}", () => embed(results))
   .replace("{{SCAN}}", () => embed(scan));
-await writeFile("docs/index.html", page, "utf8");
+const offlineProof = '<a class="btn primary" href="sample-preflight-scorecard.html#claim-c4">Watch the failed and repaired checkout</a>';
+await writeFile("docs/index.html", page.replace("<!-- HOSTED_CONTROLS -->", offlineProof), "utf8");
 for (const [from, to] of [[`${EXAMPLE}/scorecard.html`, "docs/sample-scorecard.html"], [`${EXAMPLE}/report.md`, "docs/sample-report.md"], [`${PREFLIGHT}/scorecard.html`, "docs/sample-preflight-scorecard.html"], [`${PREFLIGHT}/report.md`, "docs/sample-preflight-report.md"]]) {
   await writeFile(to, await readFile(from));
 }
@@ -78,6 +81,7 @@ await mkdir(join(output, "proof"), { recursive: true });
 for (const name of ["playground.js", "checkout-before.png", "checkout-after.png", "sample-scorecard.html", "sample-preflight-scorecard.html"]) {
   await copyFile(join("docs", name), join(output, name));
 }
+await cp("docs/fonts", join(output, "fonts"), { recursive: true });
 const negative = "examples/negative/deployed-promo";
 const controls = [];
 for (const [label, project, status] of [["deployed", negative, "failed"], ["repaired", PREFLIGHT, "passed"]]) {
