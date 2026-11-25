@@ -3,7 +3,7 @@
 A pre-flight leaves one Kane flow per claim in `projects/<slug>/flows/`. Those are regression tests for the promises in your README. `kane-judge run --gate` replays them and sets the exit code:
 
 - exit 0: every flow passed, each with at least one passed assert step, and Kane's verdict engine judged the sealed evidence pack a pass;
-- exit 1: anything else, including a run Kane's verdict engine did not judge.
+- exit 1 for a completed run that fails the gate; exit 2 for a setup, runner or input error. Both stop the push.
 
 A replay takes about half a minute and a few Kane credits. Kane re-authors a flow only when you change its text.
 
@@ -17,7 +17,7 @@ export KANE_JUDGE_PROJECT=projects/my-app
 git push        # runs the gate first; a failing claim stops the push
 ```
 
-The hook is a thin wrapper around `kane-judge run --gate`, which we ran by hand on the sample shop: it exits 0 on the fixed build and 1 against the deployed one, which still has the bug. The hook itself has not been run from a real `git push` yet.
+The hook is a thin wrapper around `kane-judge run --gate`, which we ran by hand on the sample shop: it exits 0 on the fixed build and 1 against the deployed one, which still has the bug. The integration suite pushes to a temporary bare Git remote and checks the remote ref for passing, failing and missing-tool cases.
 
 ## On every deployment
 

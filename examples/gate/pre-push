@@ -1,6 +1,6 @@
 #!/bin/sh
 # Kane Judge gate for `git push`: the push goes through only if every claim flow
-# still passes and Kane's verdict engine signs the run.
+# still passes and Kane's verdict engine passes the run.
 #
 #   cp examples/gate/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
 #
@@ -10,8 +10,8 @@
 PROJECT="${KANE_JUDGE_PROJECT:-projects/my-app}"
 
 if ! command -v kane-judge >/dev/null 2>&1; then
-  echo "pre-push: kane-judge is not installed (npm install -g github:KaranSinghBisht/kane-judge); push not checked." >&2
-  exit 0
+  echo "pre-push: kane-judge is not installed (npm install -g github:KaranSinghBisht/kane-judge); push blocked." >&2
+  exit 2
 fi
 
 if [ -n "$KANE_JUDGE_START_URL" ]; then

@@ -130,13 +130,14 @@ const plain = (text: string) => text.replace(/[*_`]/g, "").replace(/\s+/g, " ").
  * A withdrawn claim has to be gone from the builder's README: if the words the
  * claim quotes are still there, the promise still stands.
  */
-export function checkWithdrawn(verdict: Verdict, readme: string | undefined): string[] {
+export function checkWithdrawn(verdict: Verdict, readme: string | undefined, original: string | undefined): string[] {
   const text = readme === undefined ? undefined : plain(readme);
   return verdict.claims.flatMap((claim, i) => {
     if (claim.status !== "withdrawn") return [];
     const quote = QUOTED.exec(claim.source)?.[1];
     if (!quote || !plain(quote)) return [`${where(claim, i)}: quote the exact withdrawn promise in its source so it can be checked against the README.`];
     if (text === undefined) return [`${where(claim, i)}: the current README is missing. Restore it or include README.after.md in the shared project to verify the withdrawal.`];
+    if (original === undefined || !plain(original).includes(plain(quote))) return [`${where(claim, i)}: the quoted promise must appear in the original scanned README to verify a withdrawal.`];
     if (!text.includes(plain(quote))) return [];
     return [`${where(claim, i)}: marked withdrawn, but the README still says "${quote.slice(0, 80)}${quote.length > 80 ? "…" : ""}". Take the promise out of the README first.`];
   });
@@ -173,7 +174,9 @@ export function checkScoreEvidence(verdict: Verdict): string[] {
   const ids = new Set(verdict.claims.map((claim) => claim.id.toLowerCase()));
   return verdict.scores.flatMap((score, i) => {
     const cited = (score.why.match(/\bc\d+\b/gi) ?? []).map((id) => id.toLowerCase());
-    if (cited.some((id) => ids.has(id)) || score.unverified) return [];
+    const unknown = cited.filter(id => !ids.has(id));
+    if (unknown.length) return [`scores[${i}] (${score.criterion}): the score cites unknown claims ${[...new Set(unknown)].join(", ")}.`];
+    if (cited.length || score.unverified) return [];
     return [`scores[${i}] (${score.criterion}): cite the claims this score rests on in "why" (for example "c1 and c2 proven, c3 broken"), or say what you couldn't verify in "unverified".`];
   });
 }

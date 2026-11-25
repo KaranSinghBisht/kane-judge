@@ -176,6 +176,7 @@ export async function scanSubmission(opts: ScanOptions): Promise<ScanOutput> {
   const kane = readme && opts.useCases ? await opts.useCases(readme) : undefined;
   const result: ScanResult = {
     version: 1,
+    preflightReadme: opts.preflight ? repos[0]?.readme : undefined,
     mode: opts.preflight ? "preflight" : "judge",
     useCases: kane?.useCases.length ? kane.useCases : undefined,
     useCasesNote: kane?.note,

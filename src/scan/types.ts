@@ -51,6 +51,8 @@ export interface ScanResult {
   useCases?: KaneUseCase[];
   /** Why there is no use-case list, when Kane could not be asked. */
   useCasesNote?: string;
+  /** Original builder README, used to establish what a pre-flight withdrawal actually removed. */
+  preflightReadme?: string;
   /**
    * `preflight` only when the builder scanned their own folder with --preflight.
    * `report` holds the verdict to this, so a verdict can't declare itself a pre-flight.
@@ -79,6 +81,7 @@ export function isScanResult(value: unknown): value is ScanResult {
   const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
   const strings = (v: unknown) => Array.isArray(v) && v.every(s => typeof s === "string");
   if (!object(value) || value.version !== 1 || typeof value.scannedAt !== "string" || typeof value.slug !== "string" || typeof value.name !== "string") return false;
+  if (value.preflightReadme !== undefined && typeof value.preflightReadme !== "string") return false;
   if (value.mode !== undefined && value.mode !== "judge" && value.mode !== "preflight") return false;
   if (![value.inputs, value.demoCandidates, value.videos, value.injectionHints].every(strings)) return false;
   if (!Array.isArray(value.repos) || !value.repos.every(r => object(r) && typeof r.url === "string" && object(r.commits) && strings(r.commits.authors) && Array.isArray(r.topics) && object(r.languages))) return false;

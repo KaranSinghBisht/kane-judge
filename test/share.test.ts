@@ -182,7 +182,7 @@ describe("kane-judge share", () => {
     const run = must(results.runs[0]);
     expect(run.evidencePath).toBe("packs/run-1.evidence");
     expect(run.sharedPackSha256).toBe(sha(new Uint8Array(await readFile(join(outDir, "packs", "run-1.evidence")))));
-    expect(run.packSha256).toBe(sha(sealedPack()));
+    expect(run.packSha256).toBe(sha(await readFile(join(dir, ".testmuai/evidence/run-1.evidence"))));
     expect(await verifyPacks(outDir, results)).toEqual({ verified: 1, shared: 1, missing: 0, problems: [] });
     expect(leaksIn(new Uint8Array(await readFile(join(outDir, "packs", "run-1.evidence"))), [EMAIL, ACCOUNT, ORG])).toEqual([]);
     const text = await allText(outDir);
@@ -217,6 +217,7 @@ describe("kane-judge share", () => {
     await writeTree(builder, { "README.md": "# Shop\nThe promo promise was removed.\n" });
     const scan = JSON.parse(await readFile(join(dir, "scan.json"), "utf8"));
     scan.mode = "preflight";
+    scan.preflightReadme = "# Shop\nApply SAVE10 at checkout";
     scan.repos = [{ url: builder, fullName: "Shop", topics: [], languages: {}, commits: { sampled: 0, complete: false, authors: [] } }];
     const preflight = JSON.parse(JSON.stringify(verdict));
     preflight.mode = "preflight";

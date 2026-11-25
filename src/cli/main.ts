@@ -11,7 +11,7 @@ import { shareCommand } from "./commands/share.js";
 import { sourceCommand } from "./commands/source.js";
 import { withdrawCommand } from "./commands/withdraw.js";
 
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 
 const HELP = `kane-judge ${VERSION}: judge hackathon projects by using their live demos, with Kane CLI.
 
@@ -30,7 +30,8 @@ Usage:
       --gate exits 1 unless every flow passed and Kane's verdict is a pass (pre-push hooks, CI).
       A gate run turns Kane's self-healing off (--no-adaptive-heal), so a pass is the recorded test
       replayed as recorded; --heal allows healing.
-      Four flows run at a time; the run stops after 9 minutes unless --timeout says otherwise.
+      Default workers: four for investigations and one for gates. Use --parallel N to override.
+      The default timeout is 9 minutes.
   kane-judge withdraw <project-dir> <flow>
       Pre-flight: move a withdrawn claim's flow out of flows/, so runs no longer include it.
   kane-judge report <project-dir>

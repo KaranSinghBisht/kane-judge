@@ -232,13 +232,19 @@ describe("lie 6: proving a claim on another build than the one submitted", () =>
 describe("lie 7: withdrawing a claim the README still makes", () => {
   const withdrawn = verdict({ mode: "preflight", claims: [claim({ status: "withdrawn", fix: { summary: "Removed", files: ["README.md"] } })] });
 
+  const original = "# Shop\nApply SAVE10 at checkout and the summary updates";
+
+  it("refuses a withdrawal with an invented original quotation", () => {
+    expect(checkWithdrawn(withdrawn, "# Shop", "# Shop without the promise").join()).toContain("original scanned README");
+  });
+
   it("is refused while the quoted promise is still in the README", () => {
-    expect(checkWithdrawn(withdrawn, "# Shop\n\n- Apply **SAVE10** at checkout and the\n  summary updates with your discount.\n").join()).toContain("the README still says");
+    expect(checkWithdrawn(withdrawn, "# Shop\n\n- Apply **SAVE10** at checkout and the\n  summary updates with your discount.\n", original).join()).toContain("the README still says");
   });
 
   it("is accepted once the words are gone, and refused when the README cannot be checked", () => {
-    expect(checkWithdrawn(withdrawn, "# Shop\n\n- Browse the catalogue.\n")).toEqual([]);
-    expect(checkWithdrawn(withdrawn, undefined).join()).toContain("current README is missing");
+    expect(checkWithdrawn(withdrawn, "# Shop\n\n- Browse the catalogue.\n", original)).toEqual([]);
+    expect(checkWithdrawn(withdrawn, undefined, original).join()).toContain("current README is missing");
   });
 });
 
@@ -247,6 +253,11 @@ describe("lie 8: a score with nothing under it", () => {
     const empty = checkVerdict(verdict({ claims: [], scores: [{ criterion: "Works", score: 10, max: 10, why: "great" }] }));
     expect(empty.ok).toBe(false);
     if (!empty.ok) expect(empty.errors.join()).toContain("needs at least one claim");
+  });
+
+  it("refuses a made-up score citation alongside a real one", () => {
+    const mixed = verdict({ scores: [{ criterion: "Works", score: 8, max: 10, why: "c1 and c99", unverified: "on mobile" }] });
+    expect(checkScoreEvidence(mixed).join()).toContain("unknown claims c99");
   });
 
   it("caps every criterion at 10, so one of them can't outweigh the rest", () => {

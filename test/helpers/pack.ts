@@ -25,7 +25,8 @@ export function buildPack(files: PackFiles): Uint8Array {
   for (const [name, content] of Object.entries(files)) {
     entries[name] = typeof content === "string" ? strToU8(content) : content;
   }
-  return zipSync(entries);
+  // ZIP timestamps otherwise change fixture hashes when assertions cross a two-second boundary.
+  return zipSync(entries, { mtime: new Date(2026, 0, 1) });
 }
 
 export async function writePack(dir: string, files: PackFiles, name = "exec-1.evidence"): Promise<string> {

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kane Judge · your README makes promises, Kane checks them</title>
-<meta name="description" content="A Claude Code plugin on Kane CLI. Every promise in your README becomes a browser test, the agent fixes what fails, and Kane proves the fix with the same test.">
+<meta name="description" content="A Claude Code plugin on Kane CLI. Trace a missing checkout total from Kane’s failed browser test to the agent’s one-line repair. Verify the recorded runs and try the scorecard checker.">
 <style>
 :root{--bg:#f7f6f3;--card:#fff;--ink:#1d1f23;--muted:#5f6670;--line:#e4e1da;--accent:#2b5d4f;--accent-ink:#fff;
 --ok:#1f7a4d;--ok-bg:#e6f4ec;--bad:#b42318;--bad-bg:#fdecea;--code:#f0eee9}
@@ -20,6 +20,7 @@ p{margin:0 0 12px}
 .lede{font-size:19px;color:var(--muted);max-width:62ch}
 .eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
 .muted{color:var(--muted)}
+.proof{border-top:1px solid var(--line);margin-top:32px}.proof h2{margin-top:26px}.proof details{margin-top:12px}.proof summary{cursor:pointer}.proof p[role=status]{overflow-wrap:anywhere;margin-top:12px}.proof p[role=status]:empty{display:none}
 .actions{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0}
 .btn{display:inline-block;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-weight:600;font-size:15px;cursor:pointer;font-family:inherit}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
@@ -58,12 +59,12 @@ footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-si
 <body>
 <main>
   <div class="eyebrow">Kane Judge · a Claude Code plugin on Kane CLI</div>
-  <h1>Your README makes promises. Kane checks them.</h1>
-  <p class="lede">Each selected claim becomes a plain-English Kane CLI test that runs against your app in real Chrome. The agent fixes what fails, and a fix only counts when Kane passes the same test, unchanged.</p>
+  <h1>Can your demo prove what your README promises?</h1>
+  <p class="lede">Kane Judge turned a shop’s checkout promise into a browser test. Watch the Total disappear, inspect the agent’s repair, then check the evidence yourself.</p>
   <div class="actions">
-    <a class="btn primary" href="sample-preflight-scorecard.html">Open the pre-flight scorecard</a>
+    <a class="btn primary" href="sample-preflight-scorecard.html#claim-c4">Watch the failed and repaired checkout</a>
     <a class="btn" href="sample-scorecard.html">Open the judge scorecard</a>
-    <a class="btn" href="https://github.com/KaranSinghBisht/kane-judge">GitHub</a>
+    <a class="btn" href="#cheat">Try the verdict checker</a>
   </div>
 
   <h2>Where did the $42.80 total go?</h2>
@@ -74,27 +75,7 @@ footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-si
   </div>
   <a href="sample-preflight-scorecard.html#claim-c4">Replay the repaired claim</a>
 
-  <h2>Check it yourself in under a minute</h2>
-  <p class="muted">Nothing to install or sign in to for the first and the third.</p>
-  <div class="grid">
-    <div class="card">
-      <h3>1. Watch Kane's run</h3>
-      <p>Both scorecards are real runs. Under each claim, press play: it steps through the screenshots Kane took, with Kane's own line for each step.</p>
-      <a href="sample-preflight-scorecard.html">Pre-flight: red, fix, green</a><br>
-      <a href="sample-scorecard.html">Judge: 3 of 5 claims proven</a>
-    </div>
-    <div class="card">
-      <h3>2. Re-check it on your machine</h3>
-      <p>Re-reads Kane's evidence pack, has Kane's own verdict engine judge it again if Kane CLI is installed, then tries eight cheats. No account, no credits.</p>
-      <pre># from this v0.3 checkout
-node dist/kane-judge.mjs demo</pre>
-    </div>
-    <div class="card">
-      <h3>3. Try to cheat it, right here</h3>
-      <p>The agent doesn't write the scorecard. A checker does, and it refuses a verdict that says more than Kane saw. The same code runs in this page.</p>
-      <a href="#cheat">Jump to the playground</a>
-    </div>
-  </div>
+  <!-- HOSTED_CONTROLS -->
 
   <h2>The loop</h2>
   <ol class="loop">
@@ -107,7 +88,7 @@ node dist/kane-judge.mjs demo</pre>
   <pre>/kane-judge:preflight . --live http://localhost:3000</pre>
 
   <h2 id="cheat">Try to cheat the scorecard</h2>
-  <p class="muted">This is the real <code>verdict.json</code> from the judge run: Kane proved 3 of 5 claims. Edit it, or press a button, and the checks from <code>kane-judge report</code> run in your browser against Kane's recorded results. Pack hashes, sealed result comparisons and the builder's current README need files on disk; those checks run in the CLI.</p>
+  <p class="muted">This is the real <code>verdict.json</code> from the judge run: Kane proved 3 of 5 claims. Edit it, or press a button, and the checks from <code>kane-judge report</code> run in your browser against Kane's recorded results. This editor checks claim rules against the recorded results. The CLI also checks the project files, evidence packs and withdrawn README text.</p>
   <div class="presets" id="presets"></div>
   <div class="play">
     <textarea id="verdict" spellcheck="false" aria-label="verdict.json"></textarea>

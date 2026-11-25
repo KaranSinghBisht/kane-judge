@@ -13,3 +13,8 @@ coverage/
 # Local agent tooling state
 .omc/
 **/.omc/
+.vercel
+.env*
+
+# Generated static Vercel deployment
+/public-demo/

@@ -2,8 +2,10 @@
 // checks, compiled for the browser) and index.html with the committed run's
 // verdict, results and scan embedded.
 import { build } from "esbuild";
+import { createHash } from "node:crypto";
+import { join } from "node:path";
 import { execFileSync } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 
 const EXAMPLE = "examples/judged/inkwell-shop";
 const PREFLIGHT = "examples/preflight/inkwell-shop";
@@ -68,3 +70,31 @@ for (const [from, to] of [[`${EXAMPLE}/scorecard.html`, "docs/sample-scorecard.h
   await writeFile(to, await readFile(from));
 }
 process.stdout.write("built docs/index.html and docs/playground.js\n");
+
+// Publish a curated static directory. Raw workspaces, account data and audit notes stay out.
+const output = "public-demo";
+await rm(output, { recursive: true, force: true });
+await mkdir(join(output, "proof"), { recursive: true });
+for (const name of ["playground.js", "checkout-before.png", "checkout-after.png", "sample-scorecard.html", "sample-preflight-scorecard.html"]) {
+  await copyFile(join("docs", name), join(output, name));
+}
+const negative = "examples/negative/deployed-promo";
+const controls = [];
+for (const [label, project, status] of [["deployed", negative, "failed"], ["repaired", PREFLIGHT, "passed"]]) {
+  const records = JSON.parse(await readFile(join(project, "kane-results.json"), "utf8"));
+  const run = records.runs.at(-1);
+  const bytes = await readFile(join(project, run.evidencePath));
+  const sha256 = createHash("sha256").update(bytes).digest("hex");
+  if (sha256 !== run.sharedPackSha256 || run.outcome !== status || run.heal !== false) {
+    throw new Error(`Expected the scrubbed, healing-off ${label} control`);
+  }
+  const file = `proof/${label}-${sha256.slice(0, 12)}.evidence`;
+  await writeFile(join(output, file), bytes);
+  controls.push({ label, file, sha256, status });
+}
+await copyFile(join(negative, "scorecard.html"), join(output, "deployed-promo-scorecard.html"));
+await copyFile(join(PREFLIGHT, "flows/04-apply-promo_test.md"), join(output, "proof/checkout-test.txt"));
+await copyFile(join(PREFLIGHT, "checkout-repair.patch"), join(output, "proof/checkout-repair.txt"));
+await build({ entryPoints: ["site/check-controls.js"], outfile: join(output, "check-controls.js"), bundle: true, platform: "browser", minify: true });
+const controlsHtml = (await readFile("site/controls.html", "utf8")).replace("{{CONTROLS}}", () => embed(controls));
+await writeFile(join(output, "index.html"), page.replace("<!-- HOSTED_CONTROLS -->", () => controlsHtml));

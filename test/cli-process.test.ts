@@ -1,4 +1,5 @@
-import { chmod, readFile } from "node:fs/promises";
+import { execFileSync, spawnSync } from "node:child_process";
+import { chmod, copyFile, readFile, symlink } from "node:fs/promises";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { runCommand } from "../src/shared/proc.js";
@@ -137,5 +138,34 @@ describe("bundled CLI process contract", () => {
     expect((await h.call("run", h.dir)).exitCode).toBe(2);
     expect(await readFile(join(h.dir, ".kane-judge/running.json"), "utf8")).toBe(marker);
     await expect(readFile(join(h.dir, "invocations.jsonl"))).rejects.toThrow();
+  });
+});
+
+describe("installed pre-push hook", () => {
+  it.each(["passed", "failed", "missing"] as const)("checks the remote ref for a %s gate", async mode => {
+    const h = await harness(mode === "failed" ? "failed" : "passed");
+    const remote = await makeDir();
+    const env = {
+      ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1",
+      KANE_JUDGE_PROJECT: h.dir, PATH: mode === "missing" ? "/usr/bin:/bin" : `${h.dir}:${process.env.PATH}`,
+    };
+    const options = { cwd: h.dir, env, encoding: "utf8" as const };
+    const git = (...args: string[]) => execFileSync("git", args, options).trim();
+    git("init", "--bare", "--quiet", remote);
+    git("init", "--quiet", "-b", "main");
+    git("-c", "user.name=Gate Test", "-c", "user.email=gate@example.invalid", "commit", "--quiet", "--allow-empty", "-m", "Gate fixture");
+    const hook = join(h.dir, ".git/hooks/pre-push");
+    await copyFile(join(import.meta.dirname, "../examples/gate/pre-push"), hook);
+    await chmod(hook, 0o755);
+    if (mode !== "missing") await symlink(cli, join(h.dir, "kane-judge"));
+    const push = spawnSync("git", ["push", remote, "main"], options);
+    if (mode === "passed") {
+      expect(push.status, push.stderr).toBe(0);
+      expect(git("--git-dir", remote, "rev-parse", "refs/heads/main")).toBe(git("rev-parse", "HEAD"));
+    } else {
+      expect(push.status).not.toBe(0);
+      expect(push.stdout + push.stderr).toContain(mode === "missing" ? "push blocked" : "Gate: FAIL");
+      expect(git("--git-dir", remote, "for-each-ref", "refs/heads")).toBe("");
+    }
   });
 });

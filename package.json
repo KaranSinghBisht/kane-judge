@@ -1,6 +1,6 @@
 {
   "name": "kane-judge",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Judge hackathon projects by using their live demos, and pre-flight your own: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin.",
   "type": "module",
   "license": "Apache-2.0",
@@ -38,7 +38,7 @@
     "audit:mutations": "node scripts/audit-mutations.mjs",
     "test:package": "node scripts/smoke-package.mjs",
     "build:site": "node scripts/build-site.mjs",
-    "test:browser": "node scripts/check-browser.mjs"
+    "test:browser": "node scripts/check-browser.mjs && node scripts/check-hosted-demo.mjs"
   },
   "keywords": [
     "claude-code",

@@ -28,6 +28,12 @@ try {
   const installed = run(cli, ["--version"], { cwd: dir, env: { ...process.env, PATH: dirname(process.execPath) } }).trim();
   if (installed !== version) throw new Error("The installed command and bundled CLI disagree on their version");
   const expected = JSON.parse(readFileSync("package.json", "utf8")).version;
+  const installedDir = join(prefix, "node_modules/kane-judge/.claude-plugin");
+  const plugin = JSON.parse(readFileSync(join(installedDir, "plugin.json"), "utf8"));
+  const marketplace = JSON.parse(readFileSync(join(installedDir, "marketplace.json"), "utf8"));
+  if (plugin.version !== expected || marketplace.plugins.find(entry => entry.name === plugin.name)?.version !== expected) {
+    throw new Error("The plugin or marketplace version differs from the installed package");
+  }
   if (version !== expected) throw new Error(`Bundled CLI version ${version} differs from package ${expected}`);
   const output = run(process.execPath, [cli, "demo", "--no-open"], options);
   if (!output.includes("8 of 8 refused") || !output.includes("evidence pack(s) re-read")) throw new Error("The packed demo did not verify its evidence and refuse every cheat.");

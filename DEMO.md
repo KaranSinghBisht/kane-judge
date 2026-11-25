@@ -1,4 +1,15 @@
-# Demo: reproduce the video
+# Demo guide
+
+## One minute with the hosted demo
+
+1. Open [Kane Judge](https://kane-judge.vercel.app/#proof) and press **Verify both evidence packs**. The page hashes the downloaded share copies, reads each recorded result and compares the test text inside them.
+2. Expand **Inspect the test and the agent’s repair**. The deployed shop failed; the repaired build passed three assertions. Open the one-line change or the failed control report.
+3. Choose **Replay the repaired claim** to compare Kane’s screenshots. Before the fix the summary ends at Shipping. After the fix Total is $42.80.
+4. Return to the [verdict checker](https://kane-judge.vercel.app/#cheat) and select **Call a broken claim proven**. The checker names the flow that contradicts the edit.
+
+The intentionally defective [shop](https://inkwell-shop.vercel.app) is the test subject. The hosted demo above is the project submitted for judging.
+
+## Reproduce the agent workflow
 
 The video shows one pre-flight from start to finish, then the checks that keep its scorecard honest. Every step below is a command you can run. Scenes 1 and 2 need a Kane account and use about 500 credits together; scene 3 needs nothing.
 

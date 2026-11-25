@@ -1,11 +1,14 @@
 # Kane Judge gate for a deployed preview: when a deployment succeeds, replay the
 # claim flows against its URL. The job fails unless every flow passes and Kane's
-# verdict engine signs the run.
+# verdict engine passes the run.
 #
 # Copy to .github/workflows/kane-gate.yml and add two repository secrets from your
 # TestMu AI account: LT_USERNAME and LT_ACCESS_KEY.
 name: Kane gate
 on: deployment_status
+
+permissions:
+  contents: read
 
 jobs:
   gate:
@@ -13,8 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.deployment.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 22
       - name: Install Kane CLI and Kane Judge
@@ -25,7 +31,9 @@ jobs:
           LT_USERNAME: ${{ secrets.LT_USERNAME }}
           LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
       - name: Replay the claim flows against the deployment
-        run: kane-judge run projects/my-app --start-url "$PREVIEW_URL" --gate
+        run: |
+          : "${PREVIEW_URL:?Deployment status has no environment_url}"
+          kane-judge run projects/my-app --start-url "$PREVIEW_URL" --gate
         env:
           PREVIEW_URL: ${{ github.event.deployment_status.environment_url }}
       - name: Keep what Kane found

@@ -16,7 +16,7 @@ The original 494 passing tests were useful, mostly small parser, evidence-extrac
 
 Development checks need Node 22.12+ or another version supported by Vitest 5. The bundled CLI needs Node 20+. The packaged executable was tested on Node 20 and 22. GitHub Actions runs the build and package checks on Linux with Node 22 and 24, and the checkout and scorecard replay on Node 22. [See runs for main](https://github.com/KaranSinghBisht/kane-judge/actions/workflows/check.yml?query=branch%3Amain).
 
-The v0.3 marketplace was also installed from the private GitHub repository into a fresh Claude Code config using an authorized Git identity. The installed plugin reported version 0.3.0 and its bundled demo verified the pack and refused all eight edits.
+The v0.3 marketplace was also installed from the private GitHub repository into a fresh Claude Code config using an authorized Git identity. Its bundled demo verified the pack and refused all eight edits. The package smoke check also compares the installed CLI, plugin and marketplace versions.
 
 ```bash
 npm ci
@@ -51,6 +51,18 @@ Re-run a shared pack without logging in:
 cd examples/preflight/inkwell-shop
 kane-cli evidence verdict packs/622e6348-7301-4141-9df3-431a40ba3743.evidence --policy kane-judge-claims.policy.yaml
 ```
+
+## Check the hosted release
+
+The browser test serves the generated `public-demo/` directory locally, checks that a damaged download is refused, retries with the real packs and follows the evidence links. To exercise the deployed site in a fresh browser:
+
+```sh
+node scripts/check-hosted-demo.mjs https://kane-judge.vercel.app/
+```
+
+The independent [Kane acceptance run](examples/hosted-demo/README.md) includes the actual production flow, screenshot and scrubbed pack. GitHub Actions runs the Playwright checks without a Kane account.
+
+To rebuild the Vercel demo, import the repository root with its committed `vercel.json`. The build writes only the visitor-facing pages and the two scrubbed shop controls to `public-demo/`. The bundled CLI and local checks also work from a clone.
 
 ## Release gates still outside local checks
 

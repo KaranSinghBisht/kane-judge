@@ -2,6 +2,8 @@
 
 Kane Judge is a Claude Code plugin for checking the promises in a project's README. Kane CLI drives Chrome, captures what a user sees, and gives the agent the failed step. In pre-flight mode the agent can repair your app. A repair counts when the same flow passes.
 
+**[Try the live demo](https://kane-judge.vercel.app/)** in your browser. Press **Verify both evidence packs** to compare the checkout test and its outcome on two builds. Then try changing the verdict in the playground. No account or installation is needed. [See Kane’s own acceptance run on this demo](examples/hosted-demo/README.md).
+
 ## See what Kane caught
 
 A shop promised that applying **SAVE10** would update the order total. Its API calculated the right price. In the browser, a layout experiment deleted the Total row as soon as the discount appeared.
@@ -60,7 +62,7 @@ claude          # then: /kane-judge:preflight . --live http://localhost:4173
 /kane-judge:judge https://github.com/KaranSinghBisht/kane-judge/tree/main/examples/inkwell-shop
 ```
 
-Each takes 8 to 11 minutes and 200 to 300 Kane credits (a new account has 10,000). Start Claude Code with `KANE_JUDGE_HEADED=1 claude` to watch Kane drive Chrome. [`DEMO.md`](DEMO.md) walks through both, step by step.
+Our sample runs took 8–11 minutes and roughly 200–300 Kane credits. Start Claude Code with `KANE_JUDGE_HEADED=1 claude` to watch Kane drive Chrome. [`DEMO.md`](DEMO.md) walks through both, step by step.
 
 ## How it works
 

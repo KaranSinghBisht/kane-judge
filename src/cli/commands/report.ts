@@ -25,6 +25,15 @@ async function builderReadme(scan: ScanResult | undefined, paths: ProjectPaths):
   return scan?.mode === "preflight" ? readFile(join(paths.dir, "README.after.md"), "utf8").catch(() => undefined) : undefined;
 }
 
+/** Older scans saved the original README as a named section in submission.md. */
+async function originalReadme(scan: ScanResult, paths: ProjectPaths): Promise<string | undefined> {
+  if (scan.preflightReadme !== undefined) return scan.preflightReadme;
+  const name = scan.repos[0]?.fullName;
+  if (!name) return undefined;
+  const submission = await readFile(paths.submission, "utf8").catch(() => "");
+  return submission.split(`\n## README (${name})\n`)[1]?.split(/\n## README \([^\n]*\)\n/)[0];
+}
+
 async function readOptional(path: string, what: string, valid: (v: unknown) => boolean): Promise<unknown> {
   let raw: unknown;
   try {
@@ -63,7 +72,8 @@ export async function checkProject(paths: ProjectPaths): Promise<Loaded> {
   const errors = [
     ...checkMode(checked.verdict, scan),
     ...checkAgainstKane(checked.verdict, results),
-    ...checkWithdrawn(checked.verdict, await builderReadme(scan, paths)),
+    ...(checked.verdict.claims.some(claim => claim.status === "withdrawn")
+      ? checkWithdrawn(checked.verdict, await builderReadme(scan, paths), await originalReadme(scan, paths)) : []),
     ...checkCoverage(checked.verdict, scan),
     ...checkScoreEvidence(checked.verdict),
     ...packs.problems,
