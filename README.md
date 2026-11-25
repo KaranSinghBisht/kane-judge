@@ -6,7 +6,7 @@ Kane Judge is a Claude Code plugin for checking the promises in a project's READ
 
 ## See what Kane caught
 
-A shop promised that applying **SAVE10** would update the order total. Its API calculated the right price. In the browser, a layout experiment deleted the Total row as soon as the discount appeared.
+We gave two models our sample shop's README, three times each. None of the six reviews identified either planted defect. Two said the promo code worked. When Kane tried **SAVE10** in Chrome, the pricing API calculated the right discount and a layout experiment deleted the Total row. Kane also found that the promised order-history page was missing. [Prompt and all six reviews](examples/ab-readme-only/README.md) · [Browser findings](examples/judged/inkwell-shop/report.md)
 
 | Before the repair | After the repair |
 | --- | --- |
