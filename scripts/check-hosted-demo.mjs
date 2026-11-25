@@ -31,6 +31,11 @@ try {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(url);
+  await page.getByRole("link", { name: "Judge a submission" }).click();
+  assert.match(await page.locator("#install").innerText(), /\/kane-judge:judge/);
+  await page.getByRole("link", { name: "Promo updates the total" }).click();
+  await page.locator("#claim-c3").filter({ hasText: /broken/i }).waitFor();
+  await page.goBack();
   const before = page.getByRole("radio", { name: "Before repair" });
   const after = page.getByRole("radio", { name: "After repair" });
   await before.focus();

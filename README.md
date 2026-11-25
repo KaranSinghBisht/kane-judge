@@ -1,8 +1,15 @@
 # Kane Judge
 
-Kane Judge is a Claude Code plugin for checking the promises in a project's README. Kane CLI drives Chrome, captures what a user sees, and gives the agent the failed step. In pre-flight mode the agent can repair your app. A repair counts when the same flow passes.
+Kane Judge is a Claude Code plugin for judging other teams’ hackathon projects. Give it a submission page or GitHub repository and your track rubric. The agent picks the core promises, uses Kane CLI to try the live demo in Chrome, investigates surprising results, and returns a scorecard with evidence and questions for the human panel.
 
-**[Try the live demo](https://kane-judge.vercel.app/)** in your browser. Press **Verify both evidence packs** to compare the checkout test and its outcome on two builds. Then try changing the verdict in the playground. No account or installation is needed. [See Kane’s own acceptance run on this demo](examples/hosted-demo/README.md).
+```text
+/kane-judge:judge <submission-or-repo-url> --live <demo-url>
+/kane-judge:board
+```
+
+Place your event’s criteria in `rubric.md` in the judging folder. The board compares judged projects by their share of proven claims. Judges make the final call.
+
+**[Explore the recorded sample scorecard](https://kane-judge.vercel.app/sample-scorecard.html)**. Kane proved three of the shop’s five claims and found two broken promises. [Inspect the live example and verdict checker](https://kane-judge.vercel.app/). Builders can also run pre-flight on their own code to repair a defect and verify it with the same test.
 
 ## See what Kane caught
 
@@ -171,7 +178,7 @@ Kane writes the signed-in account into every evidence pack, so packs can't simpl
 kane-judge share projects/my-app
 ```
 
-writes a copy of the project you can commit or send: flows, results, verdict, scorecard and the evidence packs, with the Kane account and your machine's paths removed, and credentials and request/response bodies removed from HAR logs. Review screenshots and application-specific text for sensitive data before publishing. Kane's own tools accept the copy: `kane-cli evidence validate` reports the pack valid, and anyone can have Kane's verdict engine judge it again without an account or credits. `kane-judge demo <folder>` re-checks a copy someone sent you.
+writes a copy of the project you can commit or send: flows, results, verdict, scorecard and the evidence packs, with the Kane account and your machine's paths removed, and credentials and request/response bodies removed from HAR logs. Export refuses populated secret variables in standalone or packed test definitions. Review screenshots and application-specific text for sensitive data before publishing. Kane's own tools accept the copy: `kane-cli evidence validate` reports the pack valid, and anyone can have Kane's verdict engine judge it again without an account or credits. `kane-judge demo <folder>` re-checks a copy someone sent you.
 
 ## How it uses Kane CLI
 
@@ -186,7 +193,7 @@ writes a copy of the project you can commit or send: flows, results, verdict, sc
 | `kane-cli evidence validate` | Confirms a share copy is still a valid pack. |
 | `--no-adaptive-heal` | The gate replays with self-healing off: a replay miss fails instead of being re-authored into a pass. |
 | `--override-start-url` | `kane-judge run --start-url <url>` replays the same flows against another build: a local fix first, then the deployed demo. |
-| Test Manager share links | One per claim, so anyone can open Kane's own copy of the run. |
+| Test Manager share links | Optional hosted run links can expire. The exported screenshots, step replays and scrubbed evidence packs can be reviewed independently. |
 
 ## The CLI
 

@@ -5,24 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Cpath fill='%23742a37' d='M0 0h40v32L20 44 0 32z'/%3E%3Ctext x='7' y='30' font-family='Georgia,serif' font-style='italic' font-size='32' fill='%23fff7e6'%3EK%3C/text%3E%3C/svg%3E">
 <meta name="theme-color" content="#f7f3e9">
-<title>Kane Judge · Browser evidence for README claims</title>
-<meta name="description" content="Inspect a checkout defect, compare the recorded browser runs and verify the repair yourself with Kane Judge.">
+<title>Kane Judge · An agentic judge for hackathon submissions</title>
+<meta name="description" content="Judge a hackathon submission against your rubric. Kane opens its live demo, tests the team’s claims and records evidence for the human panel.">
 <link rel="preload" href="fonts/newsreader-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>{{SITE_CSS}}</style>
 </head>
 <body id="top">
-<a class="skip" href="#case">Skip to the case</a>
+<a class="skip" href="#judge">Skip to judging</a>
 <header class="mast wrap">
   <a class="brand" href="#top"><span class="mark" aria-hidden="true">K</span> Kane Judge</a>
-  <nav aria-label="Main navigation"><a href="#case">Case file</a><a href="#cheat">Playground</a><a class="install-link" href="#install">Install plugin <span aria-hidden="true">↘</span></a></nav>
+  <nav aria-label="Main navigation"><a href="#case">Example</a><a href="#cheat">Playground</a><a class="install-link" href="#install">Install plugin <span aria-hidden="true">↘</span></a></nav>
 </header>
 <main class="wrap">
+  <section class="case" id="judge" aria-labelledby="judge-title">
+    <div class="lead">
+      <p class="kicker"><span class="signal"></span> Hackathon judging · Claude Code plugin</p>
+      <h1 id="judge-title">A judge that <em>tries the demo.</em></h1>
+      <p class="dek">Give the agent a submission and your track rubric. It reads the team’s claims, drives their live demo with Kane CLI, and brings the panel a scorecard with browser evidence.</p>
+      <a class="btn primary" href="#install">Judge a submission</a>
+    </div>
+    <aside class="sample" aria-label="Recorded sample scorecard">
+      <p class="kicker">Recorded scorecard · Sample submission</p>
+      <h2>Inkwell Supply Co.</h2>
+      <p>Three of five claims proven on the submitted demo.</p>
+      <ul>
+        <li><a href="sample-scorecard.html#claim-c1">Catalogue and cart</a><strong>Proven</strong></li>
+        <li><a href="sample-scorecard.html#claim-c2">Order summary</a><strong>Proven</strong></li>
+        <li><a href="sample-scorecard.html#claim-c3">Promo updates the total</a><strong class="broken">Broken</strong></li>
+        <li><a href="sample-scorecard.html#claim-c4">Card checkout</a><strong>Proven</strong></li>
+        <li><a href="sample-scorecard.html#claim-c5">Order history</a><strong class="broken">Broken</strong></li>
+      </ul>
+      <a href="sample-scorecard.html">Review the full scorecard ↗</a>
+    </aside>
+  </section>
+  <section class="spread judge-method">
+    <div class="rail"><p class="kicker">For the judging panel</p><h2>How a submission <em>gets judged.</em></h2></div>
+    <div class="story">
+      <article><h3>Set the rubric</h3><p>Give the plugin a submission page or repository. Add your track’s criteria in <code>rubric.md</code>. The agent selects the core user journeys and records which promises it leaves untested.</p></article>
+      <article><h3>Investigate</h3><p>Kane tries each selected journey in Chrome. The agent inspects failures, retries a mistaken test, and marks blocked journeys unverifiable. Judge mode evaluates the submitted build as it stands.</p></article>
+      <article><h3>Compare projects</h3><p>Review each claim, its screenshot and the suggested rubric scores. Run <code>/kane-judge:board</code> to compare submissions by their share of proven claims. The human panel decides the prizes.</p></article>
+    </div>
+  </section>
   <section class="case" id="case" aria-labelledby="case-title">
     <div class="lead">
       <p class="kicker"><span class="signal"></span> Inkwell Supply Co. <span>/</span> Checkout</p>
-      <h1 id="case-title">The case of the <em>missing total.</em></h1>
+      <h2 id="case-title">One finding from the <em>sample submission.</em></h2>
       <p class="dek">Six README-only reviews missed it. Kane Judge opened the shop, applied SAVE10, and caught the price disappearing from checkout.</p>
-      <p class="byline">A Claude Code plugin that checks README promises with Kane CLI.</p>
+      <p class="byline">After judging, the builder used pre-flight mode on a local copy to repair the defect. Compare the original and repaired runs below.</p>
       <!-- HOSTED_CONTROLS -->
     </div>
     <div class="exhibit">
@@ -79,11 +108,12 @@
     </tbody></table><a href="https://github.com/KaranSinghBisht/kane-judge/blob/main/docs/kane-cli-findings.md">Read the trial transcripts ↗</a></div>
   </section>
   <section id="install" class="spread install">
-    <div class="rail"><p class="kicker">Install the plugin</p><h2>Check your <em>own build.</em></h2><p>Use desktop Chrome, Node 20+, a TestMu account and Claude Code.</p></div>
+    <div class="rail"><p class="kicker">Install the plugin</p><h2>Judge a <em>submission.</em></h2><p>Use desktop Chrome, Node 20+, a TestMu account and Claude Code.</p></div>
     <div class="commands"><h3>Terminal</h3><pre>npm install -g @testmuai/kane-cli
 kane-cli login --oauth</pre><h3>Claude Code</h3><pre>/plugin marketplace add KaranSinghBisht/kane-judge
 /plugin install kane-judge@kane-judge
-/kane-judge:preflight . --live http://localhost:3000</pre></div>
+/kane-judge:judge &lt;submission-or-repo-url&gt; --live &lt;demo-url&gt;
+/kane-judge:board</pre><p>Run these commands in Claude Code. To apply your event’s criteria, place <code>rubric.md</code> in the judging folder before starting.</p></div>
   </section>
 </main>
 <footer class="wrap"><b>Kane Judge</b><span>KaneCLI Online Hackathon · Apache-2.0</span><a href="https://github.com/KaranSinghBisht/kane-judge">GitHub ↗</a></footer>

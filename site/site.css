@@ -146,3 +146,12 @@ footer b { font: 24px var(--display); color: var(--ink) }
   .spread .rail h2 { margin-bottom: 8px }
   footer { flex-wrap: wrap }
 }
+
+.sample { background: #fffcf5; border: 1px solid var(--rule); border-top: 4px double var(--wine); padding: clamp(20px, 3vw, 46px) }
+.sample h2 { font-size: clamp(32px, 3.4vw, 48px); margin-bottom: 8px }
+.sample ul { padding: 0; list-style: none; margin: 18px 0 }
+.sample li { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-top: 1px solid var(--rule); padding: 9px 0 }
+.sample strong { color: #28563c; font: 600 12px var(--mono) }
+.sample .broken { color: var(--wine) }
+.judge-method { border-top: 1px solid var(--ink) }
+#judge .primary { margin-top: 14px }
