@@ -102,6 +102,13 @@ describe("a share copy of an evidence pack", () => {
     expect(har).toContain('"value":"*/*"');
   });
 
+  it("refuses a packed test with a populated secret and preserves the definition of an unpopulated variable", () => {
+    const pack = (value: string) => buildPack({ [`${TEST}/test.md`]: `---\nvariables:\n  global.password: { secret: true, value: ${value} }\n---\n# Login` });
+    expect(() => sharePack(pack("private-fixture"))).toThrow("populated secret variable");
+    const empty = pack('""');
+    expect(unzipSync(sharePack(empty).bytes)[`${TEST}/test.md`]).toEqual(unzipSync(empty)[`${TEST}/test.md`]);
+  });
+
   it("leaves nothing of the account behind, and gives the same bytes every time", () => {
     expect(leaksIn(shared.bytes, [EMAIL, ACCOUNT, ORG, "/Users/someone"])).toEqual([]);
     expect(leaksIn(sealedPack(), [EMAIL]).length).toBeGreaterThan(0);
@@ -240,6 +247,13 @@ describe("kane-judge share", () => {
     const tampered = await project("0".repeat(64));
     expect(await shareCommand({ dir: tampered.dir })).toBe(2);
     expect(await readdir(`${tampered.dir}-share`).then((names) => names.includes("verdict.json"))).toBe(false);
+  });
+
+  it("publishes no partial copy when a withdrawn flow contains a populated secret", async () => {
+    const { dir } = await project();
+    await writeTree(dir, { "withdrawn/old_test.md": "---\nvariables:\n  global.password: { secret: true, value: 7 }\n---\n# Old flow" });
+    await expect(shareCommand({ dir })).rejects.toThrow("populated secret variable");
+    expect(await readdir(`${dir}-share`)).toEqual([]);
   });
 
   it("needs Kane results to share", async () => {

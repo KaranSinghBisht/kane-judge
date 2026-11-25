@@ -194,7 +194,7 @@ function flowMeta(flow: FlowResult, share: { url: string; latest: boolean } | un
   // On a failing flow the count would mislead: the checks before the failing step did pass.
   const checks = flow.asserts && flow.status === "passed" ? ` · ${flow.asserts.passed} of ${flow.asserts.total} assert step(s) passed` : "";
   const target = flow.startUrl ? ` · run against <code>${escapeHtml(flow.startUrl)}</code> instead of the flow's own URL` : "";
-  const manager = share ? ` · ${link(share.url, share.latest ? "Kane Test Manager run" : "Kane Test Manager (earlier run)")}` : "";
+  const manager = share ? ` · ${link(share.url, share.latest ? "Kane Test Manager run (link may expire)" : "Kane Test Manager (earlier run) · link may expire")}` : "";
   const record = trail ? `<br>Kane's record (UTC): ${escapeHtml(trail)}` : "";
   return `<div class="muted" style="font-size:13px;margin-top:8px">Flow <code>${escapeHtml(flow.name)}</code>${title} · ${escapeHtml(flow.status)} after ${escapeHtml(flow.attempts)} Kane run(s)${checks}${target}${manager}${record}</div>`;
 }

@@ -36,6 +36,28 @@ type Json = Record<string, unknown>;
 
 const isObject = (value: unknown): value is Json => typeof value === "object" && value !== null && !Array.isArray(value);
 
+/** A shared test must keep its original definition hash. Refuse embedded secrets instead of rewriting the test. */
+export function checkShareableDefinition(text: string): void {
+  const header = /^\uFEFF?---[ \t]*\r?\n/.exec(text);
+  if (!header) return;
+  const rest = text.slice(header[0].length);
+  const end = /^---[ \t]*\r?$/m.exec(rest);
+  if (!end) throw new Error("Cannot share a test with incomplete front matter.");
+  let doc: unknown;
+  try {
+    doc = parseYaml(rest.slice(0, end.index));
+  } catch {
+    throw new Error("Cannot share a test with unreadable front matter.");
+  }
+  if (!isObject(doc) || !doc.variables || typeof doc.variables !== "object") return;
+  for (const variable of Object.values(doc.variables)) {
+    if (isObject(variable) && String(variable.secret).toLowerCase() === "true" &&
+        variable.value != null && variable.value !== "") {
+      throw new Error("Cannot share a test containing a populated secret variable. Record a shareable run using public test data.");
+    }
+  }
+}
+
 /** The account values Kane wrote into the pack's result.yaml files. */
 function identityValues(files: Record<string, Uint8Array>): string[] {
   const found = new Set<string>();
@@ -122,6 +144,9 @@ function shareEntry(name: string, bytes: Uint8Array, secrets: string[]): { bytes
 /** Builds the share copy of a sealed pack. `extraSecrets` are values to remove besides Kane's account (home folder, user name). */
 export function sharePack(sealed: Uint8Array, extraSecrets: string[] = []): SharedPack {
   const files = unzipSync(sealed);
+  for (const [name, bytes] of Object.entries(files)) {
+    if (/(?:^|\/)test\.md$|_test\.md$/i.test(name)) checkShareableDefinition(strFromU8(bytes));
+  }
   const identity = identityValues(files);
   const secrets = [...identity, ...extraSecrets];
   const entries: Zippable = {};

@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
-import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { homedir, userInfo } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
-import { leaksIn, scrubText, sharePack } from "../../evidence/share-pack.js";
+import { checkShareableDefinition, leaksIn, scrubText, sharePack } from "../../evidence/share-pack.js";
 import { isKaneResults, type KaneResults, type RunRecord } from "../../judge/results.js";
 import { CLAIMS_POLICY } from "../../kane/policy.js";
 import { projectPaths, type ProjectPaths } from "../../judge/workspace.js";
@@ -103,6 +103,7 @@ function referencedImages(results: KaneResults): string[] {
 async function copyText(from: string, to: string, scrub: Scrub): Promise<void> {
   const text = await readFile(from, "utf8").catch(() => undefined);
   if (text === undefined) return;
+  if (from.endsWith("_test.md")) checkShareableDefinition(text);
   await mkdir(dirname(to), { recursive: true });
   await writeFile(to, clean(text, scrub), "utf8");
 }
@@ -182,18 +183,28 @@ export async function shareCommand(args: ShareArgs): Promise<number> {
   }
   await mkdir(outDir, { recursive: true });
   const scrub: Scrub = { roots: await localRoots(paths), secrets: machineSecrets() };
-  const packs = await sharePacks(paths, outDir, results, scrub);
-  if (packs.problems.length) {
-    out(`kane-judge share: stopped, nothing was shared.\n${packs.problems.map((p) => `  - ${p}`).join("\n")}`);
-    return 2;
+  const staging = await mkdtemp(join(dirname(outDir), ".kane-share-"));
+  let shared = 0;
+  let runs: RunRecord[] = [];
+  try {
+    const packs = await sharePacks(paths, staging, results, scrub);
+    if (packs.problems.length) {
+      out(`kane-judge share: stopped before publishing the copy.\n${packs.problems.join("\n")}`);
+      return 2;
+    }
+    await copyProject(paths, staging, results, scrub);
+    await writeFile(join(staging, POLICY_FILE), CLAIMS_POLICY, "utf8");
+    await writeJsonAtomic(join(staging, "kane-results.json"), JSON.parse(clean(JSON.stringify({ ...results, runs: packs.runs }), scrub)) as unknown);
+    await rename(staging, outDir);
+    shared = packs.shared;
+    runs = packs.runs;
+  } finally {
+    await rm(staging, { recursive: true, force: true });
   }
-  await copyProject(paths, outDir, results, scrub);
-  await writeFile(join(outDir, POLICY_FILE), CLAIMS_POLICY, "utf8");
-  await writeJsonAtomic(join(outDir, "kane-results.json"), JSON.parse(clean(JSON.stringify({ ...results, runs: packs.runs }), scrub)) as unknown);
-  out(`Share copy: ${displayPath(outDir)} (${packs.shared} evidence pack(s), Kane account and local paths removed)`);
+  out(`Share copy: ${displayPath(outDir)} (${shared} evidence pack(s), Kane account and local paths removed)`);
   const code = await reportCommand(outDir);
-  if (code === 0 && packs.shared > 0) {
-    const pack = [...packs.runs].reverse().find((r) => r.sharedPackSha256)?.evidencePath ?? PACKS_DIR;
+  if (code === 0 && shared > 0) {
+    const pack = [...runs].reverse().find((r) => r.sharedPackSha256)?.evidencePath ?? PACKS_DIR;
     out(`Anyone can have Kane's own verdict engine re-judge it, without an account or credits:\n  cd ${displayPath(outDir)} && kane-cli evidence verdict ${pack} --policy ${POLICY_FILE}`);
   }
   return code;

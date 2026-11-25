@@ -121,6 +121,8 @@ Kane's report for a failed flow gives you the failing step and Kane's own explan
 - Kane blames the test's data or state (`automation_bug/test_data_issue`), often after its self-healing re-ran earlier steps in the same browser ("the cart held 2 pens, so $4.20 off was impossible"): TEST_WRONG. Make the flow robust to leftover state and re-run.
 - Kane says the expected page or control isn't there (`automation_bug/state_transition_bug`), and the submission *claims* that page exists: the claim is false. Mark it **broken** (an overclaim). Rewrite only if the feature might live somewhere else, e.g. under a different menu name.
 
+A successful HTTP status establishes only that a request succeeded. If a claim depends on response contents or account isolation, require an observable result for that claim. Missing HAR bodies cannot establish it.
+
 **Ambiguous?** Re-run once, since flakiness is real. If it's still unclear, mark the claim **unverifiable** and explain what Kane saw.
 
 Record each round in the claim's `investigation`:
