@@ -4,9 +4,13 @@ import { out } from "../../shared/logger.js";
 /** Files that hold Kane's record. Only `kane-judge scan` and `kane-judge run` write them; the agent reads them. */
 const KANE_RECORD = /(?:^|[\\/])(?:kane-results\.json|scan\.json)$|[\\/]\.testmuai[\\/]|[\\/]\.kane-judge[\\/]/;
 
-const RECORD_IN_COMMAND = /kane-results\.json|scan\.json|\.testmuai(?![\w-])|\.kane-judge(?![\w.-])/;
+// The folder names must stand alone: "www.testmuai.com" in a URL is not Kane's `.testmuai` folder.
+const RECORD_IN_COMMAND = /kane-results\.json|scan\.json|(?<![\w])\.testmuai(?![\w.-])|(?<![\w])\.kane-judge(?![\w.-])/;
 /** Shell words that change files. A command that names Kane's record and uses one of them is stopped. */
 const SHELL_WRITE = /(?:^|[\s;&|(])(?:rm|mv|cp|tee|truncate|dd|touch|ln|chmod|sponge|install|rsync|python3?|node|perl|ruby|awk|ed)\s|\bsed\s+(?:-[a-zA-Z]*i|--in-place)|>/;
+
+/** Redirects that write no file: `2>&1`, `>&2`, `2>/dev/null`, `&>/dev/null`. Reading the record with one of these is still reading. */
+const HARMLESS_REDIRECT = /\d*>&\d+|[&\d]*>\s*\/dev\/null(?![\w.\/-])/g;
 
 /** The file a Write/Edit-style tool call is about to change, when it is part of Kane's record. */
 function guardedFile(fields: Record<string, unknown>): string | undefined {
@@ -18,7 +22,7 @@ function guardedFile(fields: Record<string, unknown>): string | undefined {
 function guardedCommand(fields: Record<string, unknown>): string | undefined {
   const command = typeof fields.command === "string" ? fields.command : "";
   const named = RECORD_IN_COMMAND.exec(command)?.[0];
-  return named && SHELL_WRITE.test(command) ? named : undefined;
+  return named && SHELL_WRITE.test(command.replace(HARMLESS_REDIRECT, " ")) ? named : undefined;
 }
 
 /** The part of Kane's record a tool call is about to change, if any. */

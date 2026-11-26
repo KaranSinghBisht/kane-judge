@@ -364,6 +364,20 @@ describe("lie 10: editing Kane's record instead of running Kane", () => {
     }
   });
 
+  it("does not mistake the vendor's domain for Kane's folder", () => {
+    expect(tool({ command: "curl -sL https://www.testmuai.com/blog/ -o page.html" })).toBeUndefined();
+    expect(tool({ command: "rm -rf projects/shop/.testmuai/evidence" })).toBeDefined();
+  });
+
+  it("does not mistake a discarded error stream for a write", () => {
+    for (const command of ["jq .useCases projects/shop/scan.json 2>/dev/null", "cat projects/shop/kane-results.json 2>&1 | head", "ls projects/shop/.testmuai &>/dev/null"]) {
+      expect(tool({ command })).toBeUndefined();
+    }
+    for (const command of ["jq . a.json 2>/dev/null > projects/shop/scan.json", "echo x >/dev/null; echo '{}' >> projects/shop/kane-results.json", "cat good.json > /dev/null.scan.json"]) {
+      expect(tool({ command })).toBeDefined();
+    }
+  });
+
   it("ignores input it doesn't understand", () => {
     expect(guardedTarget({})).toBeUndefined();
     expect(guardedTarget({ tool_input: "text" })).toBeUndefined();
