@@ -145,6 +145,6 @@ export async function boardCommand(workspace: string): Promise<number> {
   const rows = boardRows(entries);
   await writeTextAtomic(join(workspace, "SCOREBOARD.md"), renderBoardMarkdown(rows));
   await writeTextAtomic(join(workspace, "scoreboard.html"), renderBoardHtml(rows));
-  out([...rows.map((r) => `${r.rank}. ${r.name}: ${r.pct}% (${r.proven}/${r.claims} proven, ${r.broken} broken)`), "", `Wrote ${join(workspace, "SCOREBOARD.md")} and scoreboard.html`].join("\n"));
+  out([...rows.map((r) => `${r.rank}. ${r.name}: ${r.pct}% (${r.proven}/${r.judged} judged claims proven, ${r.broken} broken, ${r.untested} untested)`), "", `Wrote ${join(workspace, "SCOREBOARD.md")} and scoreboard.html`].join("\n"));
   return 0;
 }

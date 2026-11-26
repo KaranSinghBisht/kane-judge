@@ -129,9 +129,19 @@ describe("board", () => {
     const c = verdict({ project: { name: "C", slug: "c" }, claims: [...verdict().claims, { id: "c4", claim: "x", source: "y", status: "proven", evidence: "z" }] });
     const rows = boardRows([{ verdict: a }, { verdict: b }, { verdict: c }]);
     expect(rows.map((r) => `${r.rank}:${r.name}`)).toEqual(["1:C", "2:B", "3:A"]);
-    expect(renderBoardMarkdown(rows)).toContain("| 2 | [B](projects/b/scorecard.html) | 1/3 | 1 | 1 | 90% | 0 |");
-    expect(renderBoardMarkdown(rows)).toContain("Ranked by the share of claims Kane proved");
+    expect(renderBoardMarkdown(rows)).toContain("| 2 | [B](projects/b/scorecard.html) | 1/3 | 1 | 1 | 0 | 90% | 0 |");
+    expect(renderBoardMarkdown(rows)).toContain("Ranked by the share of judged claims");
     expect(renderBoardHtml(rows)).toContain('href="projects/b/scorecard.html"');
+  });
+
+  it("doesn't rank a project lower because its judge listed promises it left untested", () => {
+    const claim = (id: string, status: "proven" | "broken" | "unverifiable" | "untested") => ({ id, claim: id, source: "README", status, evidence: "seen" });
+    // Measured on 25 Nov: a real entry with 4 proven and nothing broken ranked below the sample shop with 2 broken claims.
+    const careful = verdict({ project: { name: "Careful", slug: "careful" }, claims: [claim("c1", "proven"), claim("c2", "proven"), claim("c3", "proven"), claim("c4", "proven"), claim("c5", "unverifiable"), claim("c6", "untested"), claim("c7", "untested"), claim("c8", "untested")] });
+    const broken = verdict({ project: { name: "Broken", slug: "broken" }, claims: [claim("c1", "proven"), claim("c2", "proven"), claim("c3", "proven"), claim("c4", "broken"), claim("c5", "broken")] });
+    const rows = boardRows([{ verdict: broken }, { verdict: careful }]);
+    expect(rows.map((r) => r.name)).toEqual(["Careful", "Broken"]);
+    expect(renderBoardMarkdown(rows)).toContain("| 1 | [Careful](projects/careful/scorecard.html) | 4/5 | 0 | 1 | 3 |");
   });
 });
 
