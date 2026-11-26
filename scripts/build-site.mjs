@@ -82,6 +82,7 @@ for (const name of ["playground.js", "checkout-before.png", "checkout-after.png"
   await copyFile(join("docs", name), join(output, name));
 }
 await cp("docs/fonts", join(output, "fonts"), { recursive: true });
+await cp("docs/replay", join(output, "replay"), { recursive: true });
 const negative = "examples/negative/deployed-promo";
 const controls = [];
 for (const [label, project, status] of [["deployed", negative, "failed"], ["repaired", PREFLIGHT, "passed"]]) {
@@ -97,6 +98,8 @@ for (const [label, project, status] of [["deployed", negative, "failed"], ["repa
   controls.push({ label, file, sha256, status });
 }
 await copyFile(join(negative, "scorecard.html"), join(output, "deployed-promo-scorecard.html"));
+// A real hackathon entry judged on 25 Nov 2026: its checked scorecard and Kane's screenshot of the claim the judge refused.
+for (const name of ["real-scorecard.html", "real-overruled.jpg"]) await copyFile(join("docs", name), join(output, name));
 await copyFile(join(PREFLIGHT, "flows/04-apply-promo_test.md"), join(output, "proof/checkout-test.txt"));
 await copyFile(join(PREFLIGHT, "checkout-repair.patch"), join(output, "proof/checkout-repair.txt"));
 await build({ entryPoints: ["site/check-controls.js"], outfile: join(output, "check-controls.js"), bundle: true, platform: "browser", minify: true });

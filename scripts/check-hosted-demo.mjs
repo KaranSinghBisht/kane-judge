@@ -9,7 +9,7 @@ import { chromium } from "playwright-core";
 async function serveRelease() {
   const root = join(import.meta.dirname, "../public-demo");
   const files = new Set(await readdir(root, { recursive: true }));
-  const types = { ".html": "text/html", ".js": "text/javascript", ".png": "image/png", ".txt": "text/plain", ".woff2": "font/woff2" };
+  const types = { ".html": "text/html", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".txt": "text/plain", ".woff2": "font/woff2" };
   const server = createServer(async (req, res) => {
     const name = new URL(req.url, "http://localhost").pathname.slice(1) || "index.html";
     if (!files.has(name)) return res.writeHead(404).end();

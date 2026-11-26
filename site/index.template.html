@@ -3,59 +3,85 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Cpath fill='%23742a37' d='M0 0h40v32L20 44 0 32z'/%3E%3Ctext x='7' y='30' font-family='Georgia,serif' font-style='italic' font-size='32' fill='%23fff7e6'%3EK%3C/text%3E%3C/svg%3E">
-<meta name="theme-color" content="#f7f3e9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40'/%3E%3Cpath d='M9 11l10 9-10 9' fill='none' stroke='%235b8cff' stroke-width='5'/%3E%3Crect x='22' y='26' width='10' height='5' fill='%23ece9e1'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#000000">
 <title>Kane Judge · An agentic judge for hackathon submissions</title>
-<meta name="description" content="Judge a hackathon submission against your rubric. Kane opens its live demo, tests the team’s claims and records evidence for the human panel.">
-<link rel="preload" href="fonts/newsreader-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="description" content="An agent-agnostic skill (Claude Code, Codex, OpenCode) that judges a hackathon submission by trying its live demo with Kane CLI, and checks every result against Kane’s own screenshot.">
+<link rel="preload" href="fonts/doto-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>{{SITE_CSS}}</style>
 </head>
 <body id="top">
 <a class="skip" href="#judge">Skip to judging</a>
 <header class="mast wrap">
-  <a class="brand" href="#top"><span class="mark" aria-hidden="true">K</span> Kane Judge</a>
-  <nav aria-label="Main navigation"><a href="#case">Example</a><a href="#cheat">Playground</a><a class="install-link" href="#install">Install plugin <span aria-hidden="true">↘</span></a></nav>
+  <a class="brand" href="#top"><span class="mark" aria-hidden="true">&gt;</span>Kane Judge</a>
+  <nav aria-label="Main navigation"><a href="#real">A real run</a><a href="#cheat">Try the checker</a><a class="install-link" href="#install">Install</a></nav>
 </header>
 <main class="wrap">
   <section class="case" id="judge" aria-labelledby="judge-title">
     <div class="lead">
-      <p class="kicker"><span class="signal"></span> Hackathon judging · Claude Code plugin</p>
-      <h1 id="judge-title">A judge that <em>tries the demo.</em></h1>
-      <p class="dek">Give the agent a submission and your track rubric. It reads the team’s claims, drives their live demo with Kane CLI, and brings the panel a scorecard with browser evidence.</p>
+      <p class="kicker">An agent-agnostic skill, built on Kane CLI</p>
+      <h1 id="judge-title">A judge that tries the demo.</h1>
+      <p class="dek">Give it a hackathon submission and the link to its live demo. It lists what the README promises, has Kane CLI try each promise in real Chrome, checks every result against Kane’s screenshot, and hands the panel a scorecard.</p>
       <a class="btn primary" href="#install">Judge a submission</a>
+      <a class="quiet" href="real-scorecard.html">Read a real scorecard</a>
     </div>
-    <aside class="sample" aria-label="Recorded sample scorecard">
-      <p class="kicker">Recorded scorecard · Sample submission</p>
-      <h2>Inkwell Supply Co.</h2>
-      <p>Three of five claims proven on the submitted demo.</p>
+    <aside class="sample" aria-label="Scorecard of a real hackathon entry">
+      <p class="kicker">$ kane-judge report projects/mypillpal</p>
+      <h2>MyPillPal</h2>
+      <p>Not our project. A track winner at the CSH Social Impact Ideathon 2026, judged on 25 Nov 2026. Nine promises in its README, five tried in a browser, in 16 minutes.</p>
       <ul>
-        <li><a href="sample-scorecard.html#claim-c1">Catalogue and cart</a><strong>Proven</strong></li>
-        <li><a href="sample-scorecard.html#claim-c2">Order summary</a><strong>Proven</strong></li>
-        <li><a href="sample-scorecard.html#claim-c3">Promo updates the total</a><strong class="broken">Broken</strong></li>
-        <li><a href="sample-scorecard.html#claim-c4">Card checkout</a><strong>Proven</strong></li>
-        <li><a href="sample-scorecard.html#claim-c5">Order history</a><strong class="broken">Broken</strong></li>
+        <li><a href="real-scorecard.html#claim-c1">Four screens to a risk profile, no account</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c3">Five infection types to pick from</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c4">Each risk factor explains why it matters</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c5">Shows which answers moved your score</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c6">Figures shown with source and year</a><strong class="broken">Not proven</strong></li>
       </ul>
-      <a href="sample-scorecard.html">Review the full scorecard ↗</a>
+      <p class="note">Nothing came out broken. Three promises a browser can’t test were left as questions for the team.</p>
     </aside>
   </section>
-  <section class="spread judge-method">
-    <div class="rail"><p class="kicker">For the judging panel</p><h2>How a submission <em>gets judged.</em></h2></div>
+  <section class="replay" id="replay" aria-label="Kane's recorded steps on MyPillPal">
+    <figure><img id="replay-frame" src="replay/01.jpg" width="880" height="495" alt="Kane's screenshot of MyPillPal at the current step."></figure>
+    <div class="log">
+      <h2>Kane’s own record of one test</h2>
+      <p>Fourteen steps on the live site, each with a screenshot. This is what the judge reads before it believes a result.</p>
+      <ol id="replay-steps"><li>Open mypillpal.vercel.app</li><li>Start the questionnaire</li><li>Pick “Pneumonia”</li><li>Scroll to Continue</li><li>Continue</li><li>Open the location list</li><li>Pick California</li><li>See my results</li><li>Wait for the results profile</li><li>Read the profile</li><li>Check: a results profile is visibly shown</li><li>Scroll to “Resistance in California”</li><li>Read the resistance rates</li><li>Check: rates shown with their source and year</li></ol>
+      <button type="button" id="replay-toggle" aria-pressed="false">Pause</button>
+    </div>
+  </section>
+  <section class="spread" id="real">
+    <div class="rail">
+      <h2>Kane keeps a screenshot of every step. The judge reads them.</h2>
+      <p>Two moments from the MyPillPal run. Neither was staged: the project isn’t ours and we have never touched its code.</p>
+      <figure class="shot">
+        <img src="real-overruled.jpg" width="1000" height="562" loading="lazy" alt="Kane's screenshot of MyPillPal's resistance chart for California. The only label under the chart reads: National estimate, not local data.">
+        <figcaption>Kane’s final screenshot for “shown with source and year”. The label names neither.</figcaption>
+      </figure>
+    </div>
     <div class="story">
-      <article><h3>Set the rubric</h3><p>Give the plugin a submission page or repository. Add your track’s criteria in <code>rubric.md</code>. The agent selects the core user journeys and records which promises it leaves untested.</p></article>
-      <article><h3>Investigate</h3><p>Kane tries each selected journey in Chrome. The agent inspects failures, retries a mistaken test, and marks blocked journeys unverifiable. Judge mode evaluates the submitted build as it stands.</p></article>
-      <article><h3>Compare projects</h3><p>Review each claim, its screenshot and the suggested rubric scores. Run <code>/kane-judge:board</code> to compare submissions by their share of proven claims. The human panel decides the prizes.</p></article>
+      <article><h3>A red test</h3><p>The test for “shows which answers contributed to your score” came back red: one of two answers was listed. Kane’s own triage called it a test problem, not an app bug, and its screenshot showed why: “1 factor ticked”. The second tick had never registered. Claude fixed how the test gets there, Kane ran it again, and both answers were listed, +3 and +2. The team wasn’t marked down for the tester’s mistake.</p></article>
+      <article><h3>An overclaim</h3><p>The README says resistance data is “shown with their source and year”. Kane’s screenshot of the results page shows one label under the chart: “National estimate, not local data”. Claude read the component that draws it and found source and year are left out for 12 of 17 regions. The scorecard marks the claim not proven and gives the judges the question to ask.</p></article>
+      <article><h3>The checker said no</h3><p>While fixing the first test, Claude added a line that counted as a new check. <code>kane-judge report</code> refused the scorecard until the test checked exactly what it had checked before.</p><a href="real-scorecard.html">Open the full scorecard</a></article>
+    </div>
+  </section>
+  <section class="spread judge-method">
+    <div class="rail"><h2>How a submission gets judged</h2></div>
+    <div class="story">
+      <article><h3>Read</h3><p>Point the plugin at a submission page or a repository. It reads the README without running any of the project’s code, lists what is promised, and writes one plain-English Kane test for each promise a browser can try. Put your event’s criteria in <code>rubric.md</code>.</p></article>
+      <article><h3>Try</h3><p>Kane drives the live demo in Chrome, four tests at a time. Claude opens the screenshot behind every result, pass or fail. A wrong test gets rewritten, at most twice. A login wall or a payment makes a claim unverifiable, never broken.</p></article>
+      <article><h3>Compare</h3><p>Each claim comes with its screenshot, a step replay and the README line it came from. <code>/kane-judge:board</code> ranks the judged projects by how many of their tested promises held. The scores are suggestions. The panel decides.</p></article>
     </div>
   </section>
   <section class="case" id="case" aria-labelledby="case-title">
     <div class="lead">
-      <p class="kicker"><span class="signal"></span> Inkwell Supply Co. <span>/</span> Checkout</p>
-      <h2 id="case-title">One finding from the <em>sample submission.</em></h2>
-      <p class="dek">Six README-only reviews missed it. Kane Judge opened the shop, applied SAVE10, and caught the price disappearing from checkout.</p>
-      <p class="byline">After judging, the builder used pre-flight mode on a local copy to repair the defect. Compare the original and repaired runs below.</p>
+      <h2 id="case-title">The same judge, on your own project, before you submit</h2>
+      <p class="dek">Pre-flight mode finds what a judge would find, fixes it, and has Kane run the same test again.</p>
+      <p class="byline">This one is our own sample shop, with bugs planted on purpose. Applying SAVE10 made the Total disappear at checkout. Six README-only reviews by two models missed it. Kane caught it, Claude stopped the layout experiment behind it, and the unchanged test then showed $42.80. A promise of order history was never built, so it came out of the README.</p>
+      <p class="byline">As judged, before the fix: <a href="sample-scorecard.html#claim-c3">Promo updates the total</a> and <a href="sample-scorecard.html#claim-c5">Order history</a> broken, three claims proven. <a href="sample-preflight-scorecard.html#claim-c4">Replay the repaired claim</a> · <a href="sample-preflight-scorecard.html#claim-c4" aria-label="Watch the failed and repaired checkout">Step-by-step replay</a></p>
       <!-- HOSTED_CONTROLS -->
     </div>
     <div class="exhibit">
-      <div class="exhibit-head"><span>Browser evidence</span><span>Chrome / checkout</span></div>
+      <div class="exhibit-head"><span>Kane’s screenshots</span><span>sample shop, checkout</span></div>
       <fieldset class="viewer">
         <legend class="sr">Choose the recorded checkout screenshot</legend>
         <input id="before" type="radio" name="capture" checked><label for="before">Before repair</label>
@@ -71,24 +97,9 @@
       </fieldset>
     </div>
   </section>
-  <section class="record" aria-label="Checkout case record">
-    <div><span class="label">Broken deployment</span><strong>Total missing</strong></div>
-    <div><span class="label">One-line repair</span><strong>$42.80 visible</strong></div>
-    <div><span class="label">Final gate · healing off</span><strong>4 of 4 flows passed</strong></div>
-    <a href="sample-preflight-scorecard.html#claim-c4" aria-label="Watch the failed and repaired checkout">Watch the replay <span aria-hidden="true">↗</span></a>
-  </section>
-  <section class="spread" id="investigation">
-    <div class="rail"><p class="kicker">The investigation</p><h2>From claim<br> to <em>evidence.</em></h2>
-      <a href="sample-scorecard.html">Open the judge scorecard ↗</a></div>
-    <div class="story">
-      <article><h3>The promise</h3><p>The README said SAVE10 updates the order total. The API returned the correct discount. In Chrome the Total row vanished as soon as the discount appeared.</p></article>
-      <article><h3>The repair</h3><p>Kane captured the failed step and a console message naming the layout experiment. Claude stopped the experiment. The same browser test then showed a $4.20 discount and a $42.80 total.</p><a href="sample-preflight-scorecard.html#claim-c4">Replay the repaired claim</a></article>
-      <article><h3>The release decision</h3><p>All four active flows passed with self-healing off. The shop also promised order history. That feature didn’t exist, so Claude withdrew the claim from the README.</p></article>
-    </div>
-  </section>
   <section id="cheat" class="lab">
-    <p class="kicker">Verdict playground</p><h2>Cross-examine the scorecard.</h2>
-    <p>Kane proved three of the shop’s five claims. Choose an edit or change the JSON. The report checker compares it with the recorded results as you type.</p>
+    <h2>Try to change a verdict</h2>
+    <p>The agent doesn’t write the scorecard. A checker builds it from Kane’s record and refuses a verdict that says more than Kane saw. This is the sample shop’s verdict: pick an edit, or change the JSON yourself.</p>
     <div class="presets" id="presets" role="group" aria-label="Verdict examples"></div>
     <div class="play">
       <div class="pane"><label class="label" for="verdict">verdict.json</label><textarea id="verdict" spellcheck="false"></textarea></div>
@@ -97,26 +108,48 @@
     <p class="note">The CLI also checks the files on disk, the evidence packs, and any withdrawn README text.</p>
   </section>
   <section class="spread">
-    <div class="rail"><p class="kicker">Runner findings</p><h2>When a pass <em>misleads.</em></h2></div>
-    <div><p>On Kane CLI 0.10.5, a hidden Total row sometimes passed a visibility check. Here’s what happened when we changed the wording and replayed the result.</p>
+    <div class="rail"><h2>What we learned about wording a check</h2></div>
+    <div><p>How a check is worded matters. On Kane CLI 0.10.5 we measured it: asked whether a hidden Total row “shows”, the check sometimes passed. Asked whether it is “visibly displayed”, it failed correctly every time. So Kane Judge requires that word in every check, and still opens the screenshot.</p>
     <table><thead><tr><th scope="col">Recorded check</th><th scope="col">Runs</th><th scope="col">False passes</th></tr></thead><tbody>
       <tr><td>“Shows a Total row”</td><td>4</td><td>1</td></tr>
       <tr><td>Same wording in visual mode</td><td>3</td><td>2</td></tr>
       <tr><td>Replay of a recorded false pass</td><td>4</td><td>4</td></tr>
       <tr><td>“Visibly displayed”</td><td>6</td><td>0</td></tr>
       <tr><td>A flow with zero steps</td><td>3</td><td>3</td></tr>
-    </tbody></table><a href="https://github.com/KaranSinghBisht/kane-judge/blob/main/docs/kane-cli-findings.md">Read the trial transcripts ↗</a></div>
+    </tbody></table><a href="https://github.com/KaranSinghBisht/kane-judge/blob/main/docs/kane-cli-findings.md">Read the trial transcripts</a></div>
   </section>
   <section id="install" class="spread install">
-    <div class="rail"><p class="kicker">Install the plugin</p><h2>Judge a <em>submission.</em></h2><p>Use desktop Chrome, Node 20+, a TestMu account and Claude Code.</p></div>
+    <div class="rail"><h2>Judge a submission</h2><p>You need desktop Chrome, Node 20+, a free TestMu AI account, and a coding agent on your own machine. It has run in Claude Code, Codex and OpenCode.</p></div>
     <div class="commands"><h3>Terminal</h3><pre>npm install -g @testmuai/kane-cli
 kane-cli login --oauth</pre><h3>Claude Code</h3><pre>/plugin marketplace add KaranSinghBisht/kane-judge
 /plugin install kane-judge@kane-judge
 /kane-judge:judge &lt;submission-or-repo-url&gt; --live &lt;demo-url&gt;
-/kane-judge:board</pre><p>Run these commands in Claude Code. To apply your event’s criteria, place <code>rubric.md</code> in the judging folder before starting.</p></div>
+/kane-judge:board</pre><h3>Codex, OpenCode or another agent</h3><pre>npm install -g github:KaranSinghBisht/kane-judge
+kane-judge skill codex    # or: opencode, or your agent's skills folder
+Use the kane-judge skill to judge &lt;repo-url&gt; --live &lt;demo-url&gt;</pre><p>The MyPillPal run above took 16 minutes and about 650 Kane credits. To pre-flight your own project: <code>/kane-judge:preflight . --live http://localhost:3000</code></p></div>
   </section>
 </main>
-<footer class="wrap"><b>Kane Judge</b><span>KaneCLI Online Hackathon · Apache-2.0</span><a href="https://github.com/KaranSinghBisht/kane-judge">GitHub ↗</a></footer>
+<footer class="wrap"><b>Kane Judge</b><span>Built for the KaneCLI Online Hackathon. Apache-2.0.</span><a href="https://github.com/KaranSinghBisht/kane-judge">GitHub</a></footer>
+<script>
+(function () {
+  var frame = document.getElementById("replay-frame");
+  var steps = document.querySelectorAll("#replay-steps li");
+  var toggle = document.getElementById("replay-toggle");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var at = still ? steps.length - 1 : 0;
+  var timer = null;
+  function show(i) {
+    at = i;
+    frame.src = "replay/" + String(i + 1).padStart(2, "0") + ".jpg";
+    steps.forEach(function (step, n) { if (n === i) step.setAttribute("aria-current", "step"); else step.removeAttribute("aria-current"); });
+  }
+  function play() { timer = setInterval(function () { show((at + 1) % steps.length); }, 1500); toggle.textContent = "Pause"; toggle.setAttribute("aria-pressed", "false"); }
+  function pause() { clearInterval(timer); timer = null; toggle.textContent = "Play"; toggle.setAttribute("aria-pressed", "true"); }
+  toggle.addEventListener("click", function () { if (timer) pause(); else play(); });
+  show(at);
+  if (still) pause(); else play();
+})();
+</script>
 <script src="playground.js"></script>
 <script>
 (function () {

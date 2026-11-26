@@ -3,216 +3,295 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44'%3E%3Cpath fill='%23742a37' d='M0 0h40v32L20 44 0 32z'/%3E%3Ctext x='7' y='30' font-family='Georgia,serif' font-style='italic' font-size='32' fill='%23fff7e6'%3EK%3C/text%3E%3C/svg%3E">
-<meta name="theme-color" content="#f7f3e9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40'/%3E%3Cpath d='M9 11l10 9-10 9' fill='none' stroke='%235b8cff' stroke-width='5'/%3E%3Crect x='22' y='26' width='10' height='5' fill='%23ece9e1'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#000000">
 <title>Kane Judge · An agentic judge for hackathon submissions</title>
-<meta name="description" content="Judge a hackathon submission against your rubric. Kane opens its live demo, tests the team’s claims and records evidence for the human panel.">
-<link rel="preload" href="fonts/newsreader-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<style>@font-face {
-  font-family: Newsreader;
-  src: url(fonts/newsreader-latin-400-normal.woff2) format("woff2");
+<meta name="description" content="An agent-agnostic skill (Claude Code, Codex, OpenCode) that judges a hackathon submission by trying its live demo with Kane CLI, and checks every result against Kane’s own screenshot.">
+<link rel="preload" href="fonts/doto-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>/* Kane Judge site. Black, IBM Plex Mono, and one dot-matrix face for the
+   headline: the vocabulary of Kane CLI's own pages. Every block is framed as
+   a record a terminal tool printed, because that is what the product makes. */
+@font-face {
+  font-family: Doto;
+  src: url(fonts/doto-latin-900-normal.woff2) format("woff2");
+  font-weight: 900;
   font-display: swap;
 }
 @font-face {
-  font-family: Newsreader;
-  src: url(fonts/newsreader-latin-500-italic.woff2) format("woff2");
-  font-style: italic;
+  font-family: "IBM Plex Mono";
+  src: url(fonts/ibm-plex-mono-latin-400-normal.woff2) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url(fonts/ibm-plex-mono-latin-500-normal.woff2) format("woff2");
   font-weight: 500;
   font-display: swap;
 }
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url(fonts/ibm-plex-mono-latin-600-normal.woff2) format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
 :root {
-  color-scheme: light;
-  --paper: #f7f3e9;
-  --ink: #231e1a;
-  --muted: #635b54;
-  --wine: #742a37;
-  --rule: #c6bdad;
-  --display: Newsreader, Georgia, serif;
-  --mono: ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+  --black: #000;
+  --panel: #0d0d0c;
+  --bone: #ece9e1;
+  --ash: #99958b;
+  --line: #2e2d29;
+  --blue: #5b8cff;
+  --proven: #6fd08c;
+  --broken: #ff6a5c;
+  --unsure: #e6b450;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --dots: Doto, "IBM Plex Mono", ui-monospace, monospace;
 }
+
 * { box-sizing: border-box }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.56 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif }
-.wrap { width: min(1280px, 90%); margin-inline: auto }
-a { color: inherit; text-underline-offset: .25em; text-decoration-thickness: 1px }
-a:hover, summary:hover { color: var(--wine) }
-:focus-visible { outline: 3px solid #2479b4; outline-offset: 4px }
-[id] { scroll-margin-top: 1.5rem }
-.sr, .viewer input, .skip:not(:focus) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%) }
-.skip:focus { position: absolute; z-index: 1; padding: 1rem; background: white }
-.mast, footer { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem }
-.mast { padding-block: 20px; border-bottom: 3px double var(--ink) }
-.brand { display: inline-flex; align-items: center; gap: .65rem; font: 32px/.95 var(--display); letter-spacing: -.055em; text-decoration: none }
-.mark { display: grid; place-items: center; width: 33px; height: 36px; background: var(--wine); color: #fff7e6; font: italic 500 29px/1 var(--display); padding: 5px 4px 0 0; clip-path: polygon(0 0,100% 0,100% 75%,50% 100%,0 75%) }
-nav { display: flex; align-items: center; gap: clamp(12px,3vw,40px); font-size: 14px }
-nav a { text-decoration: none }
-nav .install-link { border: 1px solid var(--ink); padding: 6px 12px }
-.case { display: grid; grid-template-columns: 1.04fr 1fr; align-items: center; gap: clamp(24px,6vw,96px); padding-block: clamp(36px,5vw,80px) }
-.case > *, .spread > *, .play > * { min-width: 0 }
-.kicker, .label, .exhibit-head, .capture figcaption, .commands h3 {
-  font: 600 11px/1.5 var(--mono); letter-spacing: .085em; text-transform: uppercase;
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--bone);
+  font: 15px/1.65 var(--mono);
 }
-.kicker { display: flex; align-items: center; gap: .65rem; color: var(--wine); margin: 0 0 18px }
-.signal { width: 9px; height: 9px; background: var(--wine); display: inline-block }
-h1, h2, .record strong { font-family: var(--display); font-weight: 400; text-wrap: balance }
-h1 { margin: 0; font-size: clamp(62px,6.65vw,103px); line-height: .99; letter-spacing: -.062em }
-h1 em { display: block }
-em { color: var(--wine); font-weight: 500 }
-h2 { font-size: clamp(36px,4.4vw,66px); line-height: 1.03; letter-spacing: -.05em; margin: 0 0 18px }
+.wrap { width: min(1240px, 90%); margin-inline: auto }
+a { color: inherit; text-underline-offset: .28em; text-decoration-thickness: 1px; text-decoration-color: var(--ash) }
+a:hover, summary:hover { color: var(--blue); text-decoration-color: var(--blue) }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px }
+[id] { scroll-margin-top: 1.5rem }
 p { margin: 0 0 1em }
-.dek { font-size: clamp(17px,1.45vw,22px); line-height: 1.46; max-width: 42ch; margin: 18px 0 8px }
-.byline, .note { font-size: 14px; color: var(--muted) }
-.proof { margin-top: 22px }
+code { font: inherit; color: var(--bone); background: #1a1a18; padding: 1px 5px }
+.sr, .viewer input, .skip:not(:focus) {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%);
+}
+.skip:focus { position: absolute; z-index: 1; padding: 1rem; background: var(--bone); color: var(--black) }
+
+/* Masthead and footer */
+.mast, footer { display: flex; align-items: center; justify-content: space-between; gap: 1.2rem }
+.mast { padding-block: 18px; border-bottom: 1px solid var(--line) }
+.brand { font: 900 26px/1 var(--dots); letter-spacing: .02em; text-decoration: none; white-space: nowrap }
+.brand .mark { color: var(--blue); margin-right: .35em }
+nav { display: flex; align-items: center; gap: clamp(12px, 3vw, 36px); font-size: 13px }
+nav a { text-decoration: none; color: var(--ash) }
+nav .install-link { color: var(--bone); border: 1px solid var(--bone); padding: 6px 12px }
+footer { padding-block: 22px 40px; color: var(--ash); font-size: 13px; border-top: 1px solid var(--line); margin-top: 72px }
+footer b { font: 900 20px var(--dots); color: var(--bone) }
+
+/* Type */
+h1, h2, h3 { margin: 0; font-weight: 500; text-wrap: balance }
+h1 { font: 900 clamp(46px, 6.3vw, 96px)/.98 var(--dots); letter-spacing: -.01em }
+h2 { font-size: clamp(22px, 2.3vw, 30px); line-height: 1.25; letter-spacing: -.01em; margin-bottom: 14px }
+h3 { font-size: 15px; font-weight: 600 }
+.kicker { color: var(--ash); font-size: 13px; margin: 0 0 20px }
+.dek { font-size: clamp(15px, 1.25vw, 17px); max-width: 56ch; margin: 22px 0 6px; color: var(--bone) }
+.byline, .note { font-size: 13px; color: var(--ash); max-width: 68ch }
+
+/* Buttons */
 .btn { font: inherit; color: inherit; cursor: pointer }
-.primary { background: var(--wine); color: white; border: 1px solid var(--wine); padding: 12px 17px; font-weight: 600; display: inline-block; text-decoration: none }
-.primary::after { content: " →" / ""; margin-left: 6px }
-.primary:hover { background: #54202b; color: #fff }
-.primary:disabled { opacity: .65; cursor: progress }
-.proof details { margin-top: 12px; font-size: 14px; max-width: 56ch }
+.primary {
+  display: inline-block; margin-top: 16px; padding: 11px 18px;
+  background: var(--bone); color: var(--black); border: 1px solid var(--bone);
+  font-weight: 600; text-decoration: none;
+}
+.primary:hover { background: var(--blue); border-color: var(--blue); color: var(--black) }
+.primary:disabled { opacity: .6; cursor: progress }
+.quiet { display: inline-block; margin: 16px 0 0 20px; font-size: 14px }
+
+/* Hero: headline beside the docket */
+.case { display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: clamp(24px, 5vw, 72px); padding-block: clamp(40px, 6vw, 88px) }
+.case > *, .spread > *, .play > *, .replay > * { min-width: 0 }
+
+/* The docket: a scorecard as terminal output */
+.sample { background: var(--panel); border: 1px solid var(--line) }
+.sample .kicker { margin: 0; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 12px }
+.sample h2 { font-size: 22px; font-weight: 600; padding: 18px 16px 6px; margin: 0 }
+.sample > p { padding: 0 16px; color: var(--ash); font-size: 13px }
+.sample ul { list-style: none; margin: 12px 0 0; padding: 0 }
+.sample li { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 9px 16px; border-top: 1px solid var(--line); font-size: 14px }
+.sample li a { text-decoration: none }
+.sample li a:hover { text-decoration: underline }
+.sample strong { color: var(--proven); font-weight: 500; white-space: nowrap }
+.sample strong::before { content: "[" }
+.sample strong::after { content: "]" }
+.sample .broken { color: var(--unsure) }
+.sample .note { margin: 0; padding: 12px 16px; border-top: 1px solid var(--line) }
+
+/* Replay of Kane's recorded steps */
+.replay { display: grid; grid-template-columns: 1.35fr 1fr; border: 1px solid var(--line); background: var(--panel) }
+.replay figure { margin: 0; border-right: 1px solid var(--line) }
+.replay figure { display: flex }
+.replay img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; background: #fff }
+.replay .log { display: flex; flex-direction: column; padding: 16px; font-size: 13px }
+.replay .log h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px }
+.replay .log p { color: var(--ash); margin-bottom: 12px }
+.replay ol { list-style: none; margin: 0; padding: 0; flex: 1; overflow: hidden }
+.replay ol li { color: var(--ash); padding: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.replay ol li[aria-current] { color: var(--bone) }
+.replay ol li[aria-current]::before { content: "> "; color: var(--blue) }
+.replay ol li:not([aria-current])::before { content: "  "; white-space: pre }
+.replay button { align-self: flex-start; margin-top: 12px; background: none; border: 1px solid var(--line); color: var(--bone); padding: 6px 12px; font: inherit; cursor: pointer }
+.replay button:hover { border-color: var(--bone) }
+
+/* Two-column sections */
+.spread { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.3fr); gap: 6%; padding: clamp(40px, 5vw, 76px) 0; border-bottom: 1px solid var(--line) }
+.rail p { color: var(--ash); max-width: 44ch }
+.story { border: 1px solid var(--line) }
+.story article { padding: 18px 20px; border-top: 1px solid var(--line) }
+.story article:first-child { border-top: 0 }
+.story h3 { margin-bottom: 6px }
+.story article p { margin: 0; color: var(--ash) }
+.story article a { display: inline-block; margin-top: 10px }
+.shot { margin: 22px 0 0 }
+.shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line) }
+.shot figcaption { font-size: 12px; color: var(--ash); margin-top: 8px }
+
+/* Sample shop: before and after */
+.proof { margin-top: 6px }
+.proof details { margin-top: 12px; font-size: 13px; max-width: 60ch }
 .proof summary { cursor: pointer }
-.proof details p { margin: 10px 0 }
-#pack-result:not(:empty) { margin: 14px 0; border-left: 3px solid var(--wine); padding-left: 13px; font: 13px/1.55 var(--mono); overflow-wrap: anywhere }
+.proof details p { margin: 10px 0; color: var(--ash) }
+#pack-result:not(:empty) { margin: 14px 0; border-left: 2px solid var(--blue); padding-left: 12px; font-size: 13px; overflow-wrap: anywhere }
 #pack-result:empty { display: none }
-.exhibit { background-color: #39272d; color: #fff4e8; background-image: repeating-linear-gradient(135deg, transparent 0 7px, #fff5e708 7px 8px); border: 1px solid #39272d }
-.exhibit-head { padding: 12px 18px; background: #2b2024; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #78636a }
-.exhibit-head span:last-child { color: #e7c9c4; font-weight: 400 }
-.viewer { min-width: 0; border: 0; margin: 0; padding: 23px clamp(12px,3.2vw,50px) 20px; text-align: center }
-.viewer label { display: inline-block; font: 13px/1.4 var(--mono); border: 1px solid #b89c9f; padding: 7px 11px; cursor: pointer }
-.viewer label:hover { background: #57414a }
-.viewer input:checked + label { background: #f3e9d8; color: #332327; border-color: #f3e9d8 }
-.viewer input:focus-visible + label { outline: 3px solid #8ecdfc; outline-offset: 3px }
-.capture { display: none; margin: 23px auto 0; max-width: 390px }
+.exhibit { background: var(--panel); border: 1px solid var(--line) }
+.exhibit-head { display: flex; justify-content: space-between; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--ash) }
+.viewer { min-width: 0; border: 0; margin: 0; padding: 20px clamp(12px, 3vw, 40px); text-align: center }
+.viewer label { display: inline-block; font-size: 13px; border: 1px solid var(--line); padding: 6px 12px; cursor: pointer }
+.viewer label:hover { border-color: var(--bone) }
+.viewer input:checked + label { background: var(--bone); color: var(--black); border-color: var(--bone) }
+.viewer input:focus-visible + label { outline: 2px solid var(--blue); outline-offset: 3px }
+.capture { display: none; margin: 20px auto 0; max-width: 420px }
 #before:checked ~ .before, #after:checked ~ .after { display: block }
-.sheet { padding: 12px; background: #faf7f1; border: 1px solid #ebd9c4; box-shadow: 5px 5px #211a1c; transform: rotate(-1.3deg); }
-.after .sheet { transform: rotate(.8deg) }
 .sheet img { width: 100%; height: auto; display: block }
-.capture figcaption { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 22px 0 0; color: #f8e4dc; letter-spacing: .045em }
-.capture strong { border: 1px solid currentColor; padding: 2px 6px; color: #ffb9a8 }
-.after strong { color: #bde7c1 }
-.record { border-block: 1px solid var(--ink); display: grid; grid-template-columns: repeat(3,1fr) auto; align-items: center; padding: 18px 0 }
-.record div { padding-inline: 20px; border-right: 1px solid var(--rule) }
-.record div:first-child { padding-left: 0 }
-.label { display: block; color: var(--muted) }
-.record strong { display: block; font-size: clamp(21px,2.05vw,33px); line-height: 1.15; margin-top: 6px; letter-spacing: -.035em }
-.record a { margin-left: 22px; font-size: 14px }
-.spread { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0,1.3fr); gap: 7%; padding: clamp(36px,5vw,78px) 0; border-bottom: 1px solid var(--rule) }
-.rail p:not(.kicker) { max-width: 36ch }
-.story article { display: grid; grid-template-columns: 140px 1fr; gap: 0 14px; padding: 15px 0; border-top: 1px solid var(--rule) }
-.story article:first-child { border-color: var(--ink) }
-.story article p { margin: 0 }
-.story article a { grid-column: 2; margin-top: 8px }
-h3 { margin: 0; font: 24px/1.2 var(--display); letter-spacing: -.035em }
-.lab { padding: clamp(22px,4.5vw,70px); margin: 42px 0 0; background: #282521; color: #f6f0e5 }
-.lab .kicker { color: #f0b5a2 }
-.lab > p:not(.kicker) { max-width: 72ch; color: #e0d7ca }
-.presets { display: flex; flex-wrap: wrap; gap: 7px; margin: 20px 0 }
-.presets .btn { background: transparent; color: #f8f2e7; border: 1px solid #8d8377; padding: 7px 10px; font-size: 13px }
-.presets .btn:hover, .presets .btn[aria-pressed="true"] { background: #f5e9d4; color: #302722 }
-.play { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
-.pane { border: 1px solid #82796a }
-.pane .label { color: #e7dbc8; padding: 8px 12px; border-bottom: 1px solid #82796a }
-textarea { border: 0; display: block; width: 100%; height: 390px; padding: 12px; resize: vertical; font: 13px/1.55 var(--mono); background: #221f1d; color: #f6e6c9 }
-.out { background: #f7f3e9; color: var(--ink); overflow-wrap: anywhere; min-height: 390px }
-.verdict { padding: 10px 14px; font-size: 14px; font-weight: 600 }
+.capture figcaption { display: flex; justify-content: center; gap: 10px; margin-top: 14px; font-size: 13px; color: var(--ash) }
+.capture strong { color: var(--broken); font-weight: 500 }
+.after strong { color: var(--proven) }
+.capture strong::before { content: "[" }
+.capture strong::after { content: "]" }
+
+/* Verdict playground */
+.lab { margin-top: 56px; padding: clamp(18px, 3.5vw, 44px); border: 1px solid var(--line); background: var(--panel) }
+.lab > p { max-width: 78ch; color: var(--ash) }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 }
+.presets .btn { background: transparent; border: 1px solid var(--line); padding: 6px 10px; font-size: 13px }
+.presets .btn:hover { border-color: var(--bone) }
+.presets .btn[aria-pressed="true"] { background: var(--bone); color: var(--black); border-color: var(--bone) }
+.play { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+.pane { border: 1px solid var(--line); min-width: 0 }
+.label { display: block; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--ash) }
+textarea { display: block; width: 100%; height: 390px; border: 0; padding: 12px; resize: vertical; font: 12.5px/1.55 var(--mono); background: var(--black); color: var(--bone) }
+.out { background: #f7f3e9; color: #231e1a; min-height: 390px; overflow-wrap: anywhere }
+.verdict { padding: 10px 14px; font-size: 13px; font-weight: 600 }
 .refused { background: #f2d2cb; color: #672a25 }
 .accepted { background: #d8eadb; color: #24452a }
 .out iframe { display: block; width: 100%; height: 350px; border: none }
-.out ul { margin: 0; padding: 16px 20px 16px 34px }
+.out ul { margin: 0; padding: 16px 20px 16px 34px; font-size: 13px }
 .lab .note { margin: 12px 0 0 }
-table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 18px 0 }
-th, td { text-align: right; padding: 9px 6px; border-bottom: 1px solid var(--rule); font-variant-numeric: tabular-nums }
-th { font: 600 12px/1.4 var(--mono) }
+
+/* Table and install */
+table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 16px 0 }
+th, td { text-align: right; padding: 9px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums }
+th { font-weight: 500; color: var(--ash) }
 th:first-child, td:first-child { text-align: left; padding-left: 0 }
-.commands { background: #eee8da; border-top: 2px solid var(--ink); padding: 20px }
-.commands h3 { color: var(--wine) }
-pre { font: 13px/1.7 var(--mono); overflow-x: auto; margin: 7px 0 20px }
-pre:last-child { margin-bottom: 0 }
-footer { padding-block: 22px 38px; color: var(--muted); font-size: 13px }
-footer b { font: 24px var(--display); color: var(--ink) }
-@media (max-width: 800px) {
-  .case { grid-template-columns: 1fr 1fr; gap: 24px }
-  h1 { font-size: clamp(46px,7.8vw,65px) }
-  .story article { display: block }
-  .story h3 { margin-bottom: 6px }
-  .record { grid-template-columns: repeat(3,1fr) }
-  .record a { margin: 12px 0 0 }
-  .record div:nth-child(3) { border-right: none }
-  .play { grid-template-columns: 1fr }
+.commands { border: 1px solid var(--line); background: var(--panel); padding: 18px 20px }
+.commands h3 { color: var(--ash); font-weight: 400; font-size: 12px }
+.commands p { color: var(--ash); margin: 0 }
+pre { font: 13px/1.75 var(--mono); overflow-x: auto; margin: 6px 0 18px; color: var(--bone) }
+
+@media (max-width: 860px) {
+  .case, .spread, .replay, .play { grid-template-columns: 1fr }
+  .case, .spread { gap: 24px }
+  .replay figure { border-right: 0; border-bottom: 1px solid var(--line) }
+  .replay ol { max-height: 9.5em }
   textarea { height: 240px }
+  .quiet { margin-left: 0; display: block }
 }
 @media (max-width: 620px) {
   .wrap { width: 91% }
-  .mast { gap: 8px; padding-block: 15px }
-  .brand { font-size: 25px; gap: 6px }
-  .mark { width: 26px; height: 29px; font-size: 23px }
+  .brand { font-size: 21px }
   nav { font-size: 12px; gap: 12px }
-  nav a:first-child { display: none }
-  nav .install-link { padding: 5px 7px }
-  .case, .spread { grid-template-columns: 1fr; gap: 24px }
-  h1 { font-size: clamp(52px,11vw,66px) }
-  .record { grid-template-columns: 1fr 1fr; gap: 14px 8px }
-  .record div, .record div:first-child { padding: 0; border: 0 }
-  .record a { margin: 0 }
-  .rail br { display: none }
-  .spread .rail h2 { margin-bottom: 8px }
+  nav a:not(.install-link) { display: none }
+  nav .install-link { padding: 5px 8px }
   footer { flex-wrap: wrap }
+  .sample li { font-size: 13px }
 }
-
-.sample { background: #fffcf5; border: 1px solid var(--rule); border-top: 4px double var(--wine); padding: clamp(20px, 3vw, 46px) }
-.sample h2 { font-size: clamp(32px, 3.4vw, 48px); margin-bottom: 8px }
-.sample ul { padding: 0; list-style: none; margin: 18px 0 }
-.sample li { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-top: 1px solid var(--rule); padding: 9px 0 }
-.sample strong { color: #28563c; font: 600 12px var(--mono) }
-.sample .broken { color: var(--wine) }
-.judge-method { border-top: 1px solid var(--ink) }
-#judge .primary { margin-top: 14px }
 </style>
 </head>
 <body id="top">
 <a class="skip" href="#judge">Skip to judging</a>
 <header class="mast wrap">
-  <a class="brand" href="#top"><span class="mark" aria-hidden="true">K</span> Kane Judge</a>
-  <nav aria-label="Main navigation"><a href="#case">Example</a><a href="#cheat">Playground</a><a class="install-link" href="#install">Install plugin <span aria-hidden="true">↘</span></a></nav>
+  <a class="brand" href="#top"><span class="mark" aria-hidden="true">&gt;</span>Kane Judge</a>
+  <nav aria-label="Main navigation"><a href="#real">A real run</a><a href="#cheat">Try the checker</a><a class="install-link" href="#install">Install</a></nav>
 </header>
 <main class="wrap">
   <section class="case" id="judge" aria-labelledby="judge-title">
     <div class="lead">
-      <p class="kicker"><span class="signal"></span> Hackathon judging · Claude Code plugin</p>
-      <h1 id="judge-title">A judge that <em>tries the demo.</em></h1>
-      <p class="dek">Give the agent a submission and your track rubric. It reads the team’s claims, drives their live demo with Kane CLI, and brings the panel a scorecard with browser evidence.</p>
+      <p class="kicker">An agent-agnostic skill, built on Kane CLI</p>
+      <h1 id="judge-title">A judge that tries the demo.</h1>
+      <p class="dek">Give it a hackathon submission and the link to its live demo. It lists what the README promises, has Kane CLI try each promise in real Chrome, checks every result against Kane’s screenshot, and hands the panel a scorecard.</p>
       <a class="btn primary" href="#install">Judge a submission</a>
+      <a class="quiet" href="real-scorecard.html">Read a real scorecard</a>
     </div>
-    <aside class="sample" aria-label="Recorded sample scorecard">
-      <p class="kicker">Recorded scorecard · Sample submission</p>
-      <h2>Inkwell Supply Co.</h2>
-      <p>Three of five claims proven on the submitted demo.</p>
+    <aside class="sample" aria-label="Scorecard of a real hackathon entry">
+      <p class="kicker">$ kane-judge report projects/mypillpal</p>
+      <h2>MyPillPal</h2>
+      <p>Not our project. A track winner at the CSH Social Impact Ideathon 2026, judged on 25 Nov 2026. Nine promises in its README, five tried in a browser, in 16 minutes.</p>
       <ul>
-        <li><a href="sample-scorecard.html#claim-c1">Catalogue and cart</a><strong>Proven</strong></li>
-        <li><a href="sample-scorecard.html#claim-c2">Order summary</a><strong>Proven</strong></li>
-        <li><a href="sample-scorecard.html#claim-c3">Promo updates the total</a><strong class="broken">Broken</strong></li>
-        <li><a href="sample-scorecard.html#claim-c4">Card checkout</a><strong>Proven</strong></li>
-        <li><a href="sample-scorecard.html#claim-c5">Order history</a><strong class="broken">Broken</strong></li>
+        <li><a href="real-scorecard.html#claim-c1">Four screens to a risk profile, no account</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c3">Five infection types to pick from</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c4">Each risk factor explains why it matters</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c5">Shows which answers moved your score</a><strong>Proven</strong></li>
+        <li><a href="real-scorecard.html#claim-c6">Figures shown with source and year</a><strong class="broken">Not proven</strong></li>
       </ul>
-      <a href="sample-scorecard.html">Review the full scorecard ↗</a>
+      <p class="note">Nothing came out broken. Three promises a browser can’t test were left as questions for the team.</p>
     </aside>
   </section>
-  <section class="spread judge-method">
-    <div class="rail"><p class="kicker">For the judging panel</p><h2>How a submission <em>gets judged.</em></h2></div>
+  <section class="replay" id="replay" aria-label="Kane's recorded steps on MyPillPal">
+    <figure><img id="replay-frame" src="replay/01.jpg" width="880" height="495" alt="Kane's screenshot of MyPillPal at the current step."></figure>
+    <div class="log">
+      <h2>Kane’s own record of one test</h2>
+      <p>Fourteen steps on the live site, each with a screenshot. This is what the judge reads before it believes a result.</p>
+      <ol id="replay-steps"><li>Open mypillpal.vercel.app</li><li>Start the questionnaire</li><li>Pick “Pneumonia”</li><li>Scroll to Continue</li><li>Continue</li><li>Open the location list</li><li>Pick California</li><li>See my results</li><li>Wait for the results profile</li><li>Read the profile</li><li>Check: a results profile is visibly shown</li><li>Scroll to “Resistance in California”</li><li>Read the resistance rates</li><li>Check: rates shown with their source and year</li></ol>
+      <button type="button" id="replay-toggle" aria-pressed="false">Pause</button>
+    </div>
+  </section>
+  <section class="spread" id="real">
+    <div class="rail">
+      <h2>Kane keeps a screenshot of every step. The judge reads them.</h2>
+      <p>Two moments from the MyPillPal run. Neither was staged: the project isn’t ours and we have never touched its code.</p>
+      <figure class="shot">
+        <img src="real-overruled.jpg" width="1000" height="562" loading="lazy" alt="Kane's screenshot of MyPillPal's resistance chart for California. The only label under the chart reads: National estimate, not local data.">
+        <figcaption>Kane’s final screenshot for “shown with source and year”. The label names neither.</figcaption>
+      </figure>
+    </div>
     <div class="story">
-      <article><h3>Set the rubric</h3><p>Give the plugin a submission page or repository. Add your track’s criteria in <code>rubric.md</code>. The agent selects the core user journeys and records which promises it leaves untested.</p></article>
-      <article><h3>Investigate</h3><p>Kane tries each selected journey in Chrome. The agent inspects failures, retries a mistaken test, and marks blocked journeys unverifiable. Judge mode evaluates the submitted build as it stands.</p></article>
-      <article><h3>Compare projects</h3><p>Review each claim, its screenshot and the suggested rubric scores. Run <code>/kane-judge:board</code> to compare submissions by their share of proven claims. The human panel decides the prizes.</p></article>
+      <article><h3>A red test</h3><p>The test for “shows which answers contributed to your score” came back red: one of two answers was listed. Kane’s own triage called it a test problem, not an app bug, and its screenshot showed why: “1 factor ticked”. The second tick had never registered. Claude fixed how the test gets there, Kane ran it again, and both answers were listed, +3 and +2. The team wasn’t marked down for the tester’s mistake.</p></article>
+      <article><h3>An overclaim</h3><p>The README says resistance data is “shown with their source and year”. Kane’s screenshot of the results page shows one label under the chart: “National estimate, not local data”. Claude read the component that draws it and found source and year are left out for 12 of 17 regions. The scorecard marks the claim not proven and gives the judges the question to ask.</p></article>
+      <article><h3>The checker said no</h3><p>While fixing the first test, Claude added a line that counted as a new check. <code>kane-judge report</code> refused the scorecard until the test checked exactly what it had checked before.</p><a href="real-scorecard.html">Open the full scorecard</a></article>
+    </div>
+  </section>
+  <section class="spread judge-method">
+    <div class="rail"><h2>How a submission gets judged</h2></div>
+    <div class="story">
+      <article><h3>Read</h3><p>Point the plugin at a submission page or a repository. It reads the README without running any of the project’s code, lists what is promised, and writes one plain-English Kane test for each promise a browser can try. Put your event’s criteria in <code>rubric.md</code>.</p></article>
+      <article><h3>Try</h3><p>Kane drives the live demo in Chrome, four tests at a time. Claude opens the screenshot behind every result, pass or fail. A wrong test gets rewritten, at most twice. A login wall or a payment makes a claim unverifiable, never broken.</p></article>
+      <article><h3>Compare</h3><p>Each claim comes with its screenshot, a step replay and the README line it came from. <code>/kane-judge:board</code> ranks the judged projects by how many of their tested promises held. The scores are suggestions. The panel decides.</p></article>
     </div>
   </section>
   <section class="case" id="case" aria-labelledby="case-title">
     <div class="lead">
-      <p class="kicker"><span class="signal"></span> Inkwell Supply Co. <span>/</span> Checkout</p>
-      <h2 id="case-title">One finding from the <em>sample submission.</em></h2>
-      <p class="dek">Six README-only reviews missed it. Kane Judge opened the shop, applied SAVE10, and caught the price disappearing from checkout.</p>
-      <p class="byline">After judging, the builder used pre-flight mode on a local copy to repair the defect. Compare the original and repaired runs below.</p>
+      <h2 id="case-title">The same judge, on your own project, before you submit</h2>
+      <p class="dek">Pre-flight mode finds what a judge would find, fixes it, and has Kane run the same test again.</p>
+      <p class="byline">This one is our own sample shop, with bugs planted on purpose. Applying SAVE10 made the Total disappear at checkout. Six README-only reviews by two models missed it. Kane caught it, Claude stopped the layout experiment behind it, and the unchanged test then showed $42.80. A promise of order history was never built, so it came out of the README.</p>
+      <p class="byline">As judged, before the fix: <a href="sample-scorecard.html#claim-c3">Promo updates the total</a> and <a href="sample-scorecard.html#claim-c5">Order history</a> broken, three claims proven. <a href="sample-preflight-scorecard.html#claim-c4">Replay the repaired claim</a> · <a href="sample-preflight-scorecard.html#claim-c4" aria-label="Watch the failed and repaired checkout">Step-by-step replay</a></p>
       <a class="btn primary" href="sample-preflight-scorecard.html#claim-c4">Watch the failed and repaired checkout</a>
     </div>
     <div class="exhibit">
-      <div class="exhibit-head"><span>Browser evidence</span><span>Chrome / checkout</span></div>
+      <div class="exhibit-head"><span>Kane’s screenshots</span><span>sample shop, checkout</span></div>
       <fieldset class="viewer">
         <legend class="sr">Choose the recorded checkout screenshot</legend>
         <input id="before" type="radio" name="capture" checked><label for="before">Before repair</label>
@@ -228,24 +307,9 @@ footer b { font: 24px var(--display); color: var(--ink) }
       </fieldset>
     </div>
   </section>
-  <section class="record" aria-label="Checkout case record">
-    <div><span class="label">Broken deployment</span><strong>Total missing</strong></div>
-    <div><span class="label">One-line repair</span><strong>$42.80 visible</strong></div>
-    <div><span class="label">Final gate · healing off</span><strong>4 of 4 flows passed</strong></div>
-    <a href="sample-preflight-scorecard.html#claim-c4" aria-label="Watch the failed and repaired checkout">Watch the replay <span aria-hidden="true">↗</span></a>
-  </section>
-  <section class="spread" id="investigation">
-    <div class="rail"><p class="kicker">The investigation</p><h2>From claim<br> to <em>evidence.</em></h2>
-      <a href="sample-scorecard.html">Open the judge scorecard ↗</a></div>
-    <div class="story">
-      <article><h3>The promise</h3><p>The README said SAVE10 updates the order total. The API returned the correct discount. In Chrome the Total row vanished as soon as the discount appeared.</p></article>
-      <article><h3>The repair</h3><p>Kane captured the failed step and a console message naming the layout experiment. Claude stopped the experiment. The same browser test then showed a $4.20 discount and a $42.80 total.</p><a href="sample-preflight-scorecard.html#claim-c4">Replay the repaired claim</a></article>
-      <article><h3>The release decision</h3><p>All four active flows passed with self-healing off. The shop also promised order history. That feature didn’t exist, so Claude withdrew the claim from the README.</p></article>
-    </div>
-  </section>
   <section id="cheat" class="lab">
-    <p class="kicker">Verdict playground</p><h2>Cross-examine the scorecard.</h2>
-    <p>Kane proved three of the shop’s five claims. Choose an edit or change the JSON. The report checker compares it with the recorded results as you type.</p>
+    <h2>Try to change a verdict</h2>
+    <p>The agent doesn’t write the scorecard. A checker builds it from Kane’s record and refuses a verdict that says more than Kane saw. This is the sample shop’s verdict: pick an edit, or change the JSON yourself.</p>
     <div class="presets" id="presets" role="group" aria-label="Verdict examples"></div>
     <div class="play">
       <div class="pane"><label class="label" for="verdict">verdict.json</label><textarea id="verdict" spellcheck="false"></textarea></div>
@@ -254,26 +318,48 @@ footer b { font: 24px var(--display); color: var(--ink) }
     <p class="note">The CLI also checks the files on disk, the evidence packs, and any withdrawn README text.</p>
   </section>
   <section class="spread">
-    <div class="rail"><p class="kicker">Runner findings</p><h2>When a pass <em>misleads.</em></h2></div>
-    <div><p>On Kane CLI 0.10.5, a hidden Total row sometimes passed a visibility check. Here’s what happened when we changed the wording and replayed the result.</p>
+    <div class="rail"><h2>What we learned about wording a check</h2></div>
+    <div><p>How a check is worded matters. On Kane CLI 0.10.5 we measured it: asked whether a hidden Total row “shows”, the check sometimes passed. Asked whether it is “visibly displayed”, it failed correctly every time. So Kane Judge requires that word in every check, and still opens the screenshot.</p>
     <table><thead><tr><th scope="col">Recorded check</th><th scope="col">Runs</th><th scope="col">False passes</th></tr></thead><tbody>
       <tr><td>“Shows a Total row”</td><td>4</td><td>1</td></tr>
       <tr><td>Same wording in visual mode</td><td>3</td><td>2</td></tr>
       <tr><td>Replay of a recorded false pass</td><td>4</td><td>4</td></tr>
       <tr><td>“Visibly displayed”</td><td>6</td><td>0</td></tr>
       <tr><td>A flow with zero steps</td><td>3</td><td>3</td></tr>
-    </tbody></table><a href="https://github.com/KaranSinghBisht/kane-judge/blob/main/docs/kane-cli-findings.md">Read the trial transcripts ↗</a></div>
+    </tbody></table><a href="https://github.com/KaranSinghBisht/kane-judge/blob/main/docs/kane-cli-findings.md">Read the trial transcripts</a></div>
   </section>
   <section id="install" class="spread install">
-    <div class="rail"><p class="kicker">Install the plugin</p><h2>Judge a <em>submission.</em></h2><p>Use desktop Chrome, Node 20+, a TestMu account and Claude Code.</p></div>
+    <div class="rail"><h2>Judge a submission</h2><p>You need desktop Chrome, Node 20+, a free TestMu AI account, and a coding agent on your own machine. It has run in Claude Code, Codex and OpenCode.</p></div>
     <div class="commands"><h3>Terminal</h3><pre>npm install -g @testmuai/kane-cli
 kane-cli login --oauth</pre><h3>Claude Code</h3><pre>/plugin marketplace add KaranSinghBisht/kane-judge
 /plugin install kane-judge@kane-judge
 /kane-judge:judge &lt;submission-or-repo-url&gt; --live &lt;demo-url&gt;
-/kane-judge:board</pre><p>Run these commands in Claude Code. To apply your event’s criteria, place <code>rubric.md</code> in the judging folder before starting.</p></div>
+/kane-judge:board</pre><h3>Codex, OpenCode or another agent</h3><pre>npm install -g github:KaranSinghBisht/kane-judge
+kane-judge skill codex    # or: opencode, or your agent's skills folder
+Use the kane-judge skill to judge &lt;repo-url&gt; --live &lt;demo-url&gt;</pre><p>The MyPillPal run above took 16 minutes and about 650 Kane credits. To pre-flight your own project: <code>/kane-judge:preflight . --live http://localhost:3000</code></p></div>
   </section>
 </main>
-<footer class="wrap"><b>Kane Judge</b><span>KaneCLI Online Hackathon · Apache-2.0</span><a href="https://github.com/KaranSinghBisht/kane-judge">GitHub ↗</a></footer>
+<footer class="wrap"><b>Kane Judge</b><span>Built for the KaneCLI Online Hackathon. Apache-2.0.</span><a href="https://github.com/KaranSinghBisht/kane-judge">GitHub</a></footer>
+<script>
+(function () {
+  var frame = document.getElementById("replay-frame");
+  var steps = document.querySelectorAll("#replay-steps li");
+  var toggle = document.getElementById("replay-toggle");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var at = still ? steps.length - 1 : 0;
+  var timer = null;
+  function show(i) {
+    at = i;
+    frame.src = "replay/" + String(i + 1).padStart(2, "0") + ".jpg";
+    steps.forEach(function (step, n) { if (n === i) step.setAttribute("aria-current", "step"); else step.removeAttribute("aria-current"); });
+  }
+  function play() { timer = setInterval(function () { show((at + 1) % steps.length); }, 1500); toggle.textContent = "Pause"; toggle.setAttribute("aria-pressed", "false"); }
+  function pause() { clearInterval(timer); timer = null; toggle.textContent = "Play"; toggle.setAttribute("aria-pressed", "true"); }
+  toggle.addEventListener("click", function () { if (timer) pause(); else play(); });
+  show(at);
+  if (still) pause(); else play();
+})();
+</script>
 <script src="playground.js"></script>
 <script>
 (function () {
