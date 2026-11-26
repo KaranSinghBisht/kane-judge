@@ -1,15 +1,32 @@
 # Kane Judge
 
-Kane Judge is a Claude Code plugin for judging other teams’ hackathon projects. Give it a submission page or GitHub repository and your track rubric. The agent picks the core promises, uses Kane CLI to try the live demo in Chrome, investigates surprising results, and returns a scorecard with evidence and questions for the human panel.
+Kane Judge is an agent skill for judging other teams’ hackathon projects. It isn’t tied to one agent: it installs as a Claude Code plugin, and the same skill has run in Codex and in OpenCode. Give it a submission page or GitHub repository and your track rubric. The agent picks the core promises, uses Kane CLI to try the live demo in Chrome, investigates surprising results, and returns a scorecard with evidence and questions for the human panel.
 
 ```text
 /kane-judge:judge <submission-or-repo-url> --live <demo-url>
 /kane-judge:board
 ```
 
-Place your event’s criteria in `rubric.md` in the judging folder. The board compares judged projects by their share of proven claims. Judges make the final call.
+Place your event’s criteria in `rubric.md` in the judging folder. The board ranks judged projects by how many of their tested promises held. Judges make the final call.
 
-**[Explore the recorded sample scorecard](https://kane-judge.vercel.app/sample-scorecard.html)**. Kane proved three of the shop’s five claims and found two broken promises. [Inspect the live example and verdict checker](https://kane-judge.vercel.app/). Builders can also run pre-flight on their own code to repair a defect and verify it with the same test.
+## On a real hackathon entry
+
+On 25 Nov 2026 we pointed it at [MyPillPal](https://github.com/Jaden300/MyPillPal), the [Bio + Tech track winner](https://devpost.com/software/mypillpal) at the CSH Social Impact Ideathon 2026. It isn’t our project and we have never touched its code. The run took 16 minutes and about 650 Kane credits, from a clean Claude Code profile with only this plugin loaded. [Scorecard](https://kane-judge.vercel.app/real-scorecard.html) · [Report](docs/real-report.md)
+
+The README makes nine promises. Five can be tried in a browser. Kane proved four, nothing came out broken, and three were left as questions for the team. Two moments from that run are the reason this tool exists:
+
+- **A red test that was the test’s fault.** The test for “shows which answers contributed to your score” came back red with one answer listed instead of two. Kane’s own triage called it a test problem (`test_data_issue`, 0.94), and its screenshot read “1 factor ticked”: the second tick had never registered. The agent fixed how the test gets there, Kane ran it again, and both answers were listed. The team wasn’t marked down for the tester’s mistake.
+- **An overclaim that Kane’s screenshot exposed.** The README says resistance data is “shown with their source and year”. Kane’s screenshot of the results page shows one label under the chart: “National estimate, not local data”. The agent read the component and found source and year are left out for 12 of 17 regions. Kane’s check had passed, so by our own rule the claim is reported as not proven, with the screenshot, and not as broken.
+
+![Kane's screenshot of the chart label that names no source and no year](docs/real-overruled.jpg)
+
+On the way, `kane-judge report` refused the agent’s own scorecard once, because a rewritten test had gained a check.
+
+We then judged every entry of that ideathon that has both a public repo and a live web app, by a rule written down before the runs: five entries, two of them winners. Neither winner had a broken claim. The one entry with a broken claim and the one with no reachable demo did not win. The board put the winners 1st and 3rd of five, so it is a sanity check and not evidence that the ranking predicts winners.
+
+A separate run the same evening, on the browser game suite [Defenders of the Data](https://github.com/haricharanparna/defenders-of-data), took 17 minutes: seven claims proven, none broken, eight left untested because they need hours of play.
+
+The sample below is ours, with bugs planted on purpose, because a fix loop needs code we are allowed to change. **[Sample scorecard](https://kane-judge.vercel.app/sample-scorecard.html)** · [Live example and verdict checker](https://kane-judge.vercel.app/)
 
 ## See what Kane caught
 
@@ -53,6 +70,17 @@ In Claude Code:
 /plugin marketplace add KaranSinghBisht/kane-judge
 /plugin install kane-judge@kane-judge
 ```
+
+**In Codex, OpenCode or another agent.** The workflow is one skill file and the bundled CLI, so any agent that reads skills and can run shell commands can judge:
+
+```bash
+npm install -g github:KaranSinghBisht/kane-judge
+kane-judge skill codex        # or: opencode, or the path of your agent's skills folder
+```
+
+Then ask the agent: `Use the kane-judge skill to judge <submission-or-repo-url> --live <demo-url>`.
+
+We ran this on Thu Nov 26 in Codex CLI 0.170, and in OpenCode 2.4.2 with Grok 4.7 as the model. Each did a full judge run on the deployed sample shop in 8 to 9 minutes for 200 to 280 credits, and each came back with the two planted problems broken and the hidden note flagged, the same two the Claude Code run found. Two things differ outside Claude Code. Kane has to launch Chrome, and Chrome can't start inside Codex's sandbox, so the Codex run used `codex exec -s danger-full-access`; only do that on a project you trust. OpenCode ran with `--auto`. And the hook that stops an agent editing Kane's record exists only in Claude Code; the checker in `kane-judge report` is the same everywhere.
 
 **Pre-flight the sample** (a small shop with no dependencies, and three problems in it):
 
@@ -125,7 +153,7 @@ Replays take about half a minute and a few credits. [`examples/gate`](examples/g
 
 Give it a submission page, a GitHub repo, a folder inside a repo (`…/tree/main/apps/web`) or a local folder. The live demo is found on the submission page, in the repo's homepage field or in the README; pass `--live` when there is more than one candidate. With `--since` and `--until` the scan counts the commits before, during and after the event.
 
-Each project gets `projects/<slug>/` with the scan, the flows, Kane's results, screenshots, `verdict.json`, `scorecard.html` and `report.md`. `/kane-judge:board` ranks every judged project by the share of its claims Kane proved.
+Each project gets `projects/<slug>/` with the scan, the flows, Kane's results, screenshots, `verdict.json`, `scorecard.html` and `report.md`. `/kane-judge:board` ranks every judged project by proven claims as a share of the claims that were judged (proven, broken or unverifiable). Untested claims are listed and don’t count against a project.
 
 **It doesn't fill in your marks.** The scorecard leads with what Kane proved and what it couldn't verify. The scores are suggestions for a human judge, and each one has to cite the claims it rests on. For your event's own criteria, put them in a `rubric.md` in the folder: [`rubrics/kanecli-hackathon.md`](rubrics/kanecli-hackathon.md) is this hackathon's three bars and four criteria. Otherwise the [default rubric](skills/judging/SKILL.md#default-rubric) applies.
 
@@ -210,15 +238,19 @@ The plugin puts a small bundled CLI on Claude Code's PATH. It also installs by i
 | `kane-judge board [<folder>]` | Ranks every judged project. |
 | `kane-judge source <repo-url> [path...]` | Lists a GitHub repo's files or prints some, read-only, so a verdict can cite the code behind a failure without cloning or running anything. |
 | `kane-judge doctor` | Checks Kane CLI sign-in, Chrome and the GitHub CLI. |
+| `kane-judge skill <codex\|opencode\|folder>` | Copies the judging skill into another agent's skills folder. |
 
 ## Limits
 
-- **Coverage depends on extraction.** Kane may miss a README promise. The checker accounts for the use-cases Kane extracted; it cannot prove the extraction was exhaustive. If extraction is unavailable or skipped, the report explicitly says README coverage was not established.
+- **Coverage depends on extraction.** Kane may miss a README promise. The checker accounts for the use-cases Kane extracted; it cannot prove the extraction was exhaustive. On MyPillPal Kane returned one broad use-case for the whole README, and the nine claims were the agent’s own reading. If extraction is unavailable or skipped, the report explicitly says README coverage was not established.
+- **The board treats unverifiable like broken.** Both count against the share of judged claims proven. In the ideathon comparison an entry whose remaining claims needed file uploads Kane can’t do ranked below an entry with a broken promise.
+- **A contradicted pass ends as unverifiable, not broken.** *Broken* needs a failed Kane run. When Kane passes a check that its screenshot contradicts, as it did three times on MyPillPal, the claim is reported as unverifiable with the screenshot and the code reference written out. A human reading the scorecard sees the problem; the count at the top does not call it broken.
 
 - **The agent writes the tests.** Kane Judge can check that a claim stands on its own flow and that the flow asserted something. It can't check that the flow's checks mean what the claim says. That is why the flow's name, Kane's replay and its Test Manager link sit under every claim: a person can check in seconds.
 - **The hooks keep an agent honest; they are not a lock.** A person with a shell can still edit a JSON file. What a third party can verify is the share copy: its packs, re-judged by Kane's own verdict engine, and Kane's Test Manager links.
 - **The rubric scores are Claude's judgement** and can move a few points between runs. The claim verdicts are the part bound to Kane's evidence.
 - **Web apps on desktop Chrome.** A CLI, a library or a plugin has nothing for Kane to use, so its claims come back *unverifiable*, with the repo facts and questions for the team. That includes Kane Judge itself.
+- **Tested in Claude Code, Codex and OpenCode.** Every real-project run in this README was Claude Code. Codex and OpenCode have one full run each, on our sample. Other agents that read skills should work and are untested.
 - **macOS and Linux.** Windows is untested.
 - **Cost.** A flow's first run is authored by Kane's AI, which takes a minute or two and about 50 credits; replays take seconds and cost almost nothing. A real project with three investigation rounds cost about 640 credits, and a browser game that needed several rewrites about 1,350.
 - Scores are a first-round triage for human judges, not a final decision.

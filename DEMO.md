@@ -82,7 +82,7 @@ mkdir -p ~/kane-judge-demo && cd ~/kane-judge-demo && claude
 
 Same scan, same flows, same investigation, against the deployed shop at https://inkwell-shop.vercel.app. This time nothing is fixed: the scorecard reports the promo code and the order history as broken, flags the hidden comment, and lists three questions for the team. Kane's own verdict on the sealed pack is `FAIL: no-failed-flows`.
 
-- Judge more projects into the same folder, then `/kane-judge:board` ranks them by the share of their claims Kane proved.
+- Judge more projects into the same folder, then `/kane-judge:board` ranks them by how many of their judged claims Kane proved. Untested claims don’t count against a project.
 - For your event's own criteria, copy [`rubrics/kanecli-hackathon.md`](rubrics/kanecli-hackathon.md) (or your own) to `rubric.md` in the folder before you start.
 
 ## Scene 3 · Try to cheat it (no account, no credits)
