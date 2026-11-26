@@ -22,15 +22,15 @@ Everything you need is in this file.
 2. **Never install, build or run a project's code.** Read it; use the deployed demo through Kane. Nothing else executes. (In pre-flight the builder runs their own app and gives you its URL.)
 3. **Do no harm in someone's demo.** No real payments, no emails or messages to real people, no public posts, no deleting data you didn't create. Use obvious test data ("Kane Judge test", `test+kanejudge@example.com`). If a claim can only be checked with a real payment, real account or wallet, it is unverifiable.
 4. **Kane is the evidence.** A claim is *proven* only when a Kane flow for it passed. It is *broken* only when Kane's evidence shows the product failing, not your test. `kane-judge report` enforces both and refuses a verdict that says otherwise.
-   - **Kane's record is not yours to edit.** `kane-results.json`, `scan.json` and the evidence packs are written by `kane-judge scan` and `kane-judge run` from what Kane reported. Read them; never change them (a hook blocks it). What you write is the flows and `verdict.json`.
+   - **Kane's record is not yours to edit.** `kane-results.json`, `scan.json` and the evidence packs are written by `kane-judge scan` and `kane-judge run` from what Kane reported. Read them; never change them (in Claude Code a hook also blocks it). What you write is the flows and `verdict.json`.
 5. **Same process, same rubric, for every project.** Be generous about polish and strict about truth.
 6. **Keep to about 10–15 minutes a project.** Kane's evidence carries the verdict. Read code only where a claim or a failure needs explaining, not the whole repo.
 
 ## The CLI and your tools
 
-Run the CLI as `kane-judge …`, one command per Bash call. Claude Code puts it on the PATH while the plugin is enabled. If the shell can't find it, run `node <plugin root>/dist/kane-judge.mjs …` instead; the plugin root is two folders above this skill's folder.
+Run the CLI as `kane-judge …`, one command per shell call. Claude Code puts it on the PATH while the plugin is enabled; in any other agent (Codex, OpenCode, Cursor and the like) the user adds the Kane Judge repo's `bin/` folder to the PATH. If the shell can't find it, run `node <plugin root>/dist/kane-judge.mjs …` instead; in Claude Code the plugin root is two folders above this skill's folder.
 
-Use the Read tool, not `cat`, for files: the project's `submission.md` and `scan.json`, and Kane's screenshots. Use the Write tool for flows and `verdict.json`. Those tools and the `kane-judge` command are pre-approved; every other shell command, the `node` form included, may stop to ask the user.
+Use the Read tool, not `cat`, for files: the project's `submission.md` and `scan.json`, and Kane's screenshots. Use the Write tool for flows and `verdict.json`. In Claude Code those tools and the `kane-judge` command are pre-approved; every other shell command, the `node` form included, may stop to ask the user. In an agent without those tools, use its own way of reading files, viewing images and writing files, and still look at every screenshot the workflow tells you to open.
 
 To read a judged project's code: for a GitHub repo, `kane-judge source <repo url>` lists its files and `kane-judge source <repo url> <path> [<path>...]` prints up to 8 of them in one call (read-only). For a local folder, use Read and Grep. Write the flows from the submission's own words and what a user would see; read code afterwards, and only to explain a failure or settle a claim.
 

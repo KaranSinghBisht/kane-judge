@@ -1,7 +1,7 @@
 {
   "name": "kane-judge",
   "version": "0.3.1",
-  "description": "Judge hackathon projects by using their live demos, and pre-flight your own: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin.",
+  "description": "Judge hackathon projects by using their live demos, and pre-flight your own: claims become Kane CLI browser tests, and every verdict points at evidence. A Claude Code plugin and an agent skill for Codex, OpenCode and other agents.",
   "type": "module",
   "license": "Apache-2.0",
   "bin": {

@@ -8,6 +8,7 @@ import { boardCommand, reportCommand } from "./commands/report.js";
 import { runFlowsCommand } from "./commands/run.js";
 import { scanCommand } from "./commands/scan.js";
 import { shareCommand } from "./commands/share.js";
+import { skillCommand } from "./commands/skill.js";
 import { sourceCommand } from "./commands/source.js";
 import { withdrawCommand } from "./commands/withdraw.js";
 
@@ -49,6 +50,8 @@ Usage:
       List a GitHub repo's files, or print up to 8 of them (read-only: nothing is cloned or run).
   kane-judge doctor
       Check Kane CLI (installed, signed in), Chrome and the GitHub CLI.
+  kane-judge skill <codex|opencode|skills-folder>
+      Copy the judging skill into another coding agent's skills folder (Claude Code uses the plugin).
 
 Set KANE_JUDGE_HEADED=1 to watch Kane drive a visible Chrome window.
 Exit codes: 0 ok, 1 gate failed (run --gate), 2 setup problem or invalid input.`;
@@ -115,7 +118,9 @@ async function share(rest: string[]): Promise<number> {
 
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
-  if (!command || command === "help" || command === "--help" || command === "-h") {
+  // `kane-judge board --help` used to treat "--help" as the folder to rank. Hooks are exempt: they must stay silent.
+  const wantsHelp = command !== "hook" && (rest.includes("--help") || rest.includes("-h"));
+  if (!command || command === "help" || command === "--help" || command === "-h" || wantsHelp) {
     out(HELP);
     return 0;
   }
@@ -131,6 +136,7 @@ async function main(argv: string[]): Promise<number> {
   if (command === "demo") return demoCommand({ open: !rest.includes("--no-open"), example: rest.find((arg) => !arg.startsWith("--")) });
   if (command === "share") return share(rest);
   if (command === "withdraw") return withdrawCommand(rest[0], rest[1]);
+  if (command === "skill") return skillCommand(rest[0]);
   // A hook must never fail a session: anything but a known hook name is a silent no-op.
   if (command === "hook") return rest[0] === "stop" ? stopHookCommand() : rest[0] === "guard" ? guardHookCommand() : 0;
   if (command === "source") return sourceCommand(rest[0], rest.slice(1));
